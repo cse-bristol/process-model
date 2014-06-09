@@ -32,7 +32,7 @@ var nodeHeight = 50,
 
 var draw = function() {
     var layout = ProcessModel.Layout(rootNode, nodeWidth, nodeHeight);
-	
+    
     var nodeDisplay = g.selectAll("g.process-node")
 	    .data(layout.nodes, function(d, i){
 		return d.name();
@@ -62,30 +62,46 @@ var draw = function() {
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
     };
 
+    var findDragTarget = function() {
+	var target = document.elementFromPoint(d3.event.sourceEvent.x, d3.event.sourceEvent.y);
+	while (target.parentNode) {
+	    var targetSelection = d3.select(target);
+	    if (targetSelection.classed("process-node")) {
+		return targetSelection;
+	    } else {
+		target = target.parentNode;
+	    }
+	}
+	return null;
+    };
+
     var dragNode = d3.behavior.drag()
 	    .on("dragstart", function(d){
+		/* Nothing else should get this click now. */
 		d3.event.sourceEvent.stopPropagation();
 	    })
 	    .on("drag", function(d){
+		/* Highlight things we're dragging over to aid the user. */
+		var target = findDragTarget();
+		if (target === d.previousDragTarget) {
+		    return;
+		} else {
+		    if (d.previousDragTarget) {
+			d.previousDragTarget.classed("drag-target", false);
+		    }
+		    if (target) {
+			target.classed("drag-target", true);
+		    }
+		    d.previousDragTarget = target;
+		}
 	    })
 	    .on("dragend", function(d, i){
+		/* See if we're over an existing different node. 
+		 If so, make an edge to it.
+		 Otherwise, we'll make an edge to a new node. */
 		var oldNode = d,
-		    newNode;
-
-		var target = document.elementFromPoint(d3.event.sourceEvent.x, d3.event.sourceEvent.y);
-		while (target.parentNode) {
-		    var targetSelection = d3.select(target);
-		    if (targetSelection.classed("process-node")) {
-			newNode = targetSelection.datum();
-			break;
-		    }
-		    target = target.parentNode;
-		}
-
-		if (!newNode || newNode === oldNode) {
-		    /* We assume they just clicked on the old node intending to create a new one. */
-		    newNode = nodes.create();
-		}
+		    target = findDragTarget(),
+		    newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
 
 		oldNode.addEdge(ProcessModel.Edge(newNode));
 		draw();
@@ -140,7 +156,7 @@ var draw = function() {
 	});
 
     var edges = g.selectAll("path")
-	.data(layout.edges);
+	    .data(layout.edges);
 
     edges.exit().remove();
     

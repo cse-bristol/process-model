@@ -3,8 +3,20 @@
 }
 
 .process-node rect {
-    fill: none;
     stroke: black;
+    fill: white;
+}
+
+.process-node {
+    opacity: 0.7;
+}
+
+.process-node:hover {
+    opacity: 1.0;
+}
+
+.drag-target {
+    opacity: 1.0;
 }
 
 .process-node text {
