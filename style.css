@@ -1,3 +1,24 @@
 #model {
     height: 95vh;
 }
+
+.process-node rect {
+    fill: none;
+    stroke: black;
+}
+
+.process-node text {
+    font-family: "Courier New", Courier, monospace;
+}
+
+.interval .success {
+    fill: green;
+}
+
+.interval .uncertainty {
+    fill: lightgray;
+}
+
+.interval .failure {
+    fill: red;
+}
