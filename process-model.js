@@ -160,16 +160,16 @@ var draw = function() {
 	    return d.name();
 	});
 
-    var computedInterval = newNodes.append("g")
+    newNodes.append("g")
 	.classed("computed-interval", "true")
 	.attr("transform", "rotate(180, 75, 0)translate(0,-45)");
 
-    var localInterval = newNodes.append("g")
+    newNodes.append("g")
 	.classed("local-interval", "true")
 	.attr("transform", "translate(10,1)rotate(90)scale(0.15,0.5)");
 
-    drawIntervalParts(computedInterval, function(d, i){ return d.p();});
-    drawIntervalParts(localInterval, function(d, i){ return d.localEvidence();});
+    drawIntervalParts(nodeDisplay.select(".computed-interval"), function(d, i){ return d.p();});
+    drawIntervalParts(nodeDisplay.select(".local-interval"), function(d, i){ return d.localEvidence();});
 
     var edges = g.selectAll("path")
 	    .data(layout.edges);

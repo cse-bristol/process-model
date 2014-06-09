@@ -38,11 +38,6 @@ ProcessModel.Nodes = function() {
 		name = startName ? startName : "new " + newNodes++,
 		description = "";
 	    
-	    var combine = function(p, necessity, sufficiency, evidence) {
-		/* TODO */
-		return evidence;
-	    };
-
 	    var node = {
 		localEvidence: function(evidence) {
 		    if (evidence) {
@@ -86,27 +81,22 @@ ProcessModel.Nodes = function() {
 		    return node;
 		},
 		p: function() {
-		    /* Our prior is total uncertainty. */
-		    var evidence = [0.0, 1.0];
-
-		    /* Necessity and sufficiency must add up to 1. To enforce this, we first calculate the normalisation factor. */
-		    var nNorm = localN;
-		    var sNorm = localS;
+		    /* This is not the real interval probability calculation, but a placeholder. */
+		    var nNorm = localN,
+			sNorm = localS,
+			evidence = [localE[0] * localN, localE[1] * localS];
 
 		    edges.forEach(function(edge){
+			var p = edge.node().p();
 			nNorm += edge.necessity();
+			evidence[0] += p[0] * edge.necessity();
 			sNorm += edge.sufficiency();
+			evidence[1] += p[1] * edge.sufficiency();
 		    });
-		    
-		    
-		    /* We add the local evidence. */
-		    evidence = combine(evidence, localN/nNorm, localS/sNorm, localE);
 
-		    /* Then the evidence for each node it depends on. */
-		    edges.forEach(function(edge){
-			evidence = combine(evidence, edge.necessity()/nNorm, edge.sufficiency()/sNorm, edge.node().p());
-		    });
-	    	    
+		    evidence[0] = evidence[0] / nNorm;
+		    evidence[1] = evidence[1] / sNorm;
+
 		    return evidence;
 		},
 		name: function(n) {
