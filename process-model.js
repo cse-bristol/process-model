@@ -6,16 +6,16 @@ var svg = d3.select("svg#model");
 
 var g = svg.append("g");
 
-var rootNode = ProcessModel.Node()
+var nodes = ProcessModel.Nodes();
+
+var rootNode = nodes.create()
 	.name("first")
 	.description("The root node of our model, as a process.")
 	.localEvidence([0.25, 0.75]);
 
-var joinedNode = ProcessModel.Node()
+var joinedNode = nodes.create()
 	.name("joined");
 
-joinedNode.x = 100;
-joinedNode.y = 100;
 rootNode.addEdge(ProcessModel.Edge(joinedNode));
 
 var zoom = d3.behavior.zoom()
@@ -35,12 +35,14 @@ var nodeHeight = 50,
 var draw = function() {
     var layout = ProcessModel.Layout(rootNode, nodeWidth, nodeHeight);
 	
-    var nodes = g.selectAll("g.process-node")
-	    .data(layout.nodes);
+    var nodeDisplay = g.selectAll("g.process-node")
+	    .data(layout.nodes, function(d, i){
+		return d.name();
+	    });
 
-    nodes.exit().remove();
+    nodeDisplay.exit().remove();
 
-    var newNodes = nodes.enter()
+    var newNodes = nodeDisplay.enter()
 	    .append("g")
 	    .classed("process-node", true);
 
@@ -65,7 +67,7 @@ var draw = function() {
 	    })
 	    .on("dragend", function(d, i){
 		var oldNode = d;
-		var newNode = ProcessModel.Node().name("new");
+		var newNode = nodes.create();
 		oldNode.addEdge(ProcessModel.Edge(newNode));
 		draw();
 	    });
@@ -79,11 +81,11 @@ var draw = function() {
 	.attr("draggable", true)
 	.call(dragNode);
 
-    nodes.attr("transform", function(d, i){
-	return "translate(" + d.x + "," + d.y + ")";
+    nodeDisplay.attr("transform", function(d, i){
+	return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
     });
 
-    nodes.selectAll("text")
+    nodeDisplay.selectAll("text")
 	.html(function(d, i){
 	    return d.name();
 	});
@@ -92,7 +94,7 @@ var draw = function() {
 	.classed("interval", "true")
 	.attr("transform", "translate(0,30)");
 
-    var parts = nodes.selectAll(".interval")
+    var parts = nodeDisplay.selectAll(".interval")
 	    .selectAll("rect")
     	    .data(function(d, i){
 		var p = d.p();
@@ -130,8 +132,9 @@ var draw = function() {
 	.append("path")
 	.attr("stroke", "black")
 	.attr("stroke-width", 0.5)
-	.attr("fill", "none")
-	.attr("d", edgeLine);
+	.attr("fill", "none");
+
+    edges.attr("d", edgeLine);
 };
 
 draw();
