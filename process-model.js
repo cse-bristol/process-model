@@ -37,9 +37,9 @@ var drawIntervalParts = function(g, pFun) {
     	    .data(function(d, i){
 		var p = pFun(d, i);
 		return [
-		    {type: "success", width: p[0], x: 0},
+		    {type: "failure", width: p[0], x: 0},
 		    {type: "uncertainty", width: p[1] - p[0], x: p[0]},
-		    {type: "failure", width: 1 - p[1], x: p[1]}
+		    {type: "success", width: 1 - p[1], x: p[1]}
 		];
 	    });
 
@@ -162,7 +162,7 @@ var draw = function() {
 
     var computedInterval = newNodes.append("g")
 	.classed("computed-interval", "true")
-	.attr("transform", "translate(0,30)");
+	.attr("transform", "rotate(180, 75, 0)translate(0,-45)");
 
     var localInterval = newNodes.append("g")
 	.classed("local-interval", "true")
