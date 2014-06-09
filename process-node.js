@@ -7,23 +7,21 @@ if (!ProcessModel) {
 }
 
 ProcessModel.Nodes = function() {
-    var nodes = [],
+    var nodes = d3.map({}),
 	newNodes = 1;
 
     return {
 	all : function() {
-	    return nodes;
+	    return nodes.values();
 	},
-	create : function() {
+	create : function(startName) {
 	    var localN = 1,
 		localS = 1,
 		localE = [0, 1],
 		edges = [],
-		name = "new" + newNodes,
+		name = startName ? startName : "new " + newNodes++,
 		description = "";
 	    
-	    newNodes += 1;
-
 	    var combine = function(p, necessity, sufficiency, evidence) {
 		/* TODO */
 		return evidence;
@@ -89,7 +87,14 @@ ProcessModel.Nodes = function() {
 		},
 		name: function(n) {
 		    if (n) {
+			if (nodes.has(n)) {
+			    throw "Name already taken " + n;
+			}
+
+			nodes.remove(name);
 			name = n;
+			nodes.set(n, node);
+			
 			return node;
 		    }
 		    return name;
@@ -103,7 +108,7 @@ ProcessModel.Nodes = function() {
 		}
 	    };
 
-	    nodes.push(node);
+	    nodes.set(node.name(), node);
 	    return node;
 	}
     };
