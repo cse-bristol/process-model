@@ -59,15 +59,36 @@ var draw = function() {
 	.attr("lengthAdjust", "spacingAndGlyphs")
 	.attr("text-anchor", "middle");
 
+    var closeEnough = function(bbox, x, y) {
+	return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
+	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
+    };
+
     var dragNode = d3.behavior.drag()
-	    .on("dragstart", function(){
+	    .on("dragstart", function(d){
 		d3.event.sourceEvent.stopPropagation();
 	    })
-	    .on("drag", function(){
+	    .on("drag", function(d){
 	    })
 	    .on("dragend", function(d, i){
-		var oldNode = d;
-		var newNode = nodes.create();
+		var oldNode = d,
+		    newNode;
+
+		var target = document.elementFromPoint(d3.event.sourceEvent.x, d3.event.sourceEvent.y);
+		while (target.parentNode) {
+		    var targetSelection = d3.select(target);
+		    if (targetSelection.classed("process-node")) {
+			newNode = targetSelection.datum();
+			break;
+		    }
+		    target = target.parentNode;
+		}
+
+		if (!newNode || newNode === oldNode) {
+		    /* We assume they just clicked on the old node intending to create a new one. */
+		    newNode = nodes.create();
+		}
+
 		oldNode.addEdge(ProcessModel.Edge(newNode));
 		draw();
 	    });
@@ -77,7 +98,7 @@ var draw = function() {
 	.classed("handle", true)
 	.attr("cy", nodeHeight + "px")
 	.attr("cx", nodeCenter[0] + "px")
-	.attr("r", "3px")
+	.attr("r", "5px")
 	.attr("draggable", true)
 	.call(dragNode);
 
@@ -123,9 +144,6 @@ var draw = function() {
     var edges = g.selectAll("path")
 	.data(layout.edges);
 
-    var edgeLine = d3.svg.line()
-	    .interpolate("basis");
-    
     edges.exit().remove();
     
     edges.enter()
@@ -134,7 +152,7 @@ var draw = function() {
 	.attr("stroke-width", 0.5)
 	.attr("fill", "none");
 
-    edges.attr("d", edgeLine);
+    edges.attr("d", d3.svg.line().interpolate("basis"));
 };
 
 draw();

@@ -11,6 +11,9 @@ ProcessModel.Nodes = function() {
 	newNodes = 1;
 
     return {
+	all : function() {
+	    return nodes;
+	},
 	create : function() {
 	    var localN = 1,
 		localS = 1,

@@ -11,10 +11,6 @@
     font-family: "Courier New", Courier, monospace;
 }
 
-.process-node text:hover {
-    background-color: red;
-}
-
 .interval .success {
     fill: green;
 }
