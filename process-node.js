@@ -106,6 +106,9 @@ ProcessModel.Edge = function(node) {
 		return edge;
 	    }
 	    return sufficiency;
+	},
+	node: function() {
+	    return node;
 	}
     };
     return edge;
