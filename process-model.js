@@ -12,7 +12,8 @@ var rootNode = nodes.create("root")
 	.description("The root node of our model, as a process.")
 	.localEvidence([0.25, 0.75]);
 
-var joinedNode = nodes.create("child process");
+var joinedNode = nodes.create("child process")
+.localEvidence([0.1, 0.9]);
 
 rootNode.addEdge(ProcessModel.Edge(joinedNode));
 
@@ -29,6 +30,34 @@ var nodeHeight = 50,
     nodeSidePadding = 10,
     nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
+
+var drawIntervalParts = function(g, pFun) {
+    /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
+    var parts = g.selectAll("rect")
+    	    .data(function(d, i){
+		var p = pFun(d, i);
+		return [
+		    {type: "success", width: p[0], x: 0},
+		    {type: "uncertainty", width: p[1] - p[0], x: p[0]},
+		    {type: "failure", width: 1 - p[1], x: p[1]}
+		];
+	    });
+
+    parts.enter()
+	.append("rect")
+	.attr("height", "15px");
+
+    parts
+	.attr("class", function(d, i){
+	    return d.type;
+	})
+	.attr("x", function(d, i){
+	    return (nodeSidePadding + (nodeInnerWidth * d.x)) + "px";
+	})
+	.attr("width", function(d, i){
+	    return (nodeInnerWidth * d.width) + "px";
+	});
+};
 
 var draw = function() {
     var layout = ProcessModel.Layout(rootNode, nodeWidth, nodeHeight);
@@ -131,35 +160,16 @@ var draw = function() {
 	    return d.name();
 	});
 
-    newNodes.append("g")
-	.classed("interval", "true")
+    var computedInterval = newNodes.append("g")
+	.classed("computed-interval", "true")
 	.attr("transform", "translate(0,30)");
 
-    var parts = nodeDisplay.selectAll(".interval")
-	    .selectAll("rect")
-    	    .data(function(d, i){
-		var p = d.p();
-		return [
-		    {type: "success", width: p[0], x: 0},
-		    {type: "uncertainty", width: p[1] - p[0], x: p[0]},
-		    {type: "failure", width: 1 - p[1], x: p[1]}
-		];
-	    });
+    var localInterval = newNodes.append("g")
+	.classed("local-interval", "true")
+	.attr("transform", "translate(10,1)rotate(90)scale(0.15,0.5)");
 
-    parts.enter()
-	.append("rect")
-	.attr("height", "15px");
-
-    parts
-	.attr("class", function(d, i){
-	    return d.type;
-	})
-	.attr("x", function(d, i){
-	    return (nodeSidePadding + (nodeInnerWidth * d.x)) + "px";
-	})
-	.attr("width", function(d, i){
-	    return (nodeInnerWidth * d.width) + "px";
-	});
+    drawIntervalParts(computedInterval, function(d, i){ return d.p();});
+    drawIntervalParts(localInterval, function(d, i){ return d.localEvidence();});
 
     var edges = g.selectAll("path")
 	    .data(layout.edges);

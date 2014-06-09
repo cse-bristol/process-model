@@ -23,15 +23,15 @@
     font-family: "Courier New", Courier, monospace;
 }
 
-.interval .success {
+rect.success {
     fill: green;
 }
 
-.interval .uncertainty {
+rect.uncertainty {
     fill: lightgray;
 }
 
-.interval .failure {
+rect.failure {
     fill: red;
 }
 

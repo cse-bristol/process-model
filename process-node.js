@@ -33,7 +33,7 @@ ProcessModel.Nodes = function() {
 	create : function(startName) {
 	    var localN = 1,
 		localS = 1,
-		localE = [0, 1],
+		localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 		edges = [],
 		name = startName ? startName : "new " + newNodes++,
 		description = "";
@@ -92,11 +92,13 @@ ProcessModel.Nodes = function() {
 		    /* Necessity and sufficiency must add up to 1. To enforce this, we first calculate the normalisation factor. */
 		    var nNorm = localN;
 		    var sNorm = localS;
+
 		    edges.forEach(function(edge){
 			nNorm += edge.necessity();
 			sNorm += edge.sufficiency();
 		    });
-
+		    
+		    
 		    /* We add the local evidence. */
 		    evidence = combine(evidence, localN/nNorm, localS/sNorm, localE);
 
