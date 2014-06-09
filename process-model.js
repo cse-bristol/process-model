@@ -102,8 +102,14 @@ var draw = function() {
 		var oldNode = d,
 		    target = findDragTarget(),
 		    newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
-
-		oldNode.addEdge(ProcessModel.Edge(newNode));
+		
+		try {
+		    oldNode.addEdge(ProcessModel.Edge(newNode)); 
+		} finally {
+		    if (d.previousDragTarget) {
+			d.previousDragTarget.classed("drag-target", false);
+		    }
+		}
 		draw();
 	    });
 

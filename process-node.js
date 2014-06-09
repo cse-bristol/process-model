@@ -10,6 +10,22 @@ ProcessModel.Nodes = function() {
     var nodes = d3.map({}),
 	newNodes = 1;
 
+    var assertNoCycles = function(node) {
+	var assertNoCyclesAccum = function(node, seen) {
+	    if (seen.indexOf(node.name()) >= 0) {
+		throw "Cycle detected";
+	    }
+
+	    node.edges().forEach(function(e){
+		var copy = seen.slice(0);
+		copy.push(node.name());
+		assertNoCyclesAccum(e.node(), copy);
+	    });
+	};
+	
+	assertNoCyclesAccum(node, []);
+    };
+
     return {
 	all : function() {
 	    return nodes.values();
@@ -61,6 +77,12 @@ ProcessModel.Nodes = function() {
 		    }
 
 		    edges.push(edge);
+		    try {
+			assertNoCycles(edge.node());
+		    } catch (err) {
+			edges.splice(edges.indexOf(edge), 1);
+			throw err;
+		    }
 		    return node;
 		},
 		p: function() {
