@@ -1,3 +1,6 @@
 [submodule "lib/d3"]
 	path = lib/d3
 	url = git@github.com:mbostock/d3.git
+[submodule "lib/dagre"]
+	path = lib/dagre
+	url = git@github.com:cpettitt/dagre.git

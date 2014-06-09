@@ -7,7 +7,7 @@ var svg = d3.select("svg#model");
 var g = svg.append("g");
 
 var rootNode = ProcessModel.Node()
-	.name("root")
+	.name("first")
 	.description("The root node of our model, as a process.")
 	.localEvidence([0.25, 0.75]);
 
@@ -26,10 +26,16 @@ var zoom = d3.behavior.zoom()
 
 zoom(svg);
 
+var nodeHeight = 50,
+    nodeWidth = 150,
+    nodeSidePadding = 10,
+    nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
+    nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
+
 var draw = function() {
-    var layout = ProcessModel.Layout(rootNode);
+    var layout = ProcessModel.Layout(rootNode, nodeWidth, nodeHeight);
 	
-    var nodes = g.selectAll("g")
+    var nodes = g.selectAll("g.process-node")
 	    .data(layout.nodes);
 
     nodes.exit().remove();
@@ -37,10 +43,6 @@ var draw = function() {
     var newNodes = nodes.enter()
 	    .append("g")
 	    .classed("process-node", true);
-
-    var nodeHeight = 50,
-	nodeWidth = 150,
-	nodeSidePadding = 10;
 
     newNodes
 	.append("rect")
@@ -50,8 +52,8 @@ var draw = function() {
     newNodes
 	.append("text")
 	.attr("y", "20px")
-	.attr("x", (nodeWidth / 2) + "px")
-	.attr("textLength", (nodeWidth - (2 * nodeSidePadding)) + "px")
+	.attr("x", nodeCenter[0] + "px")
+	.attr("textLength", nodeInnerWidth + "px")
 	.attr("lengthAdjust", "spacingAndGlyphs")
 	.attr("text-anchor", "middle");
 
@@ -65,15 +67,14 @@ var draw = function() {
 		var oldNode = d;
 		var newNode = ProcessModel.Node().name("new");
 		oldNode.addEdge(ProcessModel.Edge(newNode));
-		nodeData.push(newNode);
 		draw();
 	    });
 
     newNodes
 	.append("circle")
 	.classed("handle", true)
-	.attr("cy", "50px")
-	.attr("cx", "75px")
+	.attr("cy", nodeHeight + "px")
+	.attr("cx", nodeCenter[0] + "px")
 	.attr("r", "3px")
 	.attr("draggable", true)
 	.call(dragNode);
@@ -111,12 +112,26 @@ var draw = function() {
 	    return d.type;
 	})
 	.attr("x", function(d, i){
-	    return (15 + (120 * d.x)) + "px";
+	    return (nodeSidePadding + (nodeInnerWidth * d.x)) + "px";
 	})
 	.attr("width", function(d, i){
-	    return (120 * d.width) + "px";
+	    return (nodeInnerWidth * d.width) + "px";
 	});
 
+    var edges = g.selectAll("path")
+	.data(layout.edges);
+
+    var edgeLine = d3.svg.line()
+	    .interpolate("basis");
+    
+    edges.exit().remove();
+    
+    edges.enter()
+	.append("path")
+	.attr("stroke", "black")
+	.attr("stroke-width", 0.5)
+	.attr("fill", "none")
+	.attr("d", edgeLine);
 };
 
 draw();
