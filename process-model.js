@@ -8,11 +8,11 @@ var g = svg.append("g");
 
 var nodes = ProcessModel.Nodes();
 
-var rootNode = nodes.create("root")
+var rootNode = nodes.create("Model")
 	.description("The root node of our model, as a process.")
 	.localEvidence([0.25, 0.75]);
 
-var joinedNode = nodes.create("child process")
+var joinedNode = nodes.create("Child process")
 	.localEvidence([0.1, 0.9]);
 
 rootNode.addEdge(joinedNode);
@@ -383,11 +383,19 @@ var draw = function() {
 
 var updateDownloadLink = function(){
     d3.select("#download")
+    .attr("download", function(d, i){
+	return rootNode.name() + ".json";
+    })
 	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(ProcessModel.Data.serialize(rootNode));
+	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes).serialize(rootNode));
 	});
 };
 
+ProcessModel.Files.drop(svg, function(fileName, content){
+    nodes = ProcessModel.Nodes();
+    rootNode = ProcessModel.Data(nodes).deserialize(content);
+    update();
+});
 
 var update = function() {
     draw();

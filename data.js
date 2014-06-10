@@ -6,7 +6,7 @@ if (!ProcessModel) {
     var ProcessModel = {};
 }
 
-ProcessModel.Data = function() {
+ProcessModel.Data = function(nodes) {
     var serializeEdge = function(edge) {
 	return {
 	    necessity: edge.necessity(),
@@ -27,17 +27,21 @@ ProcessModel.Data = function() {
     };
 
     var deserializeNode = function(node) {
-	var deserialized = ProcessModel.Nodes.get(node.name);
+	var deserialized = nodes.get(node.name);
 
-	deserialized = ProcessModel.Nodes.create(node.name)
-	    .localEvidennce(node.evidence)
+	if (deserialized) {
+	    return deserialized;
+	}
+
+	deserialized = nodes.create(node.name)
+	    .localEvidence(node.evidence)
 	    .necessity(node.necessity)
 	    .sufficiency(node.sufficiency);
 
 	node.edges.forEach(function(e){
-	    node.addEdge(
-		deserializeNode(e.to));
-	    node.edgeTo(e.to)
+	    var target = deserializeNode(e.to);
+	    deserialized.addEdge(target);
+	    deserialized.edgeTo(target)
 		.necessity(e.necessity)
 		.sufficiency(e.sufficiency);
 	});
@@ -54,4 +58,4 @@ ProcessModel.Data = function() {
 	}
     };
     return module;
-}();
+};
