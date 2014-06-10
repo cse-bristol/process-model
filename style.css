@@ -63,14 +63,14 @@ rect.failure {
     fill: darkred;
 }
 
-g.weightings-extra-transform {
+g.weight-half {
    transform: scale(1);
     -webkit-transform: scale(1);
     -ms-transform: scale(1);
     -o-transform: scale(1);
 }
 
-g.weightings-extra-transform:hover {
+g.weight-half:hover {
     transform: scale(2);
     -webkit-transform: scale(2);
     -ms-transform: scale(2);

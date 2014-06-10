@@ -77,16 +77,16 @@ ProcessModel.Nodes = function() {
 		    }
 		    return localE;
 		},
-		localNecessity: function(necessity) {
+		necessity: function(necessity) {
 		    if (necessity) {
-			localN = necessity;
+			localN = Math.max(0, Math.min(1, necessity));
 			return node;
 		    }
 		    return localN;
 		},
-		localSufficiency: function(sufficiency) {
+		sufficiency: function(sufficiency) {
 		    if (sufficiency) {
-			localS = sufficiency;
+			localS = Math.max(0, Math.min(1, sufficiency));
 			return node;
 		    }
 		    return localS;

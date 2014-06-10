@@ -117,7 +117,7 @@ var drawEndsForEdges = function(edgeGroups) {
 	});
 };
 
-var markNecessitySufficiencyForEdges = function(edgeGroups) {
+var drawNecessitySufficiency = function(groups, position) {
     var circleR = 3,
 	arc = d3.svg.arc()
 	    .outerRadius(circleR),
@@ -126,30 +126,28 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	    .value(function(d, i){
 		return d.value;
 	    }),
-	weightings = edgeGroups.selectAll("g.weightings")
+	weights = groups.selectAll("g.weights")
 	    .data(function(d, i){
 		return [d];
 	    });
 
-    weightings.exit().remove();
-    weightings.enter().append("g")
-	.classed("weightings", true)
+    weights.exit().remove();
+    weights.enter().append("g")
+	.classed("weights", true)
 	.attr("width", circleR * 2)
 	.attr("height", circleR * 2);
 
-    weightings
-	.attr("transform", function(d, i){
-	    return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
-	});
+   weights
+	.attr("transform", position);
 
-    var weightingsExtraTransform = weightings.selectAll("g.weightings-extra-transform")
-    .data(function(d, i){
-	var pieData = pie([
-	    {type: "necessity", color: "red", edge: d, value: d.necessity()},
-	    {type: "anti-necessity", color: "lightgray", edge: d, value: 1 - d.necessity()},
-	    {type: "anti-sufficiency", color: "lightgray", edge: d, value: 1 - d.sufficiency()},
-	    {type: "sufficiency", color: "green", edge: d, value: d.sufficiency()}
-	]);
+    var weightHalfs = weights.selectAll("g.weight-half")
+	    .data(function(d, i){
+		var pieData = pie([
+		    {type: "necessity", color: "red", target: d, value: d.necessity()},
+		    {type: "anti-necessity", color: "lightgray", target: d, value: 1 - d.necessity()},
+		    {type: "anti-sufficiency", color: "lightgray", target: d, value: 1 - d.sufficiency()},
+		    {type: "sufficiency", color: "green", target: d, value: d.sufficiency()}
+		]);
 
 	return [
 	    [pieData[0], pieData[1]],
@@ -157,20 +155,19 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	];
     });
 
-    weightingsExtraTransform.exit().remove();
-    weightingsExtraTransform.enter()
+    weightHalfs.exit().remove();
+    weightHalfs.enter()
 	.append("g")
-	.classed("weightings-extra-transform", true);
+	.classed("weight-half", true);
 
-    var weightingsPath = weightingsExtraTransform.selectAll("path.weightings")
+    var weightingsPath = weightHalfs.selectAll("path")
 	    .data(function(d, i){
 		return d;
 	    });
-    
+
     weightingsPath.exit().remove();
     weightingsPath.enter()
 	.append("path")
-	.classed("weightings", true)
 	.attr("fill", function(d, i){
 	    return d.data.color;
 	})
@@ -179,17 +176,17 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	    d3.event.preventDefault();
 
 	    var change = d3.event.wheelDelta * 0.0003,
-		edge = d.data.edge;
+		toChange = d.data.target;
 
 	    switch(d.data.type) {
 	    case "necessity":
 	    case "anti-necessity":
-		edge.necessity(edge.necessity() + change);
+		toChange.necessity(toChange.necessity() + change);
 		break;
 
 	    case "sufficiency":
 	    case "anti-sufficiency":
-		edge.sufficiency(edge.sufficiency() + change);
+		toChange.sufficiency(toChange.sufficiency() + change);
 		break;
 	    }
 
@@ -198,6 +195,22 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 
     weightingsPath
 	.attr("d", arc);
+};
+
+var drawNecessitySufficiencyForNodes = function(nodeGroups) {
+    drawNecessitySufficiency(
+	nodeGroups,
+	function(d, i) {
+	    return "translate(18, 13)";
+	});
+};
+
+var markNecessitySufficiencyForEdges = function(edgeGroups) {
+    drawNecessitySufficiency(
+	edgeGroups, 
+	function(d, i){
+	    return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
+	});
 };
 
 var draw = function() {
@@ -221,9 +234,9 @@ var draw = function() {
 
     ProcessModel.svgEditableText(
 	newNodes,
-	0,
+	10,
 	5, 
-	nodeWidth,
+	nodeWidth - 10,
 	21, 
 	"node-name",
 	function(d, i){
@@ -349,6 +362,8 @@ var draw = function() {
 		draw();
 	    });
 	});
+    
+    drawNecessitySufficiencyForNodes(nodeDisplay);
 
     var edges = g.selectAll("g.edge")
 	    .data(layout.edges);
