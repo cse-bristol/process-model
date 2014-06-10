@@ -221,7 +221,9 @@ var draw = function() {
 		return d.name();
 	    });
 
-    nodeDisplay.exit().remove();
+    nodeDisplay.exit().transition()
+	.style("opacity", 0.0001)
+	.remove();
 
     var newNodes = nodeDisplay.enter()
 	    .append("g")
@@ -313,7 +315,7 @@ var draw = function() {
 	.attr("draggable", true)
 	.call(dragNode);
 
-    nodeDisplay.attr("transform", function(d, i){
+    nodeDisplay.transition().attr("transform", function(d, i){
 	return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
     });
 
