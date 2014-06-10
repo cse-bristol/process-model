@@ -19,8 +19,16 @@
     opacity: 1.0;
 }
 
-.process-node text {
+input.node-name {
     font-family: "Courier New", Courier, monospace;
+    width: 120px;
+    margin-left: 15px;
+    display: block;
+    height: 10px;
+}
+
+input.name-error {
+    color: red;
 }
 
 rect.success {

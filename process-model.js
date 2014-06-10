@@ -78,14 +78,14 @@ var draw = function() {
 	.attr("width", nodeWidth + "px")
 	.attr("height", nodeHeight + "px");
 
-    newNodes
-	.append("text")
-	.attr("y", "20px")
-	.attr("x", nodeCenter[0] + "px")
-	.attr("textLength", nodeInnerWidth + "px")
-	.attr("lengthAdjust", "spacingAndGlyphs")
-	.attr("text-anchor", "middle");
-
+    ProcessModel.svgEditableText(
+	newNodes,
+	0,
+	5, 
+	nodeWidth,
+	21, 
+	"node-name");
+	
     var closeEnough = function(bbox, x, y) {
 	return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
@@ -155,8 +155,8 @@ var draw = function() {
 	return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
     });
 
-    nodeDisplay.selectAll("text")
-	.html(function(d, i){
+    nodeDisplay.selectAll(".node-name")
+	.attr("value", function(d, i){
 	    return d.name();
 	});
 
