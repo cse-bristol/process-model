@@ -26,7 +26,22 @@ ProcessModel.Nodes = function() {
 	assertNoCyclesAccum(node, []);
     };
 
-    return {
+    var removeUnreachable = function(root) {
+	var findUnreachableAccum = function(node, unreached) {
+	    unreached.remove(node.name());
+	    node.edges().forEach(function(e){
+		findUnreachableAccum(e.node(), unreached);
+	    });
+	};
+
+	var unreached = d3.set(nodes.keys());
+	findUnreachableAccum(root, unreached);
+	unreached.forEach(function(n){
+	    nodes.remove(n);
+	});
+    };
+
+    var module = {
 	all : function() {
 	    return nodes.values();
 	},
@@ -63,10 +78,13 @@ ProcessModel.Nodes = function() {
 		edges: function() {
 		    return edges;
 		},
-		addEdge: function(edge) {
+		addEdge: function(to) {
+		    var edge = ProcessModel.Edge(node, to);
+
 		    var joinedNodes = edges.map(function(e){
 			return e.node();
 		    });
+
 		    if (joinedNodes.indexOf(edge.node()) >= 0) {
 			return node; // This connection already exists.
 		    }
@@ -79,6 +97,25 @@ ProcessModel.Nodes = function() {
 			throw err;
 		    }
 		    return node;
+		},
+		removeEdge : function(edge, rootNode) {
+		    edges.splice(edges.indexOf(edge), 1);
+		    removeUnreachable(rootNode);
+		},
+		edgeTo : function(node) {
+		    var edgeTo;
+
+		    edges.forEach(function(e){
+			if (e.node() === node) {
+			    edgeTo = e;
+			}
+		    });
+
+		    if(!edgeTo) {
+			throw "Could not find an edge leading to node " + node;
+		    }
+
+		    return edgeTo;
 		},
 		p: function() {
 		    /* This is not the real interval probability calculation, but a placeholder. */
@@ -126,9 +163,10 @@ ProcessModel.Nodes = function() {
 	    return node;
 	}
     };
+    return module;
 };
 
-ProcessModel.Edge = function(node) {
+ProcessModel.Edge = function(from, to) {
     var necessity = 1,
 	sufficiency = 1;
 
@@ -148,7 +186,11 @@ ProcessModel.Edge = function(node) {
 	    return sufficiency;
 	},
 	node: function() {
-	    return node;
+	    return to;
+	},
+	/* Removes the edge. Tests if any nodes are now unreachable from the root node, and removes them too. */
+	disconnect: function(rootNode) {
+	    from.removeEdge(edge, rootNode);
 	}
     };
     return edge;

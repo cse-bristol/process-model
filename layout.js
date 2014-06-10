@@ -41,21 +41,21 @@ ProcessModel.Layout = function(root, nodeWidth, nodeHeight) {
 	node.y = val.y;
     });
 
-    var edgeLayout = [], 
-	shiftRight = 0;
-    //var shiftRight = nodeWidth / 2; /* We want our lines to go from the centre of the node.  */
+    var edgeLayout = [];
     layout.eachEdge(function(e, u, v, value){
-	var edge = [],
-	    from = nodes.get(u),
-	    to = nodes.get(v);
+	var from = nodes.get(u),
+	    to = nodes.get(v),
+	    edge = from.edgeTo(to);
 
-	edge.push([from.x + shiftRight, from.y + nodeHeight]);
+	edge.path = [];
+
+	edge.path.push([from.x, from.y + nodeHeight]);
 
 	value.points.forEach(function(p){
-	    edge.push([p.x + shiftRight, p.y + (nodeHeight / 2)]);
+	    edge.path.push([p.x, p.y + (nodeHeight / 2)]);
 	});
 
-	edge.push([to.x + shiftRight, to.y]);
+	edge.path.push([to.x, to.y]);
 
 	edgeLayout.push(edge);
     });

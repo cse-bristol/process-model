@@ -44,3 +44,13 @@ rect.failure {
     fill: black;
     cursor: move;
 }
+
+.edge circle {
+    fill: green;
+    stroke: black;
+}
+
+.edge circle:hover {
+    cursor: pointer;
+    fill: darkred;
+}

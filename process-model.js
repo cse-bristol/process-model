@@ -15,7 +15,7 @@ var rootNode = nodes.create("root")
 var joinedNode = nodes.create("child process")
 .localEvidence([0.1, 0.9]);
 
-rootNode.addEdge(ProcessModel.Edge(joinedNode));
+rootNode.addEdge(joinedNode);
 
 var zoom = d3.behavior.zoom()
 	.scaleExtent([0.1, 10])
@@ -133,7 +133,7 @@ var draw = function() {
 		    newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
 		
 		try {
-		    oldNode.addEdge(ProcessModel.Edge(newNode)); 
+		    oldNode.addEdge(newNode); 
 		} finally {
 		    if (d.previousDragTarget) {
 			d.previousDragTarget.classed("drag-target", false);
@@ -171,18 +171,52 @@ var draw = function() {
     drawIntervalParts(nodeDisplay.select(".computed-interval"), function(d, i){ return d.p();});
     drawIntervalParts(nodeDisplay.select(".local-interval"), function(d, i){ return d.localEvidence();});
 
-    var edges = g.selectAll("path")
+    var edges = g.selectAll("g.edge")
 	    .data(layout.edges);
 
     edges.exit().remove();
-    
+
     edges.enter()
+	.append("g")
+	.classed("edge", true);
+
+    var edgePaths = edges.selectAll("path")
+	.data(function(d, i){
+	    return [d.path];
+	});
+
+    edgePaths.exit().remove();
+
+    edgePaths.enter()
 	.append("path")
 	.attr("stroke", "black")
 	.attr("stroke-width", 0.5)
 	.attr("fill", "none");
 
-    edges.attr("d", d3.svg.line().interpolate("basis"));
+    edgePaths.attr("d", d3.svg.line().interpolate("basis"));
+
+    var edgeEnds = edges.selectAll("circle")
+	.data(function(d, i){
+	    return [d];
+	});
+
+    edgeEnds.exit().remove();
+
+    edgeEnds.enter()
+	.append("circle")
+    .attr("r", "2px");
+
+    edgeEnds     
+	.attr("cx", function(d, i){
+	    return d.path[d.path.length - 1][0];
+	})
+	.attr("cy", function(d, i){
+	    return d.path[d.path.length - 1][1];
+	})
+	.on("click", function(d, i){
+	    d.disconnect(rootNode);
+	    draw();
+	});
 };
 
 draw();
