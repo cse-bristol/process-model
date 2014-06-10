@@ -56,6 +56,22 @@ ProcessModel.Nodes = function() {
 	    var node = {
 		localEvidence: function(evidence) {
 		    if (evidence) {
+			if (evidence[0] < 0) {
+			    evidence[0] = 0;
+			} else if (evidence[0] > 1) {
+			    evidence[0] = 1;
+			}
+			if (evidence[1] < 0) {
+			    evidence[1] = 0;
+			} else if (evidence[1] > 1) {
+			    evidence[1] = 1;
+			}
+			if (evidence[0] > evidence[1]) {
+			    var mid = (evidence[0] + evidence[1]) / 2;
+			    evidence[0] = mid;
+			    evidence[1] = mid;
+			}
+
 			localE = evidence;
 			return node;
 		    }

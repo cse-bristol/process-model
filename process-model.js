@@ -31,15 +31,15 @@ var nodeHeight = 50,
     nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
 
-var drawIntervalParts = function(g, pFun) {
+var drawIntervalParts = function(g, pFun, partCall) {
     /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
     var parts = g.selectAll("rect")
     	    .data(function(d, i){
 		var p = pFun(d, i);
 		return [
-		    {type: "failure", width: p[0], x: 0},
-		    {type: "uncertainty", width: p[1] - p[0], x: p[0]},
-		    {type: "success", width: 1 - p[1], x: p[1]}
+		    {node: d, type: "failure", width: p[0], x: 0},
+		    {node: d, type: "uncertainty", width: p[1] - p[0], x: p[0]},
+		    {node: d, type: "success", width: 1 - p[1], x: p[1]}
 		];
 	    });
 
@@ -57,6 +57,10 @@ var drawIntervalParts = function(g, pFun) {
 	.attr("width", function(d, i){
 	    return (nodeInnerWidth * d.width) + "px";
 	});
+
+    if (partCall) {
+	parts.call(partCall);
+    }
 };
 
 var draw = function() {
@@ -169,7 +173,37 @@ var draw = function() {
 	.attr("transform", "translate(10,1)rotate(90)scale(0.15,0.5)");
 
     drawIntervalParts(nodeDisplay.select(".computed-interval"), function(d, i){ return d.p();});
-    drawIntervalParts(nodeDisplay.select(".local-interval"), function(d, i){ return d.localEvidence();});
+    drawIntervalParts(
+	nodeDisplay.select(".local-interval"), 
+	function(d, i){ 
+	    return d.localEvidence();
+	},
+	function(selection){
+	    selection.on("wheel.zoom", function(d, i){
+		d3.event.stopPropagation();
+		d3.event.preventDefault();
+
+		var change = d3.event.wheelDelta * 0.001,
+		    newEvidence = d.node.localEvidence();
+
+		switch(d.type) {
+		    case "failure":
+		    newEvidence[0] += change;
+		    break;
+
+		    case "uncertainty":
+		    newEvidence[0] -= change / 2;
+		    newEvidence[1] += change / 2;
+		    break;
+
+		    case "success":
+		    newEvidence[1] -= change;
+		}
+
+		d.node.localEvidence(newEvidence);
+		draw();
+	    });
+	});
 
     var edges = g.selectAll("g.edge")
 	    .data(layout.edges);
