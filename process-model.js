@@ -65,9 +65,9 @@ var drawIntervalParts = function(g, pFun, partCall) {
 
 var drawPathsForEdges = function(edgeGroups) {
     var colourScale = d3.scale.linear()
-		.domain([-1, 1])
-		.range(["darkred", "darkgreen"])
-		.interpolate(d3.interpolateLab);
+	    .domain([-1, 1])
+	    .range(["darkred", "darkgreen"])
+	    .interpolate(d3.interpolateLab);
 
 
     var edgePaths = edgeGroups.selectAll("path")
@@ -126,7 +126,6 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	    .value(function(d, i){
 		return d.value;
 	    }),
-	colours = ["red", "lightgray", "lightgray", "green"],
 	weightings = edgeGroups.selectAll("g.weightings")
 	    .data(function(d, i){
 		return [d];
@@ -143,17 +142,29 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	    return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
 	});
 
-    var weightingsExtraTransform = weightings.append("g")
-	    .classed("weightings-extra-transform", true);
+    var weightingsExtraTransform = weightings.selectAll("g.weightings-extra-transform")
+    .data(function(d, i){
+	var pieData = pie([
+	    {type: "necessity", color: "red", edge: d, value: d.necessity()},
+	    {type: "anti-necessity", color: "lightgray", edge: d, value: 1 - d.necessity()},
+	    {type: "anti-sufficiency", color: "lightgray", edge: d, value: 1 - d.sufficiency()},
+	    {type: "sufficiency", color: "green", edge: d, value: d.sufficiency()},
+	]);
+
+	return [
+	    [pieData[0], pieData[1]],
+	    [pieData[2], pieData[3]]
+	];
+    });
+
+    weightingsExtraTransform.exit().remove();
+    weightingsExtraTransform.enter()
+	.append("g")
+	.classed("weightings-extra-transform", true);
 
     var weightingsPath = weightingsExtraTransform.selectAll("path.weightings")
 	    .data(function(d, i){
-		return pie([
-		    {type: "necessity", edge: d, value: d.necessity()},
-		    {type: "anti-necessity", edge: d, value: 1 - d.necessity()},
-		    {type: "sufficiency", edge: d, value: d.sufficiency()},
-		    {type: "anti-sufficiency", edge: d, value: 1 - d.sufficiency()}
-		]);
+		return d;
 	    });
     
     weightingsPath.exit().remove();
@@ -161,7 +172,28 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	.append("path")
 	.classed("weightings", true)
 	.attr("fill", function(d, i){
-	    return colours[i];
+	    return d.data.color;
+	})
+	.on("wheel.zoom", function(d, i){
+	    d3.event.stopPropagation();
+	    d3.event.preventDefault();
+
+	    var change = d3.event.wheelDelta * 0.0003,
+		edge = d.data.edge;
+
+	    switch(d.data.type) {
+	    case "necessity":
+	    case "anti-necessity":
+		edge.necessity(edge.necessity() + change);
+		break;
+
+	    case "sufficiency":
+	    case "anti-sufficiency":
+		edge.sufficiency(edge.sufficiency() + change);
+		break;
+	    }
+
+	    draw();
 	});
 
     weightingsPath

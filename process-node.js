@@ -189,14 +189,14 @@ ProcessModel.Edge = function(from, to) {
     var edge = {
 	necessity : function(n) {
 	    if (n) {
-		necessity = n;
+		necessity = Math.min(1, Math.max(n, 0));
 		return edge;
 	    }
 	    return necessity;
 	},
 	sufficiency : function(s) {
 	    if (s) {
-		sufficiency = s;
+		sufficiency = Math.min(1, Math.max(s, 0));
 		return edge;
 	    }
 	    return sufficiency;
