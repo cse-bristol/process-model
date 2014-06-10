@@ -46,8 +46,8 @@ ProcessModel.Nodes = function() {
 	    return nodes.values();
 	},
 	create : function(startName) {
-	    var localN = 1,
-		localS = 1,
+	    var localN = 0.5,
+		localS = 0.5,
 		localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 		edges = [],
 		name = startName ? startName : "new " + newNodes++,
@@ -183,8 +183,8 @@ ProcessModel.Nodes = function() {
 };
 
 ProcessModel.Edge = function(from, to) {
-    var necessity = 1,
-	sufficiency = 1;
+    var necessity = 0.5,
+	sufficiency = 0.5;
 
     var edge = {
 	necessity : function(n) {

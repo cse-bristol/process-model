@@ -13,7 +13,7 @@ var rootNode = nodes.create("root")
 	.localEvidence([0.25, 0.75]);
 
 var joinedNode = nodes.create("child process")
-.localEvidence([0.1, 0.9]);
+	.localEvidence([0.1, 0.9]);
 
 rootNode.addEdge(joinedNode);
 
@@ -63,6 +63,111 @@ var drawIntervalParts = function(g, pFun, partCall) {
     }
 };
 
+var drawPathsForEdges = function(edgeGroups) {
+    var colourScale = d3.scale.linear()
+		.domain([-1, 1])
+		.range(["darkred", "darkgreen"])
+		.interpolate(d3.interpolateLab);
+
+
+    var edgePaths = edgeGroups.selectAll("path")
+	    .data(function(d, i){
+		return [d];
+	    });
+
+    edgePaths.exit().remove();
+
+    edgePaths.enter()
+	.append("path")
+	.attr("stroke", function(d, i){
+	    return colourScale(d.sufficiency() - d.necessity());
+	})
+	.attr("stroke-width", function(d, i){
+	    return d.necessity() + d.sufficiency();
+	})
+	.attr("fill", "none");
+
+    edgePaths.attr("d", function(d, i){
+	return d3.svg.line().interpolate("basis")(d.path, i);
+    });
+};
+
+var drawEndsForEdges = function(edgeGroups) {
+    var edgeEnds = edgeGroups.selectAll("circle")
+	    .data(function(d, i){
+		return [d];
+	    });
+
+    edgeEnds.exit().remove();
+
+    edgeEnds.enter()
+	.append("circle")
+	.attr("r", "2px");
+
+    edgeEnds     
+	.attr("cx", function(d, i){
+	    return d.path[d.path.length - 1][0];
+	})
+	.attr("cy", function(d, i){
+	    return d.path[d.path.length - 1][1];
+	})
+	.on("click", function(d, i){
+	    d.disconnect(rootNode);
+	    draw();
+	});
+};
+
+var markNecessitySufficiencyForEdges = function(edgeGroups) {
+    var circleR = 3,
+	arc = d3.svg.arc()
+	    .outerRadius(circleR),
+	pie = d3.layout.pie()
+	    .sort(null)
+	    .value(function(d, i){
+		return d.value;
+	    }),
+	colours = ["red", "lightgray", "lightgray", "green"],
+	weightings = edgeGroups.selectAll("g.weightings")
+	    .data(function(d, i){
+		return [d];
+	    });
+
+    weightings.exit().remove();
+    weightings.enter().append("g")
+	.classed("weightings", true)
+	.attr("width", circleR * 2)
+	.attr("height", circleR * 2);
+
+    weightings
+	.attr("transform", function(d, i){
+	    return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
+	});
+
+    var weightingsExtraTransform = weightings.append("g")
+	    .classed("weightings-extra-transform", true);
+
+    var weightingsPath = weightingsExtraTransform.selectAll("path.weightings")
+	    .data(function(d, i){
+		return pie([
+		    {type: "necessity", edge: d, value: d.necessity()},
+		    {type: "anti-necessity", edge: d, value: 1 - d.necessity()},
+		    {type: "sufficiency", edge: d, value: d.sufficiency()},
+		    {type: "anti-sufficiency", edge: d, value: 1 - d.sufficiency()}
+		]);
+	    });
+    
+    weightingsPath.exit().remove();
+    weightingsPath.enter()
+	.append("path")
+	.classed("weightings", true)
+	.attr("fill", function(d, i){
+	    return colours[i];
+	});
+
+    weightingsPath
+	.attr("d", arc);
+};
+
 var draw = function() {
     var layout = ProcessModel.Layout(rootNode, nodeWidth, nodeHeight);
     
@@ -88,8 +193,16 @@ var draw = function() {
 	5, 
 	nodeWidth,
 	21, 
-	"node-name");
-	
+	"node-name",
+	function(d, i){
+	    try {
+		d.name(this.value);
+		d3.select(this).classed("name-error", false);
+	    } catch (err) {
+		d3.select(this).classed("name-error", true);
+	    }
+	});
+    
     var closeEnough = function(bbox, x, y) {
 	return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
@@ -187,16 +300,16 @@ var draw = function() {
 		    newEvidence = d.node.localEvidence();
 
 		switch(d.type) {
-		    case "failure":
+		case "failure":
 		    newEvidence[0] += change;
 		    break;
 
-		    case "uncertainty":
+		case "uncertainty":
 		    newEvidence[0] -= change / 2;
 		    newEvidence[1] += change / 2;
 		    break;
 
-		    case "success":
+		case "success":
 		    newEvidence[1] -= change;
 		}
 
@@ -214,43 +327,9 @@ var draw = function() {
 	.append("g")
 	.classed("edge", true);
 
-    var edgePaths = edges.selectAll("path")
-	.data(function(d, i){
-	    return [d.path];
-	});
-
-    edgePaths.exit().remove();
-
-    edgePaths.enter()
-	.append("path")
-	.attr("stroke", "black")
-	.attr("stroke-width", 0.5)
-	.attr("fill", "none");
-
-    edgePaths.attr("d", d3.svg.line().interpolate("basis"));
-
-    var edgeEnds = edges.selectAll("circle")
-	.data(function(d, i){
-	    return [d];
-	});
-
-    edgeEnds.exit().remove();
-
-    edgeEnds.enter()
-	.append("circle")
-    .attr("r", "2px");
-
-    edgeEnds     
-	.attr("cx", function(d, i){
-	    return d.path[d.path.length - 1][0];
-	})
-	.attr("cy", function(d, i){
-	    return d.path[d.path.length - 1][1];
-	})
-	.on("click", function(d, i){
-	    d.disconnect(rootNode);
-	    draw();
-	});
+    drawPathsForEdges(edges);
+    markNecessitySufficiencyForEdges(edges);
+    drawEndsForEdges(edges);
 };
 
 draw();
