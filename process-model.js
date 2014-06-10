@@ -113,7 +113,7 @@ var drawEndsForEdges = function(edgeGroups) {
 	})
 	.on("click", function(d, i){
 	    d.disconnect(rootNode);
-	    draw();
+	    update();
 	});
 };
 
@@ -190,7 +190,7 @@ var drawNecessitySufficiency = function(groups, position) {
 		break;
 	    }
 
-	    draw();
+	    update();
 	});
 
     weightingsPath
@@ -303,7 +303,7 @@ var draw = function() {
 			d.previousDragTarget.classed("drag-target", false);
 		    }
 		}
-		draw();
+		update();
 	    });
 
     newNodes
@@ -361,7 +361,7 @@ var draw = function() {
 		}
 
 		d.node.localEvidence(newEvidence);
-		draw();
+		update();
 	    });
 	});
     
@@ -381,4 +381,17 @@ var draw = function() {
     drawEndsForEdges(edges);
 };
 
-draw();
+var updateDownloadLink = function(){
+    d3.select("#download")
+	.attr("href", function(d, i){
+	    return "data:application/json," + encodeURIComponent(ProcessModel.Data.serialize(rootNode));
+	});
+};
+
+
+var update = function() {
+    draw();
+    updateDownloadLink();
+};
+
+update();

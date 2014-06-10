@@ -45,6 +45,9 @@ ProcessModel.Nodes = function() {
 	all : function() {
 	    return nodes.values();
 	},
+	get : function(nodeName) {
+	    return nodes.get(nodeName);
+	},
 	create : function(startName) {
 	    var localN = 0.5,
 		localS = 0.5,
@@ -211,4 +214,3 @@ ProcessModel.Edge = function(from, to) {
     };
     return edge;
 };
-
