@@ -296,7 +296,7 @@ var draw = function() {
 		d3.event.stopPropagation();
 		d3.event.preventDefault();
 
-		var change = d3.event.wheelDelta * 0.001,
+		var change = d3.event.wheelDelta * 0.0003,
 		    newEvidence = d.node.localEvidence();
 
 		switch(d.type) {
