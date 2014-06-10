@@ -148,7 +148,7 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 	    {type: "necessity", color: "red", edge: d, value: d.necessity()},
 	    {type: "anti-necessity", color: "lightgray", edge: d, value: 1 - d.necessity()},
 	    {type: "anti-sufficiency", color: "lightgray", edge: d, value: 1 - d.sufficiency()},
-	    {type: "sufficiency", color: "green", edge: d, value: d.sufficiency()},
+	    {type: "sufficiency", color: "green", edge: d, value: d.sufficiency()}
 	]);
 
 	return [
