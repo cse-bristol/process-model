@@ -256,7 +256,9 @@ var draw = function() {
     };
 
     var findDragTarget = function() {
-	var target = document.elementFromPoint(d3.event.sourceEvent.x, d3.event.sourceEvent.y);
+	var target = document.elementFromPoint(
+	    d3.event.sourceEvent.clientX, 
+	    d3.event.sourceEvent.clientY);
 	while (target.parentNode) {
 	    var targetSelection = d3.select(target);
 	    if (targetSelection.classed("process-node")) {
