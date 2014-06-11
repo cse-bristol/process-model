@@ -171,15 +171,8 @@ var drawNecessitySufficiency = function(groups, position) {
 	.attr("fill", function(d, i){
 	    return d.data.color;
 	})
-	.on("wheel.zoom", function(d, i){
-	    d3.event.stopPropagation();
-	    d3.event.preventDefault();
-
-	    if (!d3.event.wheelDelta) {
-		throw "Scroll wheel unsupported";
-	    }
-	    var change = d3.event.wheelDelta * 0.0003,
-		toChange = d.data.target;
+	.call(ProcessModel.Util.onScroll, function(d, i, change){
+	    var toChange = d.data.target;
 
 	    switch(d.data.type) {
 	    case "necessity":
@@ -344,17 +337,9 @@ var draw = function() {
 	    return d.localEvidence();
 	},
 	function(selection){
-	    selection.on("wheel.zoom", function(d, i){
-		d3.event.stopPropagation();
-		d3.event.preventDefault();
-
-		if(!d3.event.wheelDelta) {
-		    throw "Scroll wheel unsupported";
-		}
-
-		var change = d3.event.wheelDelta * 0.0003,
-		    newEvidence = d.node.localEvidence();
-
+	    selection.call(ProcessModel.Util.onScroll, function(d, i, change){
+		var newEvidence = d.node.localEvidence();
+		
 		switch(d.type) {
 		case "failure":
 		    newEvidence[0] += change;
