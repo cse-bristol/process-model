@@ -81,7 +81,7 @@ var drawIntervalParts = function(g) {
 var drawPathsForEdges = function(edgeGroups) {
     var colourScale = d3.scale.linear()
 	    .domain([-1, 1])
-	    .range(["darkred", "darkgreen"])
+	    .range(["red", "green"])
 	    .interpolate(d3.interpolateLab);
 
 
@@ -94,9 +94,6 @@ var drawPathsForEdges = function(edgeGroups) {
 
     edgePaths.enter()
 	.append("path")
-	.attr("stroke", function(d, i){
-	    return colourScale(d.sufficiency() - d.necessity());
-	})
 	.attr("stroke-width", function(d, i){
 	    return d.necessity() + d.sufficiency();
 	})
@@ -104,7 +101,10 @@ var drawPathsForEdges = function(edgeGroups) {
 
     edgePaths.attr("d", function(d, i){
 	return d3.svg.line().interpolate("basis")(d.path, i);
-    });
+    })
+	.attr("stroke", function(d, i){
+	    return colourScale(d.sufficiency() - d.necessity());
+	});
 };
 
 var drawEndsForEdges = function(edgeGroups) {
