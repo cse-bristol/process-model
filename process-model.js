@@ -18,7 +18,6 @@ var joinedNode = nodes.create("Child process")
 rootNode.addEdge(joinedNode);
 
 var zoom = d3.behavior.zoom()
-	.scaleExtent([0.1, 10])
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
