@@ -31,11 +31,11 @@ var nodeHeight = 50,
     nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
 
-var drawIntervalParts = function(g, pFun, partCall) {
+var drawIntervalParts = function(g) {
     /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
     var parts = g.selectAll("rect")
     	    .data(function(d, i){
-		var p = pFun(d, i);
+		var p = d.p();
 		return [
 		    {node: d, type: "failure", width: p[0], x: 0},
 		    {node: d, type: "uncertainty", width: p[1] - p[0], x: p[0]},
@@ -58,9 +58,26 @@ var drawIntervalParts = function(g, pFun, partCall) {
 	    return (nodeInnerWidth * d.width) + "px";
 	});
 
-    if (partCall) {
-	parts.call(partCall);
-    }
+    parts.call(ProcessModel.Util.onScroll, function(d, i, change){
+	var newEvidence = d.node.localEvidence();
+	
+	switch(d.type) {
+	case "failure":
+	    newEvidence[0] += change;
+	    break;
+
+	case "uncertainty":
+	    newEvidence[0] -= change / 2;
+	    newEvidence[1] += change / 2;
+	    break;
+	    
+	case "success":
+	    newEvidence[1] -= change;
+	}
+
+	d.node.localEvidence(newEvidence);
+	update();
+    });
 };
 
 var drawPathsForEdges = function(edgeGroups) {
@@ -137,7 +154,7 @@ var drawNecessitySufficiency = function(groups, position) {
 	.attr("width", circleR * 2)
 	.attr("height", circleR * 2);
 
-   weights
+    weights
 	.attr("transform", position);
 
     var weightHalfs = weights.selectAll("g.weight-half")
@@ -149,11 +166,11 @@ var drawNecessitySufficiency = function(groups, position) {
 		    {type: "sufficiency", color: "green", target: d, value: d.sufficiency()}
 		]);
 
-	return [
-	    [pieData[0], pieData[1]],
-	    [pieData[2], pieData[3]]
-	];
-    });
+		return [
+		    [pieData[0], pieData[1]],
+		    [pieData[2], pieData[3]]
+		];
+	    });
 
     weightHalfs.exit().remove();
     weightHalfs.enter()
@@ -191,14 +208,6 @@ var drawNecessitySufficiency = function(groups, position) {
 
     weightingsPath
 	.attr("d", arc);
-};
-
-var drawNecessitySufficiencyForNodes = function(nodeGroups) {
-    drawNecessitySufficiency(
-	nodeGroups,
-	function(d, i) {
-	    return "translate(18, 13)";
-	});
 };
 
 var markNecessitySufficiencyForEdges = function(edgeGroups) {
@@ -323,44 +332,11 @@ var draw = function() {
 	});
 
     newNodes.append("g")
-	.classed("computed-interval", "true")
+	.classed("interval", "true")
 	.attr("transform", "rotate(180, 75, 0)translate(0,-45)");
 
-    newNodes.append("g")
-	.classed("local-interval", "true")
-	.attr("transform", "translate(10,1)rotate(90)scale(0.15,0.5)");
-
-    drawIntervalParts(nodeDisplay.select(".computed-interval"), function(d, i){ return d.p();});
-    drawIntervalParts(
-	nodeDisplay.select(".local-interval"), 
-	function(d, i){ 
-	    return d.localEvidence();
-	},
-	function(selection){
-	    selection.call(ProcessModel.Util.onScroll, function(d, i, change){
-		var newEvidence = d.node.localEvidence();
-		
-		switch(d.type) {
-		case "failure":
-		    newEvidence[0] += change;
-		    break;
-
-		case "uncertainty":
-		    newEvidence[0] -= change / 2;
-		    newEvidence[1] += change / 2;
-		    break;
-
-		case "success":
-		    newEvidence[1] -= change;
-		}
-
-		d.node.localEvidence(newEvidence);
-		update();
-	    });
-	});
+    drawIntervalParts(nodeDisplay.select("g.interval"));
     
-    drawNecessitySufficiencyForNodes(nodeDisplay);
-
     var edges = g.selectAll("g.edge")
 	    .data(layout.edges);
 
@@ -377,9 +353,9 @@ var draw = function() {
 
 var updateDownloadLink = function(){
     d3.select("#download")
-    .attr("download", function(d, i){
-	return rootNode.name() + ".json";
-    })
+	.attr("download", function(d, i){
+	    return rootNode.name() + ".json";
+	})
 	.attr("href", function(d, i){
 	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes).serialize(rootNode));
 	});

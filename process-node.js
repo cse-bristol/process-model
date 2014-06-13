@@ -49,9 +49,7 @@ ProcessModel.Nodes = function() {
 	    return nodes.get(nodeName);
 	},
 	create : function(startName) {
-	    var localN = 0.5,
-		localS = 0.5,
-		localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
+	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 		edges = [],
 		name = startName ? startName : "new " + newNodes++,
 		description = "";
@@ -59,6 +57,10 @@ ProcessModel.Nodes = function() {
 	    var node = {
 		localEvidence: function(evidence) {
 		    if (evidence) {
+			if (edges.length > 0) {
+			    throw "Cannot set local evidence on a node which has children";
+			}
+
 			if (evidence[0] < 0) {
 			    evidence[0] = 0;
 			} else if (evidence[0] > 1) {
@@ -79,20 +81,6 @@ ProcessModel.Nodes = function() {
 			return node;
 		    }
 		    return localE;
-		},
-		necessity: function(necessity) {
-		    if (necessity) {
-			localN = Math.max(0, Math.min(1, necessity));
-			return node;
-		    }
-		    return localN;
-		},
-		sufficiency: function(sufficiency) {
-		    if (sufficiency) {
-			localS = Math.max(0, Math.min(1, sufficiency));
-			return node;
-		    }
-		    return localS;
 		},
 		edges: function() {
 		    return edges;
@@ -137,23 +125,12 @@ ProcessModel.Nodes = function() {
 		    return edgeTo;
 		},
 		p: function() {
-		    /* This is not the real interval probability calculation, but a placeholder. */
-		    var nNorm = localN,
-			sNorm = localS,
-			evidence = [localE[0] * localN, localE[1] * localS];
-
-		    edges.forEach(function(edge){
-			var p = edge.node().p();
-			nNorm += edge.necessity();
-			evidence[0] += p[0] * edge.necessity();
-			sNorm += edge.sufficiency();
-			evidence[1] += p[1] * edge.sufficiency();
-		    });
-
-		    evidence[0] = evidence[0] / nNorm;
-		    evidence[1] = evidence[1] / sNorm;
-
-		    return evidence;
+		    if (edges.length === 0) {
+			return localE;
+		    } else {
+			// TODO: the maths
+			return [0.0, 1.0];
+		    }
 		},
 		name: function(n) {
 		    if (n) {

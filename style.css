@@ -37,11 +37,15 @@ rect.success {
 }
 
 rect.uncertainty {
-    fill: lightgray;
+    fill: white;
 }
 
 rect.failure {
     fill: red;
+}
+
+rect.conflict {
+    fill: amber;
 }
 
 .handle {

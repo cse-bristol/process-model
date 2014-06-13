@@ -16,14 +16,17 @@ ProcessModel.Data = function(nodes) {
     };
 
     var serializeNode = function(node) {
-	return {
-	    name: node.name(),
-	    description: node.description(),
-	    evidence: node.localEvidence(),
-	    necessity: node.necessity(),
-	    sufficiency: node.sufficiency(),
-	    edges: node.edges().map(serializeEdge)
+	var serialized = {
+	    name: node.name()
 	};
+
+	if (node.edges().length > 0) {
+	    serialized.edges = node.edges().map(serializeEdge);
+	} else {
+	    serialized.evidence = node.localEvidence();
+	}
+
+	return serialized;
     };
 
     var deserializeNode = function(node) {
@@ -34,17 +37,20 @@ ProcessModel.Data = function(nodes) {
 	}
 
 	deserialized = nodes.create(node.name)
-	    .localEvidence(node.evidence)
 	    .necessity(node.necessity)
 	    .sufficiency(node.sufficiency);
 
-	node.edges.forEach(function(e){
-	    var target = deserializeNode(e.to);
-	    deserialized.addEdge(target);
-	    deserialized.edgeTo(target)
-		.necessity(e.necessity)
-		.sufficiency(e.sufficiency);
-	});
+	if (node.edges) {
+	    node.edges.forEach(function(e){
+		var target = deserializeNode(e.to);
+		deserialized.addEdge(target);
+		deserialized.edgeTo(target)
+		    .necessity(e.necessity)
+		    .sufficiency(e.sufficiency);
+	    });
+	} else {
+	    deserialized.localEvidence(node.evidence);
+	}
 
 	return deserialized;
     };
