@@ -22,6 +22,7 @@ ProcessModel.Data = function(nodes) {
 
 	if (node.edges().length > 0) {
 	    serialized.edges = node.edges().map(serializeEdge);
+	    serialized.dependence = node.dependence();
 	} else {
 	    serialized.evidence = node.localEvidence();
 	}
@@ -48,6 +49,8 @@ ProcessModel.Data = function(nodes) {
 		    .necessity(e.necessity)
 		    .sufficiency(e.sufficiency);
 	    });
+	    
+	    deserialized.dependence(node);
 	} else {
 	    deserialized.localEvidence(node.evidence);
 	}

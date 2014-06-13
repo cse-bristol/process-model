@@ -73,7 +73,9 @@ var drawIntervalParts = function(g) {
 	    newEvidence[1] -= change;
 	}
 
-	d.node.localEvidence(newEvidence);
+	if (d.node.isLeaf()) {
+	    d.node.localEvidence(newEvidence);
+	}
 	update();
     });
 };
@@ -130,6 +132,123 @@ var drawEndsForEdges = function(edgeGroups) {
 	    d.disconnect(rootNode);
 	    update();
 	});
+};
+
+var findDragTarget = function() {
+    var target = document.elementFromPoint(
+	d3.event.sourceEvent.clientX, 
+	d3.event.sourceEvent.clientY);
+    while (target.parentNode) {
+	var targetSelection = d3.select(target);
+	if (targetSelection.classed("process-node")) {
+	    return targetSelection;
+	} else {
+	    target = target.parentNode;
+	}
+    }
+    return null;
+};
+
+var dragNode = d3.behavior.drag()
+	.on("dragstart", function(d){
+	    /* Nothing else should get this click now. */
+	    d3.event.sourceEvent.stopPropagation();
+	})
+	.on("drag", function(d){
+	    /* Highlight things we're dragging over to aid the user. */
+	    var target = findDragTarget();
+	    if (target === d.previousDragTarget) {
+		return;
+	    } else {
+		if (d.previousDragTarget) {
+		    d.previousDragTarget.classed("drag-target", false);
+		}
+		if (target) {
+		    target.classed("drag-target", true);
+		}
+		d.previousDragTarget = target;
+	    }
+	})
+	.on("dragend", function(d, i){
+	    /* See if we're over an existing different node. 
+	     If so, make an edge to it.
+	     Otherwise, we'll make an edge to a new node. */
+	    var oldNode = d,
+		target = findDragTarget(),
+		newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
+	    
+	    try {
+		oldNode.addEdge(newNode); 
+	    } finally {
+		if (d.previousDragTarget) {
+		    d.previousDragTarget.classed("drag-target", false);
+		}
+	    }
+	    update();
+	});
+
+var edgeJunction = function(nodes) {
+    var circleR = 5,
+	arc = d3.svg.arc()
+	    .outerRadius(circleR),
+	pie = d3.layout.pie()
+	    .sort(null)
+	    .value(function(d, i){
+		return d.value;
+	    });
+
+    var junctions = nodes
+	    .selectAll("g.handle")
+	    .data(function(d, i){
+		return [d];
+	    });
+
+    junctions.exit().remove();
+
+    junctions.enter()
+	.append("g")
+	.classed("handle", true)
+	.attr("transform", "translate(" + nodeCenter[0] + "," + nodeHeight + ")")
+	.attr("stroke", "black")
+	.attr("width", circleR)
+	.attr("height", circleR)
+	.attr("draggable", true)
+	.call(dragNode);
+
+    var dependenceArc = junctions.selectAll("path")
+	    .data(function(d, i){
+		var dependence = d.isLeaf() ? 0 : d.dependence(),
+		    independence = 1 - dependence;
+		
+		return pie([
+		    {type: "dependence", color: "black", node: d, value: dependence},
+		    {type: "independence", color: "white", node: d, value: independence}
+		]);
+	    });
+    
+    dependenceArc.exit().remove();
+    dependenceArc.enter()
+	.append("path")
+	.attr("fill", function(d, i){
+	    return d.data.color;
+	})
+	.call(ProcessModel.Util.onScroll, function(d, i, change){
+	    var toChange = d.data.node;
+
+	    switch(d.data.type) {
+	    case "dependence":
+	    case "independence":
+		if (!toChange.isLeaf()) {
+		    toChange.dependence(toChange.dependence() + change);
+		}
+		break;
+	    }
+
+	    update();
+	});
+
+    dependenceArc
+	.attr("d", arc);
 };
 
 var drawNecessitySufficiency = function(groups, position) {
@@ -258,68 +377,6 @@ var draw = function() {
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
     };
 
-    var findDragTarget = function() {
-	var target = document.elementFromPoint(
-	    d3.event.sourceEvent.clientX, 
-	    d3.event.sourceEvent.clientY);
-	while (target.parentNode) {
-	    var targetSelection = d3.select(target);
-	    if (targetSelection.classed("process-node")) {
-		return targetSelection;
-	    } else {
-		target = target.parentNode;
-	    }
-	}
-	return null;
-    };
-
-    var dragNode = d3.behavior.drag()
-	    .on("dragstart", function(d){
-		/* Nothing else should get this click now. */
-		d3.event.sourceEvent.stopPropagation();
-	    })
-	    .on("drag", function(d){
-		/* Highlight things we're dragging over to aid the user. */
-		var target = findDragTarget();
-		if (target === d.previousDragTarget) {
-		    return;
-		} else {
-		    if (d.previousDragTarget) {
-			d.previousDragTarget.classed("drag-target", false);
-		    }
-		    if (target) {
-			target.classed("drag-target", true);
-		    }
-		    d.previousDragTarget = target;
-		}
-	    })
-	    .on("dragend", function(d, i){
-		/* See if we're over an existing different node. 
-		 If so, make an edge to it.
-		 Otherwise, we'll make an edge to a new node. */
-		var oldNode = d,
-		    target = findDragTarget(),
-		    newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
-		
-		try {
-		    oldNode.addEdge(newNode); 
-		} finally {
-		    if (d.previousDragTarget) {
-			d.previousDragTarget.classed("drag-target", false);
-		    }
-		}
-		update();
-	    });
-
-    newNodes
-	.append("circle")
-	.classed("handle", true)
-	.attr("cy", nodeHeight + "px")
-	.attr("cx", nodeCenter[0] + "px")
-	.attr("r", "5px")
-	.attr("draggable", true)
-	.call(dragNode);
-
     nodeDisplay.transition().attr("transform", function(d, i){
 	return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
     });
@@ -334,6 +391,8 @@ var draw = function() {
 	.attr("transform", "rotate(180, 75, 0)translate(0,-45)");
 
     drawIntervalParts(nodeDisplay.select("g.interval"));
+
+    edgeJunction(nodeDisplay);
     
     var edges = g.selectAll("g.edge")
 	    .data(layout.edges);

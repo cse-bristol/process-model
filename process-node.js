@@ -6,9 +6,15 @@ if (!ProcessModel) {
     var ProcessModel = {};
 }
 
+var clamp = function(min, num, max) {
+    return Math.max(min, Math.min(max, num));
+};
+
+
 ProcessModel.Nodes = function() {
     var nodes = d3.map({}),
 	newNodes = 1;
+
 
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen) {
@@ -50,8 +56,8 @@ ProcessModel.Nodes = function() {
 	},
 	create : function(startName) {
 	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
+		localDep = 1,
 		edges = [],
-		name = startName ? startName : "new " + newNodes++,
 		name = startName ? startName : "new " + newNodes++;	    
 	    var node = {
 		localEvidence: function(evidence) {
@@ -80,6 +86,20 @@ ProcessModel.Nodes = function() {
 			return node;
 		    }
 		    return localE;
+		},
+		dependence: function(dependence) {
+		    if (edges.length === 0) {
+			throw "Dependence is not used for leaf nodes.";
+		    }
+
+		    if (dependence) {
+			localDep = clamp(0, dependence, 1);
+		    }
+
+		    return localDep;
+		},
+		isLeaf : function() {
+		    return edges.length === 0;
 		},
 		edges: function() {
 		    return edges;
@@ -161,14 +181,14 @@ ProcessModel.Edge = function(from, to) {
     var edge = {
 	necessity : function(n) {
 	    if (n) {
-		necessity = Math.min(1, Math.max(n, 0));
+		necessity = clamp(0, n, 1);
 		return edge;
 	    }
 	    return necessity;
 	},
 	sufficiency : function(s) {
 	    if (s) {
-		sufficiency = Math.min(1, Math.max(s, 0));
+		sufficiency = clamp(0, s, 1);
 		return edge;
 	    }
 	    return sufficiency;

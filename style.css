@@ -48,13 +48,7 @@ rect.conflict {
     fill: amber;
 }
 
-.handle {
-    fill: white;
-    stroke: black;
-}
-
 .handle:hover {
-    fill: black;
     cursor: move;
 }
 
