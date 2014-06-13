@@ -9,7 +9,6 @@ var g = svg.append("g");
 var nodes = ProcessModel.Nodes();
 
 var rootNode = nodes.create("Model")
-	.description("The root node of our model, as a process.")
 	.localEvidence([0.25, 0.75]);
 
 var joinedNode = nodes.create("Child process")

@@ -52,8 +52,7 @@ ProcessModel.Nodes = function() {
 	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 		edges = [],
 		name = startName ? startName : "new " + newNodes++,
-		description = "";
-	    
+		name = startName ? startName : "new " + newNodes++;	    
 	    var node = {
 		localEvidence: function(evidence) {
 		    if (evidence) {
@@ -145,13 +144,6 @@ ProcessModel.Nodes = function() {
 			return node;
 		    }
 		    return name;
-		},
-		description: function(d) {
-		    if (d) {
-			description = d;
-			return node;
-		    }
-		    return description;
 		}
 	    };
 
