@@ -14,7 +14,7 @@ var rootNode = nodes.create("Model")
 var joinedNode = nodes.create("Child process")
 	.localEvidence([0.1, 0.9]);
 
-rootNode.addEdge(joinedNode);
+rootNode.edgeTo(joinedNode);
 
 var zoom = d3.behavior.zoom()
 	.on("zoom", function(){
@@ -178,7 +178,7 @@ var dragNode = d3.behavior.drag()
 		newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
 	    
 	    try {
-		oldNode.addEdge(newNode); 
+		oldNode.edgeTo(newNode); 
 	    } finally {
 		if (d.previousDragTarget) {
 		    d.previousDragTarget.classed("drag-target", false);
@@ -418,11 +418,19 @@ var updateDownloadLink = function(){
 	});
 };
 
-ProcessModel.Files.drop(svg, function(fileName, content){
+var fromJson = function(fileName, content){
     nodes = ProcessModel.Nodes();
     rootNode = ProcessModel.Data(nodes).deserialize(content);
     update();
-});
+};
+
+var fromXML = function(fileName, content) {
+    nodes = ProcessModel.Nodes();
+    rootNode = ProcessModel.PerimetaXML(nodes).deserialize(content);
+    update();
+};
+
+ProcessModel.Files.drop(svg, [fromJson, fromXML]);
 
 var update = function() {
     draw();

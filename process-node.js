@@ -87,8 +87,9 @@ ProcessModel.Nodes = function() {
 		    }
 		    return localE;
 		},
-		dependence: function(dependence) {
-		    if (edges.length === 0) {
+		dependence: function(dependence, setLeafNodes) {
+		    if (edges.length === 0 && !setLeafNodes) {
+			/* setLeafNodes is a convenience to make deserialization easier. */
 			throw "Dependence is not used for leaf nodes.";
 		    }
 
@@ -104,44 +105,31 @@ ProcessModel.Nodes = function() {
 		edges: function() {
 		    return edges;
 		},
-		addEdge: function(to) {
-		    var edge = ProcessModel.Edge(node, to);
-
-		    var joinedNodes = edges.map(function(e){
-			return e.node();
-		    });
-
-		    if (joinedNodes.indexOf(edge.node()) >= 0) {
-			return node; // This connection already exists.
-		    }
-
-		    edges.push(edge);
-		    try {
-			assertNoCycles(edge.node());
-		    } catch (err) {
-			edges.splice(edges.indexOf(edge), 1);
-			throw err;
-		    }
-		    return node;
-		},
 		removeEdge : function(edge, rootNode) {
 		    edges.splice(edges.indexOf(edge), 1);
 		    removeUnreachable(rootNode);
 		},
-		edgeTo : function(node) {
-		    var edgeTo;
-
+		edgeTo : function(to) {
+		    var existingEdge;
 		    edges.forEach(function(e){
-			if (e.node() === node) {
-			    edgeTo = e;
+			if (e.node() === to) {
+			    existingEdge = e;
 			}
 		    });
-
-		    if(!edgeTo) {
-			throw "Could not find an edge leading to node " + node;
+		    if (existingEdge) {
+			return existingEdge;
 		    }
 
-		    return edgeTo;
+		    var edgeTo = ProcessModel.Edge(node, to);
+		    edges.push(edgeTo);
+		    try {
+			assertNoCycles(node);
+			return edgeTo;
+			
+		    } catch (err) {
+			edges.splice(edges.indexOf(edgeTo), 1);
+			throw err;
+		    }
 		},
 		p: function() {
 		    if (edges.length === 0) {
@@ -164,6 +152,22 @@ ProcessModel.Nodes = function() {
 			return node;
 		    }
 		    return name;
+		},
+		countDescendents: function() {
+		    var seen = [],
+			stack = edges.slice(0);
+
+		    while(stack.length > 0) {
+			var current = stack.pop().node();
+			if (seen.indexOf(current) < 0) {
+			    seen.push(current);
+			    current.edges().forEach(function(e){
+				stack.push(e);
+			    });
+			}
+		    }
+
+		    return seen.length;
 		}
 	    };
 

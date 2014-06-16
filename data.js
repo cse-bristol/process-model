@@ -20,11 +20,11 @@ ProcessModel.Data = function(nodes) {
 	    name: node.name()
 	};
 
-	if (node.edges().length > 0) {
+	if (node.isLeaf()) {
+	    serialized.evidence = node.localEvidence();
+	} else {
 	    serialized.edges = node.edges().map(serializeEdge);
 	    serialized.dependence = node.dependence();
-	} else {
-	    serialized.evidence = node.localEvidence();
 	}
 
 	return serialized;
@@ -37,22 +37,23 @@ ProcessModel.Data = function(nodes) {
 	    return deserialized;
 	}
 
-	deserialized = nodes.create(node.name)
-	    .necessity(node.necessity)
-	    .sufficiency(node.sufficiency);
+	deserialized = nodes.create(node.name);
 
-	if (node.edges) {
+	if (node.edges && node.edges.length > 0) {
 	    node.edges.forEach(function(e){
 		var target = deserializeNode(e.to);
-		deserialized.addEdge(target);
 		deserialized.edgeTo(target)
 		    .necessity(e.necessity)
 		    .sufficiency(e.sufficiency);
 	    });
 	    
-	    deserialized.dependence(node);
+	    if (node.dependence) {
+		deserialized.dependence(node.dependence);
+	    }
 	} else {
-	    deserialized.localEvidence(node.evidence);
+	    if (node.localEvidence) {
+		deserialized.localEvidence(node.evidence);
+	    }
 	}
 
 	return deserialized;

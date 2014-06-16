@@ -18,7 +18,7 @@ ProcessModel.Files = function() {
     };
 
     var module = {
-	drop: function(container, onLoad) {
+	drop: function(container, handlers) {
 	    container.on("dragover", function(d, i) {
 		d3.event.preventDefault();
 		d3.event.stopPropagation();
@@ -36,9 +36,16 @@ ProcessModel.Files = function() {
 		}
 
 		files.forEach(function(file){
-		    var reader = new FileReader();
+		    var reader = new FileReader(),
+			len = handlers.length;
 		    reader.onload = function() {
-			onLoad(file.name, reader.result);
+			for (var i = 0; i < len; i++) {
+			    try {
+				handlers[i](file.name, reader.result);
+			    } catch (err) {
+				console.log(handlers[i].name + " failed to load file " + file.name + " " + err);
+			    }
+			}
 		    };
 
 		    reader.onerror = function(error) {
