@@ -37,14 +37,24 @@ ProcessModel.Files = function() {
 
 		files.forEach(function(file){
 		    var reader = new FileReader(),
-			len = handlers.length;
+			len = handlers.length,
+			errors = [],
+			success = false;
+
 		    reader.onload = function() {
 			for (var i = 0; i < len; i++) {
 			    try {
 				handlers[i](file.name, reader.result);
+				success = true;
 			    } catch (err) {
-				console.log("A handler failed to load file " + file.name + " " + err + " " + err.stack);
+				errors.push(err);
 			    }
+			}
+
+			if(!success) {
+			    errors.forEach(function(err){
+				console.log("A handler failed to load file " + file.name + " " + err + " " + err.stack);
+			    });
 			}
 		    };
 
