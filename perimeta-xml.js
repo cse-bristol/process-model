@@ -23,10 +23,17 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
     };
 
     var loadEvidence = function(e) {
-	var noEvidence = e.getElementsByTagName("noEvidence");
+	var noEvidence = e.getElementsByTagName("noEvidence"),
+	    sn = e.getElementsByTagName("sn"),
+	    sp = e.getElementsByTagName("sp");
 
 	if (noEvidence.length > 0) {
 	    return [0, 1];
+	}
+
+	if (sn.length > 0 || sp.length > 0) {
+	    return [sn.length === 0 ? 0 : num(sn),
+		    sp.length === 0 ? 1 : num(sp)];
 	}
 	
 	console.error("Unknown evidence type " + e);
