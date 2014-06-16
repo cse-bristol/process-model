@@ -35,22 +35,34 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
     
     var loadNode = function(n) {
 	var name = n.getAttribute("name"),
-	    aspect = n.getElementsByTagName("nodeAspect")[0],
+	    node = nodes.create(name);
+
+	return node;
+    };
+
+    var loadNodeDetails = function(n, node) {
+	/* Should be run after joining up all the nodes with edges,
+	 because we need to know whether a node is a leaf. */
+	var aspect = n.getElementsByTagName("nodeAspect")[0],
 	    /* dependancy spelling error occurs in Perimeta XML format */
 	    dependence = aspect.getElementsByTagName("dependancy"),
 	    localEvidence = aspect.getElementsByTagName("localFOM"),
 	    localEvidenceWeight = aspect.getElementsByTagName("localFOMWeight"),
-	    propagatedEvidenceWeight = aspect.getElementsByTagName("propFOMWeight"),
-	    node = nodes.create(name);
+	    propagatedEvidenceWeight = aspect.getElementsByTagName("propFOMWeight");
 
-	if (dependence.length > 0) {
+	if (dependence.length > 0 && !node.isLeaf()) {
 	    node.dependence(loadDependence(dependence[0]), true);
 	}
 
 	if (localEvidence.length > 0) {
 	    var evidence = loadEvidence(localEvidence[0]);
-	    if (evidence) {
-		var localEvidenceEdge = node.edgeTo(evidence);
+	    
+	    if (node.isLeaf()) {
+		node.localEvidence(evidence);
+	    } else {
+		var evidenceNode = nodes.create();
+		evidenceNode.localEvidence(evidence);
+		var localEvidenceEdge = node.edgeTo(evidenceNode);
 		if (localEvidenceWeight > 0 && propagatedEvidenceWeight > 0) {
 		    var localWeight = num(localEvidenceWeight), 
 			propWeight = num(propagatedEvidenceWeight), 
@@ -64,8 +76,6 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 		}
 	    }
 	}
-
-	return node;
     };
 
     var loadLinks = function(links, nodesById) {
@@ -135,6 +145,10 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	    });
 
 	    loadLinks(links, nodesById);
+
+	    Array.prototype.forEach.call(nodeElements, function(n){
+		loadNodeDetails(n, nodesById.get(n.id));
+	    });
 
 	    return findRootNodes(nodesById);
 	},

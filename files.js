@@ -43,13 +43,13 @@ ProcessModel.Files = function() {
 			    try {
 				handlers[i](file.name, reader.result);
 			    } catch (err) {
-				console.log(handlers[i].name + " failed to load file " + file.name + " " + err);
+				console.log("A handler failed to load file " + file.name + " " + err + " " + err.stack);
 			    }
 			}
 		    };
 
-		    reader.onerror = function(error) {
-			throw "Failed to load file " + file.name + " " + error;
+		    reader.onerror = function(err) {
+			throw "Failed to load file " + file.name + " " + err + " " + err.stack;
 		    };
 
 		    reader.readAsText(file);

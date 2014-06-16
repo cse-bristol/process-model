@@ -87,9 +87,8 @@ ProcessModel.Nodes = function() {
 		    }
 		    return localE;
 		},
-		dependence: function(dependence, setLeafNodes) {
-		    if (edges.length === 0 && !setLeafNodes) {
-			/* setLeafNodes is a convenience to make deserialization easier. */
+		dependence: function(dependence) {
+		    if (edges.length === 0) {
 			throw "Dependence is not used for leaf nodes.";
 		    }
 
