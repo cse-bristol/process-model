@@ -20,6 +20,10 @@
     opacity: 1.0;
 }
 
+g.expander {
+    cursor: pointer;
+}
+
 input.node-name {
     font-family: "Courier New", Courier, monospace;
     width: 120px;

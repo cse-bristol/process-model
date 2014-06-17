@@ -26,6 +26,46 @@ var nodeHeight = 50,
     nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
 
+var drawExpandContract = function(g) {
+    var expander = g.selectAll("g.expander")
+	.data(function(d, i){
+	   return [d]; 
+	});
+
+    expander.exit().remove();
+
+    var newG = expander.enter().append("g")
+	.classed("expander", true)
+    	.on("click", function(d, i){
+	    d.collapsed(!d.collapsed());
+	    update();
+	});
+    
+    newG
+	.append("rect")
+	.attr("width", 15)
+	.attr("height", 15);
+
+    newG.append("text")
+	.attr("x", 7.5)
+	.attr("y", 13)
+	.attr("width", 15)
+	.attr("height", 15)
+	.attr("text-anchor", "middle");
+
+    expander.style("visibility", function(d, i){
+	return !d.collapsed() && d.isLeaf() ? "hidden" : "visible";
+    });
+
+    expander.selectAll("text")
+	.data(function(d, i){
+	    return [d];
+	})
+	.html(function(d, i){
+	    return d.collapsed() ? "+" : "&#8259;";
+	});
+};
+
 var drawIntervalParts = function(g) {
     /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
     var parts = g.selectAll("rect")
@@ -54,6 +94,10 @@ var drawIntervalParts = function(g) {
 	});
 
     parts.call(ProcessModel.Util.onScroll, function(d, i, change){
+	if (!d.node.isLeaf() || d.node.collapsed()) {
+	    return;
+	}
+
 	var newEvidence = d.node.localEvidence();
 	
 	switch(d.type) {
@@ -70,9 +114,7 @@ var drawIntervalParts = function(g) {
 	    newEvidence[1] -= change;
 	}
 
-	if (d.node.isLeaf()) {
-	    d.node.localEvidence(newEvidence);
-	}
+	d.node.localEvidence(newEvidence);
 	update();
     });
 };
@@ -94,6 +136,9 @@ var drawPathsForEdges = function(edgeGroups) {
     edgePaths.enter()
 	.append("path")
 	.attr("stroke-width", function(d, i){
+	    if (!d.canModify()) {
+		return 1;
+	    }
 	    return d.necessity() + d.sufficiency();
 	})
 	.attr("fill", "none");
@@ -102,6 +147,9 @@ var drawPathsForEdges = function(edgeGroups) {
 	return d3.svg.line().interpolate("basis")(d.path, i);
     })
 	.attr("stroke", function(d, i){
+	    if (!d.canModify()) {
+		return "black";
+	    }
 	    return colourScale(d.sufficiency() - d.necessity());
 	});
 };
@@ -115,10 +163,15 @@ var drawEndsForEdges = function(edgeGroups) {
     edgeEnds.exit().remove();
 
     edgeEnds.enter()
-	.append("circle")
-	.attr("r", "2px");
-
+	.append("circle");
     edgeEnds     
+    	.attr("r", function(d, i){
+	    if (d.canModify()) {
+		return 2;
+	    } else {
+		return 0;
+	    }
+	})
 	.attr("cx", function(d, i){
 	    return d.path[d.path.length - 1][0];
 	})
@@ -126,8 +179,10 @@ var drawEndsForEdges = function(edgeGroups) {
 	    return d.path[d.path.length - 1][1];
 	})
 	.on("click", function(d, i){
-	    d.disconnect();
-	    update();
+	    if (d.canModify()) {
+		d.disconnect();
+		update();
+	    }
 	});
 };
 
@@ -173,15 +228,18 @@ var dragNode = d3.behavior.drag()
 	    var oldNode = d,
 		target = findDragTarget(),
 		newNode = (target && target.datum() != oldNode) ? target.datum() : nodes.create();
-	    
+
 	    try {
+		if (oldNode.collapsed()) {
+		    return;
+		}
 		oldNode.edgeTo(newNode); 
+		update();
 	    } finally {
 		if (d.previousDragTarget) {
 		    d.previousDragTarget.classed("drag-target", false);
 		}
 	    }
-	    update();
 	});
 
 var edgeJunction = function(nodes) {
@@ -212,9 +270,14 @@ var edgeJunction = function(nodes) {
 	.attr("draggable", true)
 	.call(dragNode);
 
+    junctions.style("visibility", function(d, i){
+	return d.collapsed() ? "hidden" : "visible";
+    });
+
+
     var dependenceArc = junctions.selectAll("path")
 	    .data(function(d, i){
-		var dependence = d.isLeaf() ? 0 : d.dependence(),
+		var dependence = d.collapsed() || d.isLeaf() ? 0 : d.dependence(),
 		    independence = 1 - dependence;
 		
 		return pie([
@@ -232,12 +295,14 @@ var edgeJunction = function(nodes) {
 	.call(ProcessModel.Util.onScroll, function(d, i, change){
 	    var toChange = d.data.node;
 
+	    if(toChange.isLeaf() || toChange.collapsed()) {
+		return;
+	    }
+
 	    switch(d.data.type) {
 	    case "dependence":
 	    case "independence":
-		if (!toChange.isLeaf()) {
-		    toChange.dependence(toChange.dependence() + change);
-		}
+		toChange.dependence(toChange.dependence() + change);
 		break;
 	    }
 
@@ -269,15 +334,23 @@ var drawNecessitySufficiency = function(groups, position) {
 	.attr("height", circleR * 2);
 
     weights
-	.attr("transform", position);
+	.attr("transform", position)
+	.style("visibility", function(d, i){
+	    return d.canModify() ? "visible" : "hidden";
+	});
 
     var weightHalfs = weights.selectAll("g.weight-half")
 	    .data(function(d, i){
+		var necessity = d.canModify() ? d.necessity() : 0,
+		    antiNecessity = 1 - necessity,
+		    sufficiency = d.canModify() ? d.sufficiency() : 0,
+		    antiSufficiency = 1 - sufficiency;
+
 		var pieData = pie([
-		    {type: "necessity", color: "red", target: d, value: d.necessity()},
-		    {type: "anti-necessity", color: "lightgray", target: d, value: 1 - d.necessity()},
-		    {type: "anti-sufficiency", color: "lightgray", target: d, value: 1 - d.sufficiency()},
-		    {type: "sufficiency", color: "green", target: d, value: d.sufficiency()}
+		    {type: "necessity", color: "red", target: d, value: necessity},
+		    {type: "anti-necessity", color: "lightgray", target: d, value: antiNecessity},
+		    {type: "anti-sufficiency", color: "lightgray", target: d, value: sufficiency},
+		    {type: "sufficiency", color: "green", target: d, value: antiSufficiency}
 		]);
 
 		return [
@@ -304,6 +377,10 @@ var drawNecessitySufficiency = function(groups, position) {
 	})
 	.call(ProcessModel.Util.onScroll, function(d, i, change){
 	    var toChange = d.data.target;
+
+	    if (!toChange.canModify()) {
+		return;
+	    }
 
 	    switch(d.data.type) {
 	    case "necessity":
@@ -355,9 +432,9 @@ var draw = function() {
 
     ProcessModel.svgEditableText(
 	newNodes,
-	10,
+	5,
 	5, 
-	nodeWidth - 10,
+	nodeWidth - 15,
 	21, 
 	"node-name",
 	function(d, i){
@@ -388,6 +465,7 @@ var draw = function() {
 	.attr("transform", "rotate(180, 75, 0)translate(0,-45)");
 
     drawIntervalParts(nodeDisplay.select("g.interval"));
+    drawExpandContract(nodeDisplay);
 
     edgeJunction(nodeDisplay);
     
