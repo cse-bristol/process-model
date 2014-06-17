@@ -138,9 +138,10 @@ var drawPathsForEdges = function(edgeGroups) {
 	})
 	.attr("fill", "none");
 
-    edgePaths.attr("d", function(d, i){
-	return d3.svg.line().interpolate("basis")(d.path, i);
-    })
+    edgePaths.transition()
+	.attr("d", function(d, i){
+	    return d3.svg.line().interpolate("basis")(d.path, i);
+	})
 	.attr("stroke", function(d, i){
 	    if (!d.canModify()) {
 		return "black";

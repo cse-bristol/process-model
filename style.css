@@ -1,5 +1,5 @@
 #model {
-    height: 85vh;
+    height: 95vh;
     width: 99vw;
 }
 
@@ -26,7 +26,7 @@ g.expander {
 
 input.node-name {
     font-family: "Courier New", Courier, monospace;
-    width: 120px;
+    width: 116px;
     margin-left: 15px;
     display: block;
     height: 10px;
