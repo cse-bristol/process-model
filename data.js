@@ -56,6 +56,7 @@ ProcessModel.Data = function(nodes) {
 	    }
 	}
 
+	nodes.root(deserialized);
 	return deserialized;
     };
 

@@ -157,7 +157,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 		loadNodeDetails(n, nodesById.get(n.id));
 	    });
 
-	    return findRootNodes(nodesById);
+	    nodes.root(findRootNodes(nodesById));
 	},
 	serialize: function(rootnode) {
 	    throw "not implemented";

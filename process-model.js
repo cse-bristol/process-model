@@ -8,13 +8,10 @@ var g = svg.append("g");
 
 var nodes = ProcessModel.Nodes();
 
-var rootNode = nodes.create("Model")
-	.localEvidence([0.25, 0.75]);
-
-var joinedNode = nodes.create("Child process")
-	.localEvidence([0.1, 0.9]);
-
-rootNode.edgeTo(joinedNode);
+nodes.create("Model")
+    .localEvidence([0.25, 0.75])
+    .edgeTo(nodes.create("Child process")
+	    .localEvidence([0.1, 0.9]));
 
 var zoom = d3.behavior.zoom()
 	.on("zoom", function(){
@@ -129,7 +126,7 @@ var drawEndsForEdges = function(edgeGroups) {
 	    return d.path[d.path.length - 1][1];
 	})
 	.on("click", function(d, i){
-	    d.disconnect(rootNode);
+	    d.disconnect();
 	    update();
 	});
 };
@@ -336,7 +333,7 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 };
 
 var draw = function() {
-    var layout = ProcessModel.Layout(rootNode, nodeWidth, nodeHeight);
+    var layout = ProcessModel.Layout(nodes.root(), nodeWidth, nodeHeight);
     
     var nodeDisplay = g.selectAll("g.process-node")
 	    .data(layout.nodes, function(d, i){
@@ -411,22 +408,23 @@ var draw = function() {
 var updateDownloadLink = function(){
     d3.select("#download")
 	.attr("download", function(d, i){
-	    return rootNode.name() + ".json";
+	    return nodes.root().name() + ".json";
 	})
 	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes).serialize(rootNode));
+	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes).serialize(nodes.root()));
 	});
 };
 
 var fromJson = function(fileName, content){
     nodes = ProcessModel.Nodes();
-    rootNode = ProcessModel.Data(nodes).deserialize(content);
+    nodes.root(ProcessModel.Data(nodes).deserialize(content));
     update();
 };
 
+
 var fromXML = function(fileName, content) {
-    nodes = ProcessModel.Nodes();
-    rootNode = ProcessModel.PerimetaXML(nodes).deserialize(content);
+    nodes.reset();
+    ProcessModel.PerimetaXML(nodes).deserialize(content);
     update();
 };
 

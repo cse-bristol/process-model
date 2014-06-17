@@ -12,9 +12,7 @@ var clamp = function(min, num, max) {
 
 
 ProcessModel.Nodes = function() {
-    var nodes = d3.map({}),
-	newNodes = 1;
-
+    var nodes, newNodes, root;
 
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen) {
@@ -53,6 +51,18 @@ ProcessModel.Nodes = function() {
 	},
 	get : function(nodeName) {
 	    return nodes.get(nodeName);
+	},
+	reset: function() {
+	    nodes = d3.map({});
+	    newNodes = 1;
+	    root = null;
+	},
+	root: function(newRoot) {
+	    if (newRoot) {
+		root = newRoot;
+		return this;
+	    }
+	    return root;
 	},
 	create : function(startName) {
 	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
@@ -104,9 +114,9 @@ ProcessModel.Nodes = function() {
 		edges: function() {
 		    return edges;
 		},
-		removeEdge : function(edge, rootNode) {
+		removeEdge : function(edge) {
 		    edges.splice(edges.indexOf(edge), 1);
-		    removeUnreachable(rootNode);
+		    removeUnreachable(root);
 		},
 		edgeTo : function(to) {
 		    var existingEdge;
@@ -119,7 +129,7 @@ ProcessModel.Nodes = function() {
 			return existingEdge;
 		    }
 
-		    var edgeTo = ProcessModel.Edge(node, to);
+		    var edgeTo = module.edge(node, to);
 		    edges.push(edgeTo);
 		    try {
 			assertNoCycles(node);
@@ -170,39 +180,44 @@ ProcessModel.Nodes = function() {
 		}
 	    };
 
+	    if (nodes.empty()) {
+		root = node;
+	    }
 	    nodes.set(node.name(), node);
+
 	    return node;
+	},
+	edge: function(from, to) {
+	    var necessity = 0.5,
+		sufficiency = 0.5;
+
+	    var edge = {
+		necessity : function(n) {
+		    if (n) {
+			necessity = clamp(0, n, 1);
+			return edge;
+		    }
+		    return necessity;
+		},
+		sufficiency : function(s) {
+		    if (s) {
+			sufficiency = clamp(0, s, 1);
+			return edge;
+		    }
+		    return sufficiency;
+		},
+		node: function() {
+		    return to;
+		},
+		/* Removes the edge. Tests if any nodes are now unreachable from the root node, and removes them too. */
+		disconnect: function() {
+		    from.removeEdge(edge);
+		}
+	    };
+	    return edge;
 	}
     };
+
+    module.reset();
     return module;
-};
-
-ProcessModel.Edge = function(from, to) {
-    var necessity = 0.5,
-	sufficiency = 0.5;
-
-    var edge = {
-	necessity : function(n) {
-	    if (n) {
-		necessity = clamp(0, n, 1);
-		return edge;
-	    }
-	    return necessity;
-	},
-	sufficiency : function(s) {
-	    if (s) {
-		sufficiency = clamp(0, s, 1);
-		return edge;
-	    }
-	    return sufficiency;
-	},
-	node: function() {
-	    return to;
-	},
-	/* Removes the edge. Tests if any nodes are now unreachable from the root node, and removes them too. */
-	disconnect: function(rootNode) {
-	    from.removeEdge(edge, rootNode);
-	}
-    };
-    return edge;
 };
