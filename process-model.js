@@ -8,11 +8,6 @@ var g = svg.append("g");
 
 var nodes = ProcessModel.Nodes();
 
-nodes.create("Model")
-    .localEvidence([0.25, 0.75])
-    .edgeTo(nodes.create("Child process")
-	    .localEvidence([0.1, 0.9]));
-
 var zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -274,7 +269,6 @@ var edgeJunction = function(nodes) {
 	return d.collapsed() ? "hidden" : "visible";
     });
 
-
     var dependenceArc = junctions.selectAll("path")
 	    .data(function(d, i){
 		var dependence = d.collapsed() || d.isLeaf() ? 0 : d.dependence(),
@@ -494,11 +488,10 @@ var updateDownloadLink = function(){
 };
 
 var fromJson = function(fileName, content){
-    nodes = ProcessModel.Nodes();
+    nodes.reset();
     nodes.root(ProcessModel.Data(nodes).deserialize(content));
     update();
 };
-
 
 var fromXML = function(fileName, content) {
     nodes.reset();
@@ -513,4 +506,6 @@ var update = function() {
     updateDownloadLink();
 };
 
-update();
+ProcessModel.Scrape(nodes).scrape("table-test.html", function(){
+    update();
+});

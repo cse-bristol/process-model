@@ -5,6 +5,7 @@
   </head>
   <body>
     <a href="javascript:void(0)" download="download.json" id="download">Download</a>
+
     <svg id="model"></svg>
 
     <script src="lib/d3/d3.min.js"></script>
@@ -16,7 +17,11 @@
     <script src="perimeta-xml.js"></script>
     <script src="process-node.js"></script>
     <script src="layout.js"></script>
+    <script src="html-scrape.js"></script>
+
+    <!-- This needs to happen last, since it contains the glue/main method. -->
     <script src="process-model.js"></script>
+
   </body>
 
 </html>
