@@ -344,8 +344,8 @@ var drawNecessitySufficiency = function(groups, position) {
 		var pieData = pie([
 		    {type: "necessity", color: "red", target: d, value: necessity},
 		    {type: "anti-necessity", color: "lightgray", target: d, value: antiNecessity},
-		    {type: "anti-sufficiency", color: "lightgray", target: d, value: sufficiency},
-		    {type: "sufficiency", color: "green", target: d, value: antiSufficiency}
+		    {type: "anti-sufficiency", color: "lightgray", target: d, value: antiSufficiency},
+		    {type: "sufficiency", color: "green", target: d, value: sufficiency}
 		]);
 
 		return [
