@@ -1,6 +1,6 @@
 "use strict";
 
-/*global d3, ProcessModel */
+/*global parent, d3, ProcessModel */
 
 var svg = d3.select("svg#model");
 
@@ -538,6 +538,9 @@ var update = function() {
     updateDownloadLink();
 };
 
-ProcessModel.Scrape(nodes).scrape("table-test.html", function(){
-    update();
-});
+if (parent !== window) {
+    /* If we're in an iframe, assume our parent is what we want to scrape. */
+    ProcessModel.Scrape(nodes).scrape(document.referrer, update);
+} else {
+    ProcessModel.Scrape(nodes).scrapeCurrent(update);
+}
