@@ -38,6 +38,7 @@ var drawNodeName = function(nodes, newNodes) {
         .attr("xlink:href", function(d, i){
 	    return d.url();
 	})
+	.attr("target", "_parent")
 	.style("visibility", function(d, i){
 	    return d.url() ? "visible" : "hidden";
 	})

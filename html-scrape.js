@@ -13,6 +13,11 @@ ProcessModel.Scrape = function(nodes){
 	return parseFloat(el.childNodes[0].data);
     };
 
+    var isUrlAbsolute = new RegExp('^(?:[a-z]+:)?//', 'i');
+    var isAbsolute = function(url) {
+	return isUrlAbsolute.test(url);
+    };
+
     var identifyColumns = function(table, columns) {
 	var th = table.getElementsByTagName("th"),
 	    columnNumbers = d3.map(),
@@ -127,7 +132,12 @@ ProcessModel.Scrape = function(nodes){
 		    Array.prototype.forEach.call(table.getElementsByTagName("tr"), function(row){
 			var extracted = getRelevantCells(row, columnNumbers);
 			if (extracted) {
-			    tableType.f(extracted);
+			    try {
+				tableType.f(extracted);
+			    } catch (err) {
+				console.error("Error reading table row.");
+				console.error(err);
+			    }
 			} else {
 			    // the row wasn't of the right type
 			}
@@ -136,17 +146,19 @@ ProcessModel.Scrape = function(nodes){
 	    });
 
 	    requestedChildren.forEach(function(c){
-		d3.html(c.evidence, function(error, html){
+		var url = isAbsolute(c.evidence) ? c.evidence : originURL + "/../" + c.evidence;
+		d3.html(url, function(error, html){
 		    if (error) {
-			console.log("Failed to scrape page " + c.evidence + " " + error);
+			console.log("Failed to scrape page " + url + " " + error);
 			errors.push(c);
-		    }
-
-		    scrapeNode(html, c.evidence, function(node){
-			c.node = node;
-			children.push(c);
 			maybeFinished();
-		    });
+		    } else {
+			scrapeNode(html, url, function(node){
+			    c.node = node;
+			    children.push(c);
+			    maybeFinished();
+			});
+		    }
 		});
 	    });
 	    /* If we have no children, this will be ready now. */
