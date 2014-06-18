@@ -368,11 +368,10 @@ ProcessModel.Nodes = function() {
 			}
 
 			edgesToNode(collapsedNode).forEach(function(e){
+			    e.disconnect();
 			    e.parent().edgeTo(node)
 				.necessity(e.necessity())
 				.sufficiency(e.sufficiency());
-			    
-			    e.disconnect();
 			});
 
 			removeUnreachable();
@@ -393,11 +392,10 @@ ProcessModel.Nodes = function() {
 	    }
 
 	    edgesToNode(node).forEach(function(e){
+		e.disconnect();
 		e.parent().edgeTo(collapsedNode)
 		    .necessity(e.necessity())
 		    .sufficiency(e.sufficiency());
-		
-		e.disconnect();
 	    });
 
 	    removeUnreachable();
