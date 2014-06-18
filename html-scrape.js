@@ -9,19 +9,17 @@ if (!ProcessModel) {
 // result.evidence = JSON.parse(evidenceCell.innerHtml);
 
 ProcessModel.Scrape = function(nodes){
-    var columns = ["evidence", "necessity", "sufficiency"];
-
     var num = function(el) {
 	return parseFloat(el.childNodes[0].data);
     };
 
-    var identifyColumns = function(table) {
+    var identifyColumns = function(table, columns) {
 	var th = table.getElementsByTagName("th"),
 	    columnNumbers = d3.map(),
 	    i = 0;
 
 	Array.prototype.forEach.call(th, function(header){
-	    var text = header.innerHTML;
+	    var text = header.innerHTML.toLowerCase();
 
 	    if (columns.indexOf(text) >= 0) {
 		columnNumbers.set(text, i);
@@ -29,35 +27,24 @@ ProcessModel.Scrape = function(nodes){
 	    i++;
 	});
 
-	if (columnNumbers.values().length === 3) {
+	if (columnNumbers.values().length === columns.length) {
 	    return columnNumbers;
 	}
 	return null;
     };
 
-    var parseRow = function(row, columnNumbers) {
-	var cells = row.getElementsByTagName("td");
-
+    var getRelevantCells = function(row, columnNumbers) {
+	var cells = row.getElementsByTagName("td"),
+	    data = d3.map();
 	if (cells.length === 0) {
 	    return null; // This is probably a header row.
 	}
-
+	
 	try {
-	    var evidenceCell = cells[(columnNumbers.get("evidence"))],
-		a = evidenceCell.getElementsByTagName("a"),
-		result = {
-		sufficiency: num(cells[columnNumbers.get("sufficiency")]),
-		necessity: num(cells[columnNumbers.get("necessity")])
-	    };
-
-	    if (a.length > 0) {
-		result.evidence = a[0].href;
-	    } else {
-		console.log("Not a valid row " + row.html);
-		return null;
-	    }
-	    return result;
-
+	    columnNumbers.entries().forEach(function(e){
+		data.set(e.key, cells[e.value]);
+	    });
+	    return data;
 	} catch (err) {
 	    console.log("Not a valid row " + row.html + " because " + err);
 	    return null;
@@ -80,6 +67,9 @@ ProcessModel.Scrape = function(nodes){
 	var children = [],
 	    errors = [],
 	    requestedChildren = [],
+	    dependence = null,
+	    success = null,
+	    failure = null,
 	    query = doc.getElementsByTagName ? doc.getElementsByTagName : doc.querySelectorAll;
 
 	var finished = function() {
@@ -91,6 +81,14 @@ ProcessModel.Scrape = function(nodes){
 		    .necessity(child.necessity)
 		    .sufficiency(child.sufficiency);
 	    });
+
+	    if (dependence) {
+		node.dependence(dependence);
+	    }
+
+	    if (success && failure) {
+		node.localEvidence([failure, success]);
+	    }
 	    
 	    callback(node);
 	};
@@ -101,23 +99,40 @@ ProcessModel.Scrape = function(nodes){
 	    }
 	};
 
-	// TODO: Dependence
-	// TODO: Local evidence
-
 	Array.prototype.forEach.call(query.call(doc, "table"), function(table){
-	    var columnNumbers = identifyColumns(table);
-
-	    if (!columnNumbers) {
-		return; // Not the table we're looking for.
-	    }
-
-	    Array.prototype.forEach.call(table.getElementsByTagName("tr"), function(row){
-		var parsed = parseRow(row, columnNumbers);
-		if (!parsed) {
-		    return; // This row had something we didn't understand in it.
-		}
+	    [
+		{columns: ["evidence", "necessity", "sufficiency"], f: function(data){ 
+		    var a = data.get("evidence").getElementsByTagName("a")[0],
+			result = {
+			    sufficiency: num(data.get("sufficiency")),
+			    necessity: num(data.get("necessity")),
+			    evidence: a.getAttribute("href")
+			};
 		
-		requestedChildren.push(parsed);
+		    requestedChildren.push(result);
+		}},
+
+		{columns: ["dependence"], f: function(data){
+		    dependence = num(data.get("dependence"));
+		}},
+
+		{columns: ["success", "failure"], f: function(data){
+		    success = num(data.get("success"));
+		    failure = num(data.get("failure"));
+		}}
+
+	    ].forEach(function(tableType){
+		var columnNumbers = identifyColumns(table, tableType.columns);
+		if (columnNumbers) {
+		    Array.prototype.forEach.call(table.getElementsByTagName("tr"), function(row){
+			var extracted = getRelevantCells(row, columnNumbers);
+			if (extracted) {
+			    tableType.f(extracted);
+			} else {
+			    // the row wasn't of the right type
+			}
+		    });
+		}
 	    });
 
 	    requestedChildren.forEach(function(c){
@@ -153,11 +168,17 @@ ProcessModel.Scrape = function(nodes){
 	 Given an initial page, will look for tables.
 	 If it finds a table with the columns evidence, necessity and sufficiency, it will attempt to treat each row in that table as a source of evidence.
 
-	 evidence: an anchor tag with an href OR an interval probability like [0, 1].
+	 Child nodes table:
+	 evidence: an anchor tag with an href
 	 necessity: a number between 0 and 1
 	 sufficiency a number between 0 and 1
 
-	 TODO: it should also get dependence from somewhere.
+	 Dependence table:
+	 dependence: a number between 0 and 1
+
+	 Evidence table (for leaf nodes only):
+	 success: a number between 0 and 1
+	 failure: a number between 0 and 1
 	 */
 	scrape : function(url, callback) {
 	    d3.html(url, function(error, html){
