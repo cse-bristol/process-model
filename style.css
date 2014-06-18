@@ -74,8 +74,8 @@ g.weight-half {
 }
 
 g.weight-half:hover {
-    transform: scale(2);
-    -webkit-transform: scale(2);
-    -ms-transform: scale(2);
-    -o-transform: scale(2);
+    transform: scale(1.8);
+    -webkit-transform: scale(1.8);
+    -ms-transform: scale(1.8);
+    -o-transform: scale(1.8);
 }

@@ -309,7 +309,7 @@ var edgeJunction = function(nodes) {
 };
 
 var drawNecessitySufficiency = function(groups, position) {
-    var circleR = 3,
+    var circleR = 5,
 	arc = d3.svg.arc()
 	    .outerRadius(circleR),
 	pie = d3.layout.pie()
