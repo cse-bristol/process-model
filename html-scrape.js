@@ -76,16 +76,15 @@ ProcessModel.Scrape = function(nodes){
 	return url;
     };
 
-    var scrapeNode = function(doc, callback) {
+    var scrapeNode = function(doc, originURL, callback) {
 	var children = [],
 	    errors = [],
 	    requestedChildren = [],
 	    query = doc.getElementsByTagName ? doc.getElementsByTagName : doc.querySelectorAll;
 
 	var finished = function() {
-	    var node = nodes.create(parseTitle(doc, query));
-
-	    // TODO title
+	    var node = nodes.create(parseTitle(doc, query))
+		    .url(originURL);
 
 	    children.forEach(function(child){
 		node.edgeTo(child.node)
@@ -128,7 +127,7 @@ ProcessModel.Scrape = function(nodes){
 			errors.push(c);
 		    }
 
-		    scrapeNode(html, function(node){
+		    scrapeNode(html, c.evidence, function(node){
 			c.node = node;
 			children.push(c);
 			maybeFinished();
@@ -140,9 +139,9 @@ ProcessModel.Scrape = function(nodes){
 	});
     };
 
-    var scrapeRoot = function(doc, callback) {
+    var scrapeRoot = function(doc, originURL, callback) {
 	nodes.reset();
-	scrapeNode(doc, function(node){
+	scrapeNode(doc, originURL, function(node){
 	    nodes.root(node);
 	    callback();
 	});
@@ -166,12 +165,12 @@ ProcessModel.Scrape = function(nodes){
 		    throw error.statusText;
 		}
 		
-		scrapeRoot(html, callback);
+		scrapeRoot(html, url, callback);
 	    });
 
 	},
 	scrapeCurrent: function(callback) {
-	    scrapeRoot(document, callback);
+	    scrapeRoot(document, window.location.href, callback);
 	}
 	
     };

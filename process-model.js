@@ -21,6 +21,56 @@ var nodeHeight = 50,
     nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
 
+var drawNodeName = function(nodes, newNodes) {
+    var nameGroups = newNodes.append("g")
+	    .classed("name", true)
+	    .attr("transform", "translate(20, 5)")
+	    .attr("width", nodeWidth - 15)
+	    .attr("height", 21);
+
+    nameGroups.append("a")
+	.append("text")
+	.attr("y", 10);
+
+    nodes.selectAll("g.name a")
+        .attr("xlink:href", function(d, i){
+	    return d.url();
+	})
+	.style("visibility", function(d, i){
+	    return d.url() ? "visible" : "hidden";
+	})
+	.selectAll("text")
+	.html(function(d, i){ 
+	    return d.name(); 
+	});
+
+    ProcessModel.svgEditableText(
+	nameGroups,
+	0,
+	0, 
+	nodeWidth - 15,
+	21, 
+	"node-name",
+	function(d, i){
+	    try {
+		d.name(this.value);
+		d3.select(this).classed("name-error", false);
+	    } catch (err) {
+		d3.select(this).classed("name-error", true);
+	    }
+	});
+
+    nodes.selectAll(".node-name")
+	.style("visibility", function(d, i){
+	    return d.url() ? "hidden" : "visible";
+	})
+	.attr("value", function(d, i){
+	    return d.name();
+	});
+
+
+};
+
 var drawExpandContract = function(g) {
     var expander = g.selectAll("g.expander")
 	.data(function(d, i){
@@ -425,21 +475,7 @@ var draw = function() {
 	.attr("width", nodeWidth + "px")
 	.attr("height", nodeHeight + "px");
 
-    ProcessModel.svgEditableText(
-	newNodes,
-	5,
-	5, 
-	nodeWidth - 15,
-	21, 
-	"node-name",
-	function(d, i){
-	    try {
-		d.name(this.value);
-		d3.select(this).classed("name-error", false);
-	    } catch (err) {
-		d3.select(this).classed("name-error", true);
-	    }
-	});
+    drawNodeName(nodeDisplay, newNodes);
     
     var closeEnough = function(bbox, x, y) {
 	return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
@@ -449,11 +485,6 @@ var draw = function() {
     nodeDisplay.transition().attr("transform", function(d, i){
 	return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
     });
-
-    nodeDisplay.selectAll(".node-name")
-	.attr("value", function(d, i){
-	    return d.name();
-	});
 
     newNodes.append("g")
 	.classed("interval", "true")

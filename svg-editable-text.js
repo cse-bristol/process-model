@@ -7,15 +7,15 @@ if (!ProcessModel) {
 }
 
 ProcessModel.svgEditableText = function(selection, x, y, width, height, name, inputFunction) {
-    var foreign = selection.append("foreignObject")
+    var foreign = selection
+	    .append("foreignObject")
 	    .attr("x", x)
 	    .attr("y", y)
 	    .attr("width", width)
-	    .attr("height", height);
-
-    foreign.append("xhtml:input")
-	.attr("type", "text")
-	.attr("name", name)
-	.classed(name, "true")
-	.on("input", inputFunction);
+	    .attr("height", height)
+	    .append("xhtml:input")
+	    .attr("type", "text")
+	    .attr("name", name)
+	    .classed(name, "true")
+	    .on("input", inputFunction);
 };

@@ -27,7 +27,7 @@ g.expander {
 input.node-name {
     font-family: "Courier New", Courier, monospace;
     width: 116px;
-    margin-left: 15px;
+    margin: 0;
     display: block;
     height: 10px;
 }

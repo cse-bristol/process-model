@@ -19,6 +19,7 @@ ProcessModel.Nodes = function() {
      "removeEdge",
      "p",
      "name",
+     "url",
      "countDescendents",
      "collapsed",
      "canCollapse"].forEach(function(f){
@@ -113,6 +114,7 @@ ProcessModel.Nodes = function() {
 	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 		localDep = 1,
 		edges = [],
+		url = null,
 		name = startName ? startName : "new " + newNodes++;	    
 	    var node = {
 		prototype: nodeInterface,
@@ -207,6 +209,13 @@ ProcessModel.Nodes = function() {
 			return node;
 		    }
 		    return name;
+		},
+		url: function(u) {
+		    if (u) {
+			url = u;
+			return this;
+		    }
+		    return url;
 		},
 		countDescendents: function() {
 		    var seen = [],
@@ -345,6 +354,9 @@ ProcessModel.Nodes = function() {
 		},
 		name: function() {
 		    return node.name();
+		},
+		url: function() {
+		    return node.url();
 		},
 		countDescendents : function() {
 		    return node.countDescendents();
