@@ -30,7 +30,9 @@ var drawNodeName = function(nodes, newNodes) {
 
     nameGroups.append("a")
 	.append("text")
-	.attr("y", 10);
+	.attr("y", 10)
+	.attr("textLength", nodeWidth - 25)
+    .attr("lengthAdjust", "spacingAndGlyphs");
 
     nodes.selectAll("g.name a")
         .attr("xlink:href", function(d, i){
