@@ -192,8 +192,13 @@ ProcessModel.Nodes = function() {
 		    if (edges.length === 0) {
 			return localE;
 		    } else {
-			// TODO: the maths
-			return [0.0, 1.0];
+			return ProcessModel.CombineEvidence(localDep, edges.map(function(e){
+			    return {
+				necessity: e.necessity(),
+				sufficiency: e.sufficiency(),
+				evidence: e.node().p()
+			    };
+			}));
 		    }
 		},
 		name: function(n) {
