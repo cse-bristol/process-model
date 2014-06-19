@@ -1,0 +1,66 @@
+* Process-Model
+A Process Model is a decision support tool to help with finding and dealing with risky elements within a process. To create a process model, you build up a hierarchy of processes, sub-processes, and evidence pointing at their likely success or failure within the project. Next, estimate the strength of the dependencies between them. The model will propagate these chances of success or failure upwards. By filling the completed model with plausible values and then experimenting with them, you may find which sub-processes are most likely to drive the success or cause the failure of the overall planning process.
+
+Evidence is specified as interval probabilities. These are two numbers in the form [P(failure), P(success)]. P(success) should be greater than P(failure) (unless we have conflicting evidence). P(success) and P(failure) should each be between 0 and 1 inclusive.
+
+We implement a process model as a directed acyclic graph.
+
+Each leaf node has local evidence, which is a single interval probability.
+
+Each non-leaf node has dependence, which is a single number between 0 and 1 inclusive which indicates how closely related its children are. Dependence of 1 means that only the most significant of those children will have an effect. Dependence of 0 means that
+
+Each edge has two numbers necessity and sufficiency, which are between 0 and 1 inclusive. These specify how important that child's evidence is. Necessity affects change of failure, and sufficiency affects chance of success.
+
+** Using the model
+*** Edges
+Each edge has a circle showing necessity (red) and sufficiency (green) next to it. Hover over the circle and use the mouse scroll wheel on each half to change these values for that edge.
+
+*** Evidence
+At the bottom of each node is its evidence. For leaf nodes, this is local evidence and may be adjusted by hovering over it and using the mouse scroll wheel.
+
+Red means certainty of failure. Green means certainty of success. White means uncertainty. Yellow means conflict (conflict cannot occur on leaf nodes).
+
+*** Node junction
+At the bottom of each node is a junction.
+
+ + Hover over the junction and use the mouse scroll wheel to change that node's dependence. This will have no effect for leaf nodes.
+ + Clicking on a junction creates a new node.
+ + Click-and-drag from a junction to another node to create a new edge. If the new edge would cause a cycle in the graph, it will not be created.
+
+** Data formats
+You can click the download link to export the model as JSON. You can then drag and drop this file onto the page to load it.
+
+You can drag and drop an XML file exported from Perimeta onto the page to load it.
+
+If the model is embedded into a web page using an iframe, it will attempt to load the model from the parent page using the HTML table format. Note that you will either need to serve both pages from the same origin, or add the Access-Control-Allow-Origin header to the parent page.
+
+*** HTML table format
+It you make an html table with columns named 'evidence', 'necessity' and 'sufficiency', it will attempt to load a child node from each row of that table. The evidence column should contain a link.
+
+If you make an html table with the column 'dependence', it will attempt to set the dependence based on the last row of that table.
+
+If you make an html table with the columns 'failure' and 'success', if will attempt to set the local evidence (for a leaf node) based on the last row of that table.
+
+** Known bugs (to fix)
+ + Does not work correctly with Firefox.
+ + Processes may be expanded/contracted as a visual aid to reduce clutter. There are some known bugs with this which need investigation and fixing.
+
+** Future Plans
+ + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
+ + Usability improvements: at present the program cannot be used without a mouse-wheel.
+ + More help and user instructions. This will largely be in the form of informative tooltips.
+ + Add functionality to save changes you've made in the process modelling tool back to a wiki.
+
+** Installing
+To install, clone the repository, then download the libraries using git submodule as follows.
+#+BEGIN_SRC sh
+  git clone git@github.com:cse-bristol/process-model.git
+  cd process-model
+  git submodule init
+  git subsubmodule update
+#+END_SRC
+
+Then serve using any web server, for example using python3 on a Debian system:
+#+BEGIN_SRC sh
+  sudo python3 -m http.server 80 &
+#+END_SRC
