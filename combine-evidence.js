@@ -26,35 +26,41 @@ if (!ProcessModel) {
  3. We assume that P(H|¬E) and P(¬H|E) are 0 (which is a conservative assumption).
  */
 
-var generateCombinations = function(intervals, length) {
-    if (intervals.length === 0 || length <= 0) {
-	return [];
-    }
-
-    if (length === 1) {
-	return intervals.map(function(f){
-	    return [f];
-	});
-    }
-
-    var first = intervals[0],
-	rest = intervals.slice(1);
-
-    return generateCombinations(rest, length - 1).map(function(f){
-	return [first].concat(f);
-    }).concat(generateCombinations(rest, length));
-};
-
 ProcessModel.CombineEvidence = function(dependence, evidence) {
     var getSn = function(interval) {
 	return interval[0];
     };
 
-    var getSp = function(interval) {
-	return interval[1];
+    /* Define goodness = (1 - Sp). This means we can use the same maths that we use for Sn. */
+    var getGoodness = function(interval) {
+	return 1 - interval[1];
     };
 
+    var clamp = function(min, evidence, max) {
+	return Math.min(max, 
+			Math.max(min, evidence));
+    };
 
+    /* TODO: memoize for better performance. */
+    var generateCombinations = function(intervals, length) {
+	if (intervals.length === 0 || length <= 0) {
+	    return [];
+	}
+
+	if (length === 1) {
+	    return intervals.map(function(f){
+		return [f];
+	    });
+	}
+
+	var first = intervals[0],
+	    rest = intervals.slice(1);
+
+	return generateCombinations(rest, length - 1).map(function(f){
+	    return [first].concat(f);
+	}).concat(generateCombinations(rest, length));
+    };
+    
 
     /* 
      Produce the term P(H|E)*P(E) for each item of evidence.
@@ -82,27 +88,36 @@ ProcessModel.CombineEvidence = function(dependence, evidence) {
     /*
      Combine the items of evidence using the dependence weighting.
      */
-    var signTimesDependence = dependence,
+    var signTimesDependence = 1,
 	sn = 0,
-	sp = 0,
+	goodness = 0,
 	len = intervals.length;
 
-    /* take combinations of 1 item of evidence, 2 items of evidence, ..., n items of evidence */
-    for (var i = 1; i < len; i++) {
+    /* Take all combinations of: 1 item of evidence, 2 items of evidence, ..., n items of evidence */
+    for (var i = 1; i <= len; i++) {
 	var combinations = generateCombinations(intervals, i);
 
 	combinations.forEach(function(c){
-	    sn += signTimesDependence * Math.min(c.map(getSn));
-	    /* 
-	     NOTE: This is presented as being min for Sp, but that is when there is an interval dependence [Pl, Pu]. Here we only have a single value for dependence, so this may no longer be true.
-	     */
-	    sp += signTimesDependence * Math.min(c.map(getSp));
+	    sn += signTimesDependence * Math.min.apply(null, c.map(getSn));
+	    goodness += signTimesDependence * Math.min.apply(null, c.map(getGoodness));
 	});
 	
 	/* alternate the sign, because each time we either overcount or undercount and we are correcting for that. */
 	signTimesDependence *= -1;
+
+	if (i == 1) {
+	    /* 
+	     Dependence has no impact on the first set of pieces of evidence.
+	     Note: we don't know what effect dependence should have when combining 3 or more pieces of evidence.
+	     */
+	    signTimesDependence *= dependence;
+	}
     }
 
-    return [sn, sp];
+    /* TODO: instead of clamping these, work out and enforce the minimum bound on dependence? */
+    sn = clamp(0, sn, 1);
+    goodness = clamp(0, goodness, 1);
+
+    return [sn, 1 - goodness];
 
 };
