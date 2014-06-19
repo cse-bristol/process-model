@@ -544,6 +544,10 @@ var update = function() {
 if (parent !== window) {
     /* If we're in an iframe, assume our parent is what we want to scrape. */
     ProcessModel.Scrape(nodes).scrape(document.referrer, update);
-} else {
+} 
+if (nodes.root() === null) {q
     ProcessModel.Scrape(nodes).scrapeCurrent(update);
+}
+if (nodes.root() === null) {
+    ProcessModel.Scrape(nodes).scrape("table-test.html", update);
 }
