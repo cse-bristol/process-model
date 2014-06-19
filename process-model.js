@@ -118,11 +118,16 @@ var drawIntervalParts = function(g) {
     /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
     var parts = g.selectAll("rect")
     	    .data(function(d, i){
-		var p = d.p();
+		var p = d.p(),
+		    lower = Math.min(p[0], p[1]),
+		    upper = Math.max(p[0], p[1]),
+		    conflict = p[0] > p[1],
+		    gap = upper - lower;
 		return [
-		    {node: d, type: "failure", width: p[0], x: 0},
-		    {node: d, type: "uncertainty", width: p[1] - p[0], x: p[0]},
-		    {node: d, type: "success", width: 1 - p[1], x: p[1]}
+		    {node: d, type: "failure", width: lower, x: 0},
+		    {node: d, type: "conflict", width: conflict ? gap : 0, x: lower},
+		    {node: d, type: "uncertainty", width: conflict ? 0 : gap, x: lower},
+		    {node: d, type: "success", width: 1 - upper, x: upper}
 		];
 	    });
 

@@ -49,7 +49,7 @@ rect.failure {
 }
 
 rect.conflict {
-    fill: amber;
+    fill: #FFBF00;
 }
 
 .handle:hover {
