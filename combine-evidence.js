@@ -25,6 +25,26 @@ if (!ProcessModel) {
 
  3. We assume that P(H|¬E) and P(¬H|E) are 0 (which is a conservative assumption).
  */
+
+var generateCombinations = function(intervals, length) {
+    if (intervals.length === 0 || length <= 0) {
+	return [];
+    }
+
+    if (length === 1) {
+	return intervals.map(function(f){
+	    return [f];
+	});
+    }
+
+    var first = intervals[0],
+	rest = intervals.slice(1);
+
+    return generateCombinations(rest, length - 1).map(function(f){
+	return [first].concat(f);
+    }).concat(generateCombinations(rest, length));
+};
+
 ProcessModel.CombineEvidence = function(dependence, evidence) {
     var getSn = function(interval) {
 	return interval[0];
@@ -34,18 +54,7 @@ ProcessModel.CombineEvidence = function(dependence, evidence) {
 	return interval[1];
     };
 
-    var generateCombinations = function(intervals, length) {
-	if (intervals === [] || length === 0) {
-	    return [];
-	}
 
-	var first = intervals[0],
-	    rest = intervals.slice(1);
-
-	return generateCombinations(rest, length - 1).map(function(f){
-	    first.concat(f);
-	}).concat(generateCombinations(rest, length));
-    };
 
     /* 
      Produce the term P(H|E)*P(E) for each item of evidence.
@@ -93,5 +102,7 @@ ProcessModel.CombineEvidence = function(dependence, evidence) {
 	/* alternate the sign, because each time we either overcount or undercount and we are correcting for that. */
 	signTimesDependence *= -1;
     }
+
+    return [sn, sp];
 
 };
