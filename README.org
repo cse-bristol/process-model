@@ -51,6 +51,9 @@ If you make an html table with the columns 'failure' and 'success', if will atte
  + More help and user instructions. This will largely be in the form of informative tooltips.
  + Add functionality to save changes you've made in the process modelling tool back to a wiki.
 
+** Source code
+[[https://github.com/cse-bristol/process-model][Get the source code]]
+
 ** Installing
 To install, clone the repository, then download the libraries using git submodule as follows.
 #+BEGIN_SRC sh
