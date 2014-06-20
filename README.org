@@ -23,7 +23,7 @@ Each edge has a circle showing necessity (red) and sufficiency (green) next to i
 *** Evidence
 At the bottom of each node is its evidence. For leaf nodes, this is local evidence and may be adjusted by hovering over it and using the mouse scroll wheel.
 
-Red means certainty of failure. Green means certainty of success. White means uncertainty. Yellow means conflict (conflict cannot occur on leaf nodes).
+Red means certainty of failure. Green means certainty of success. White means uncertainty. Blue means conflict (conflict cannot occur on leaf nodes).
 
 *** Node junction
 At the bottom of each node is a junction.
