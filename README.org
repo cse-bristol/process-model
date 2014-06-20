@@ -12,6 +12,11 @@ Each non-leaf node has dependence, which is a single number between 0 and 1 incl
 Each edge has two numbers necessity and sufficiency, which are between 0 and 1 inclusive. These specify how important that child's evidence is. Necessity affects change of failure, and sufficiency affects chance of success.
 
 ** Using the model
+*** Pan and Zoom
+Click and drag on an empty area of the diagram to move around.
+
+Zoom in and out using your mouse scrollwheel. Alternatively, if you have a touchscreen or trackpad, use the standard pinch zoom gestures.
+
 *** Edges
 Each edge has a circle showing necessity (red) and sufficiency (green) next to it. Hover over the circle and use the mouse scroll wheel on each half to change these values for that edge.
 
