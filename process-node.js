@@ -95,6 +95,9 @@ ProcessModel.Nodes = function() {
 	all : function() {
 	    return nodes.values();
 	},
+	has: function(nodeName) {
+	    return nodes.has(nodeName);
+	},
 	get : function(nodeName) {
 	    return nodes.get(nodeName);
 	},
@@ -111,6 +114,10 @@ ProcessModel.Nodes = function() {
 	    return root;
 	},
 	create : function(startName) {
+	    if (nodes.has(startName)) {
+		throw "Tried to create a node that already exists " + startName;
+	    }
+
 	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 		localDep = 1,
 		edges = [],

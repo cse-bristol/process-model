@@ -6,8 +6,6 @@ if (!ProcessModel) {
     var ProcessModel = {};
 }
 
-// result.evidence = JSON.parse(evidenceCell.innerHtml);
-
 ProcessModel.Scrape = function(nodes){
     var num = function(el) {
 	return parseFloat(el.childNodes[0].data);
@@ -16,6 +14,57 @@ ProcessModel.Scrape = function(nodes){
     var isUrlAbsolute = new RegExp('^(?:[a-z]+:)?//', 'i');
     var isAbsolute = function(url) {
 	return isUrlAbsolute.test(url);
+    };
+
+    var makeURL = function(originURL, maybeRelativeURL) {
+	if (isAbsolute(maybeRelativeURL)) {
+	    return maybeRelativeURL;
+	}
+
+	var parts = originURL.split("/");
+	parts.splice(parts.length - 1, 1);
+	
+	return parts.join("/") + "/" + maybeRelativeURL;
+    };
+
+    var makeNodeCallbackHandler = function(){
+	var cache = d3.map();
+	var errors = d3.map();
+	var callbacks = d3.map();
+	var errbacks = d3.map();
+
+	var handler = function(url, errback, callback) {
+	    if (cache.has(url)) {
+		callback(cache.get(url));
+	    } else if (errors.has(url)) {
+		errback(errors.get(url));
+	    }
+	    else {
+		if (!callbacks.has(url)) {
+		    callbacks.set(url, []);
+		    errbacks.set(url, []);
+		}
+		callbacks.get(url).push(callback);
+		errbacks.get(url).push(callback);
+
+		d3.html(url, function(error, html){
+		    if (error) {
+			errors.set(url, error);
+			errbacks.get(url).forEach(function(e){
+			    e(error);
+			});
+		    } else {
+			scrapeNode(html, url, handler, function(node){
+			    cache.set(url, node);
+			    callbacks.get(url).forEach(function(c){
+				c(node);
+			    });
+			});
+		    }
+		});
+	    }
+	};
+	return handler;
     };
 
     var identifyColumns = function(table, columns) {
@@ -68,7 +117,7 @@ ProcessModel.Scrape = function(nodes){
 	return url;
     };
 
-    var scrapeNode = function(doc, originURL, callback) {
+    var scrapeNode = function(doc, originURL, nodeCallbackHandler, callback) {
 	var children = [],
 	    errors = [],
 	    requestedChildren = [],
@@ -78,7 +127,14 @@ ProcessModel.Scrape = function(nodes){
 	    query = doc.getElementsByTagName ? doc.getElementsByTagName : doc.querySelectorAll;
 
 	var finished = function() {
-	    var node = nodes.create(parseTitle(doc, query))
+	    var title = parseTitle(doc, query);
+
+	    if (nodes.has(title)) {
+		callback(nodes.get(title));
+		return;
+	    }
+
+	    var node = nodes.create(title)
 		    .url(originURL);
 
 	    children.forEach(function(child){
@@ -113,7 +169,7 @@ ProcessModel.Scrape = function(nodes){
 			    necessity: num(data.get("necessity")),
 			    evidence: a.getAttribute("href")
 			};
-		
+		    
 		    requestedChildren.push(result);
 		}},
 
@@ -144,31 +200,29 @@ ProcessModel.Scrape = function(nodes){
 		    });
 		}
 	    });
-
-	    requestedChildren.forEach(function(c){
-		var url = isAbsolute(c.evidence) ? c.evidence : originURL + "/../" + c.evidence;
-		d3.html(url, function(error, html){
-		    if (error) {
-			console.log("Failed to scrape page " + url + " " + error);
-			errors.push(c);
-			maybeFinished();
-		    } else {
-			scrapeNode(html, url, function(node){
-			    c.node = node;
-			    children.push(c);
-			    maybeFinished();
-			});
-		    }
-		});
-	    });
-	    /* If we have no children, this will be ready now. */
-	    maybeFinished();
 	});
+
+	requestedChildren.forEach(function(c){
+	    var url = makeURL(originURL, c.evidence);
+	    nodeCallbackHandler(url, 
+				function(error){
+				    console.log("Failed to scrape page " + url + " " + error);
+				    errors.push(c);
+				    maybeFinished();
+				}, 
+				function(node){
+				    c.node = node;
+				    children.push(c);
+					maybeFinished();
+				});
+	});
+	/* If we have no children, this will be ready now. */
+	maybeFinished();
     };
 
     var scrapeRoot = function(doc, originURL, callback) {
 	nodes.reset();
-	scrapeNode(doc, originURL, function(node){
+	scrapeNode(doc, originURL, makeNodeCallbackHandler(), function(node){
 	    nodes.root(node);
 	    callback();
 	});
