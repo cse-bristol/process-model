@@ -34,7 +34,10 @@ ProcessModel.Layout = function(root, nodeWidth, nodeHeight) {
 	graph.addEdge(null, e[0], e[1]);
     });
 
-    var layout = dagre.layout().run(graph);
+    var layout = dagre.layout()
+	    .nodeSep(10)
+	    .rankSep(70)
+	    .run(graph);
     layout.eachNode(function(n, val){
 	var node = nodes.get(n);
 	node.x = val.x;
