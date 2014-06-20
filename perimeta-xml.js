@@ -67,7 +67,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	    if (node.isLeaf()) {
 		node.localEvidence(evidence);
 	    } else {
-		var evidenceNode = nodes.create();
+		var evidenceNode = nodes.create(node.name() + " evidence");
 		evidenceNode.localEvidence(evidence);
 		var localEvidenceEdge = node.edgeTo(evidenceNode);
 		if (localEvidenceWeight > 0 && propagatedEvidenceWeight > 0) {

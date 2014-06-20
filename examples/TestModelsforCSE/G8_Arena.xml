@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmamDocument xmlns="http://www.cen.bris.ac.uk/civil/cmam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cen.bris.ac.uk/civil/cmam cmam-model.xsd" editedInVersion="2.1.7Beta">
+  <model name="Untitled 10" learningRate="1.0" necessityPower="1.0" propagationAlgorithm="Belief Propagation" normalizationMethod="Yager's Method" pairwiseCombinationMethod="Minimum of pairs" />
+  <aspect id="0" name="Overview" colour="-1" />
+  <process>
+    <node id="1" name="Greening The Arena">
+      <location x="188" y="112" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.77451184</sn>
+          <sp>0.77451184</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="2" name="Mitigating Against Purchasing Financial Concessions">
+      <location x="80" y="215" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="3" name="Using Green Technologies and Applicances">
+      <location x="200" y="220" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.28</sn>
+          <sp>0.82</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="4" name="Guaranteeing Polictical Buy-In">
+      <location x="325" y="220" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.355</sn>
+          <sp>0.645</sp>
+        </localFOM>
+        <propFOM>
+          <sn>0.4</sn>
+          <sp>0.4</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="5" name="Harvesting Rain Water">
+      <location x="200" y="335" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="6" name="Securing Mayoral Assent ">
+      <location x="335" y="330" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>1.0</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="7" name="Using Supportive Green IT">
+      <location x="475" y="220" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.53</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="8" name="Iconoclasting the Arena">
+      <location x="600" y="215" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <link parentNodeId="1" childNodeId="3">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="2">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="4">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="3" childNodeId="5">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="4" childNodeId="6">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="7">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="8">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+</cmamDocument>
+

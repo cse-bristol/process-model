@@ -1,0 +1,1383 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmamDocument xmlns="http://www.cen.bris.ac.uk/civil/cmam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cen.bris.ac.uk/civil/cmam cmam-model.xsd" editedInVersion="2.1.7Beta">
+  <model name="Achieving Low Carbon Mobility" learningRate="1.0" necessityPower="1.0" propagationAlgorithm="Juniper" normalizationMethod="Yager's Method" pairwiseCombinationMethod="Minimum of pairs" />
+  <aspect id="0" name="Overview" colour="-1" />
+  <process>
+    <node id="1" name="Achieving Low Carbon Mobility">
+      <location x="655" y="30" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.50515256</sn>
+          <sp>0.63789951</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="2" name="Trying Rhetoric to Reality">
+      <location x="485" y="180" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.02</sp>
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="3" name="Urban Planning (NBCC) to Support L.C. Mobility ">
+      <location x="930" y="180" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="4" name="Providing L.C. Public Transport">
+      <location x="1075" y="180" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.5104</sn>
+          <sp>0.853</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="5" name="Analysing Transport and Use And Profiling ">
+      <location x="1305" y="185" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.4849408</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="6" name="Providing LC Freight/ Delivery (the unseen mobility with large potential)">
+      <location x="1480" y="185" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.5887</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="7" name="Including TQEZ in freight consolidation Scheme">
+      <location x="1570" y="305" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="8" name="Cycling Carriers (Cargo Cycles)">
+      <location x="1450" y="305" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.47</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="9" name="Defining Categories of Travellers (commuting, working in the zone) ">
+      <location x="1215" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="10" name="Analysing Comparable Cities">
+      <location x="1345" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.396</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="13" name="Understanding relationship between LC and sustainability">
+      <location x="50" y="185" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.1812</sn>
+          <sp>0.928</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="14" name="Delivering and Mainstreaming hierarchy of preference in trasnport/supply modes for social/ health/LC ">
+      <location x="50" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.51</sn>
+          <sp>0.52</sp>
+        </localFOM>
+        <propFOM>
+          <sn>0.396</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="15" name="Enabling low carbon mobility">
+      <location x="220" y="185" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.351976</sn>
+          <sp>0.844459</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="16" name="Encouraging Low carbon mobility">
+      <location x="715" y="175" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.08</sn>
+          <sp>0.856</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="17" name="Changing dominant social practices ">
+      <location x="485" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="18" name="Training for TQEZ stakeholders">
+      <location x="160" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="19" name="Providing supporting information with ICT">
+      <location x="345" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.97</sn>
+          <sp>0.98</sp>
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="20" name="Developing Biz/Bldg travel plans">
+      <location x="145" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.49</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="21" name="Providing in-bldg facilities">
+      <location x="50" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>(showers &amp; lockers)</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.99</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="22" name="Setting up commuting associations of companies">
+      <location x="685" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="23" name="Limiting the need for mobility">
+      <location x="585" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.04</sp>
+        </localFOM>
+        <propFOM>
+          <sn>0.4</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="24" name="Developing/requiring/using cideo-meeting facilities">
+      <location x="645" y="430" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="25" name="Promoting non-motorised travel">
+      <location x="820" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="26" name="People focused mobility planning">
+      <location x="930" y="310" nodeWidth="84" nodeHeight="80" />
+      <desc>Not modes focused</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="27" name="Facilitating adequate routes (train &amp; bus)">
+      <location x="1030" y="310" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.5</sn>
+          <sp>0.51</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="28" name="Creating public transport hubs">
+      <location x="1125" y="310" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.97</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="29" name="Establishing kgCO2/pass for modes">
+      <location x="1220" y="400" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.97</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="30" name="Analysing current trasnport patterns in Bristol">
+      <location x="1280" y="515" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="31" name="Researching (travel surveys) baseline">
+      <location x="1350" y="405" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.99</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="32" name="Real time parking information">
+      <location x="345" y="410" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="33" name="Advertising benefits of activ travel">
+      <location x="760" y="390" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="34" name="Developing/ Providing attractive non-vehicle routes indside &amp; outside TQEZ">
+      <location x="930" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="35" name="Living locally">
+      <location x="545" y="430" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>1.0</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="36" name="Promoting borrowable bikes">
+      <location x="245" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.49</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="40" name="Integrating between TQEZ &amp; rest of area">
+      <location x="745" y="545" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="48" name="Setting up electric charging points">
+      <location x="250" y="300" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <option preferredOption="true">
+    <node id="12" name="Providing subsidised premises for cuycle courier businesses ">
+      <location x="1455" y="420" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="38" name="Mandating development of sustanable travel plans by tenant businesses">
+      <location x="145" y="525" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="39" name="Limiting car parking and increasing bike parking">
+      <location x="245" y="525" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="41" name="Providing better signaget for cyclists">
+      <location x="960" y="535" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="42" name="Removing signage saying 'no cycling' from cycle routes">
+      <location x="1075" y="535" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="43" name="Providing safe bridges for cyclistss ">
+      <location x="1175" y="530" nodeWidth="84" nodeHeight="80" />
+      <desc>- higher perspective
+- not cheese grater</desc>
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="44" name="Providing walkers on raoad crossings to remove having to stop and wait at every crossing">
+      <location x="960" y="635" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="45" name="Providing steps in the right places">
+      <location x="1045" y="635" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="46" name="Providing good routes walking to/ from bus stops">
+      <location x="1145" y="635" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="47" name="Connecting to park and rides">
+      <location x="860" y="540" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <link parentNodeId="1" childNodeId="2">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="3">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="4">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="5">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="6">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="6" childNodeId="7">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="6" childNodeId="8">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="5" childNodeId="9">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="5" childNodeId="10">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="8" childNodeId="12">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="13">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="13" childNodeId="14">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="15">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="16">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="2" childNodeId="17">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="15" childNodeId="18">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="15" childNodeId="19">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="15" childNodeId="20">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="14" childNodeId="21">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="16" childNodeId="22">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="23" childNodeId="24">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="16" childNodeId="23">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="16" childNodeId="25">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="3" childNodeId="26">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="4" childNodeId="27">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="4" childNodeId="28">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="5" childNodeId="29">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="5" childNodeId="30">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="10" childNodeId="31">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="19" childNodeId="32">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="16" childNodeId="33">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="26" childNodeId="34">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="23" childNodeId="35">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="15" childNodeId="36">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="20" childNodeId="38">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="20" childNodeId="39">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="40">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="41">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="42">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="43">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="41" childNodeId="44">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="45">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="46">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="34" childNodeId="47">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="15" childNodeId="48">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+</cmamDocument>
+
