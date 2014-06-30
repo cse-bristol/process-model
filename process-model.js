@@ -22,7 +22,8 @@ var nodeHeight = 50,
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
 
 var drawNodeName = function(nodes, newNodes) {
-    var nameGroups = newNodes.append("g")
+    var foreignObjectSupported = document.implementation.hasFeature("w3.org/TR/SVG11/feature#Extensibility","1.1"),
+	nameGroups = newNodes.append("g")
 	    .classed("name", true)
 	    .attr("transform", "translate(20, 5)")
 	    .attr("width", nodeWidth - 15)
@@ -40,7 +41,7 @@ var drawNodeName = function(nodes, newNodes) {
 	})
 	.attr("target", "_parent")
 	.style("visibility", function(d, i){
-	    return d.url() ? "visible" : "hidden";
+	    return (d.url() || !foreignObjectSupported) ? "visible" : "hidden";
 	})
 	.selectAll("text")
 	.text(function(d, i){ 
@@ -65,7 +66,7 @@ var drawNodeName = function(nodes, newNodes) {
 
     nodes.selectAll(".node-name")
 	.style("visibility", function(d, i){
-	    return d.url() ? "hidden" : "visible";
+	    return (d.url() && foreignObjectSupported) ? "hidden" : "visible";
 	})
 	.attr("value", function(d, i){
 	    return d.name();
