@@ -129,7 +129,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	if (nodesWithoutParents.length === 0) {
 	    throw "Founds nodes, but no possible root node. We must have introduced a cyclic dependency";
 	} else if (nodesWithoutParents.length === 1) {
-	    return nodesWithoutParents[1];
+	    return nodesWithoutParents[0];
 	}
 
 	nodesWithoutParents.sort(function(a, b){
