@@ -43,7 +43,7 @@ var drawNodeName = function(nodes, newNodes) {
 	    return d.url() ? "visible" : "hidden";
 	})
 	.selectAll("text")
-	.html(function(d, i){ 
+	.text(function(d, i){ 
 	    return d.name(); 
 	});
 
@@ -109,8 +109,8 @@ var drawExpandContract = function(g) {
 	.data(function(d, i){
 	    return [d];
 	})
-	.html(function(d, i){
-	    return d.collapsed() ? "+" : "&#8259;";
+	.text(function(d, i){
+	    return d.collapsed() ? "+" : String.fromCharCode("8259");
 	});
 };
 
