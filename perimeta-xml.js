@@ -148,13 +148,13 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 		nodesById = d3.map();
 
 	    Array.prototype.forEach.call(nodeElements, function(n){
-		nodesById.set(n.id, loadNode(n));
+		nodesById.set(n.getAttribute("id"), loadNode(n));
 	    });
 
 	    loadLinks(links, nodesById);
 
 	    Array.prototype.forEach.call(nodeElements, function(n){
-		loadNodeDetails(n, nodesById.get(n.id));
+		loadNodeDetails(n, nodesById.get(n.getAttribute("id")));
 	    });
 
 	    nodes.root(findRootNodes(nodesById));
