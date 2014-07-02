@@ -16,18 +16,23 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 		collapsedNodes.remove(n);
 	    }
 	});
-	manualPositions.keys().forEach(function(){
+	manualPositions.keys().forEach(function(n){
+	    if (!nodes.has(n)) {
+		manualPositions.remove(n);
+	    }
 	});
     };
 
-    var nodesToRemoveBecauseOfCollapse = function() {
+    var nodesToKeep = function() {
 	var stack = [nodes.root()],
-	    found = d3.set(),
-	    foundFromCollapsed = d3.map();
+	    found = d3.map(),
+	    foundFromCollapsed = d3.set();
 
 	while(stack.length > 0) {
 	    var current = stack.pop(),
 		isCollapsed = collapsedNodes.has(current.name());
+
+	    found.set(current.name(), current);
 
 	    current.edges().forEach(function(e){
 		/* 
@@ -38,19 +43,18 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 
 		} else if (!isCollapsed || foundFromCollapsed.has(e.node().name())) {
 		    stack.push(e.node());
-		    found.add(e.node().name());
 		    foundFromCollapsed.remove(e.node().name());
 
 		} else {
-		    foundFromCollapsed.set(e.node().name(), e.node());
+		    foundFromCollapsed.add(e.node().name());
 		}
 	    });
 	}
 
-	return foundFromCollapsed;
+	return found;
     };
 
-    var buildDisplayGraph = function(unreachable) {
+    var buildDisplayGraph = function(reachable) {
 	var displayNodes = d3.map();
 
 	var buildCollapsedEdges = function(collapsedNode) {
@@ -63,7 +67,7 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 		if (targets.has(currentNode.name())) {
 		    // NOOP
 
-		} else if (unreachable.has(currentNode.name())) {
+		} else if (!reachable.has(currentNode.name())) {
 		    stack = stack.concat(currentNode.edges());
 		} else {
 		    targets.set(currentNode.name(), currentNode);
@@ -293,11 +297,11 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	display: function() {
 	    cleanup();
 
-	    var unreachable = nodesToRemoveBecauseOfCollapse(),
+	    var reachable = nodesToKeep(),
 		reachableCollapsed = nodes.all().filter(function(n){
-		    return !unreachable.has(n.name()) && collapsedNodes.has(n.name());
+		    return reachable.has(n.name()) && collapsedNodes.has(n.name());
 		}),
-		displayGraph = buildDisplayGraph(unreachable);
+		displayGraph = buildDisplayGraph(reachable);
 
 	    var result = asNodeAndEdgeLists(displayGraph);
 
@@ -307,7 +311,7 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	    }
 
 	    var layoutRoots = result.nodes.filter(function(n){
-		return manualPositions.has(n.name()) && !unreachable.has(n.name());
+		return manualPositions.has(n.name()) && reachable.has(n.name());
 	    });
 
 	    while (layoutRoots.length > 0) {
