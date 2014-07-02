@@ -21,6 +21,8 @@ var nodeHeight = 50,
     nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
     nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
 
+var layout = ProcessModel.Layout(nodes, nodeWidth, nodeHeight);
+
 var drawNodeName = function(nodes, newNodes) {
     var foreignObjectSupported = document.implementation.hasFeature("w3.org/TR/SVG11/feature#Extensibility","1.1"),
 	nameGroups = newNodes.append("g")
@@ -464,10 +466,10 @@ var markNecessitySufficiencyForEdges = function(edgeGroups) {
 };
 
 var draw = function() {
-    var layout = ProcessModel.Layout(nodes.root(), nodeWidth, nodeHeight);
+    var display = layout.display();
     
     var nodeDisplay = g.selectAll("g.process-node")
-	    .data(layout.nodes, function(d, i){
+	    .data(display.nodes, function(d, i){
 		return d.name();
 	    });
 
@@ -505,7 +507,7 @@ var draw = function() {
     edgeJunction(nodeDisplay);
     
     var edges = g.selectAll("g.edge")
-	    .data(layout.edges);
+	    .data(display.edges);
 
     edges.exit().remove();
 

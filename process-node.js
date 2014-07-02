@@ -7,37 +7,7 @@ if (!ProcessModel) {
 }
 
 ProcessModel.Nodes = function() {
-    var nodes, newNodes, root,
-	nodeInterface = {},
-	edgeInterface = {};
-
-    ["localEvidence", 
-     "dependence",
-     "isLeaf",
-     "edges",
-     "edgeTo",
-     "removeEdge",
-     "p",
-     "name",
-     "url",
-     "countDescendents",
-     "collapsed",
-     "canCollapse"].forEach(function(f){
-	 nodeInterface[f] = function() {
-	     throw "Not implemented";
-	 };
-     });
-
-    ["necessity",
-     "sufficiency",
-     "node",
-     "parent",
-     "disconnect",
-     "canModifiy"].forEach(function(f){
-	edgeInterface[f] = function() {
-	    throw "Not Implemented";
-	};
-    });
+    var nodes, newNodes, root;
 
     var clamp = function(min, num, max) {
 	return Math.max(min, Math.min(max, num));
@@ -124,7 +94,6 @@ ProcessModel.Nodes = function() {
 		url = null,
 		name = startName ? startName : "new " + newNodes++;	    
 	    var node = {
-		prototype: nodeInterface,
 		localEvidence: function(evidence) {
 		    if (evidence) {
 			if (edges.length > 0) {
@@ -245,12 +214,6 @@ ProcessModel.Nodes = function() {
 
 		    return seen.length;
 		},
-		collapsed: function(shouldCollapse) {
-		    if (shouldCollapse) {
-			return module.collapse(node);
-		    }
-		    return false;
-		},
 		canCollapse: function() {
 		    return !node.isLeaf();
 		}
@@ -268,7 +231,6 @@ ProcessModel.Nodes = function() {
 		sufficiency = 0.5;
 
 	    var edge = {
-		prototype: edgeInterface,
 		necessity : function(n) {
 		    if (n) {
 			necessity = clamp(0, n, 1);
@@ -292,145 +254,9 @@ ProcessModel.Nodes = function() {
 		/* Removes the edge. Tests if any nodes are now unreachable from the root node, and removes them too. */
 		disconnect: function() {
 		    from.removeEdge(edge);
-		},
-		canModify: function() {
-		    return true;
 		}
 	    };
 	    return edge;
-	},
-	combinedEdge: function(from, to) {
-	    var edge = {
-		prototype: edgeInterface,
-		necessity: function(n) {
-		    throw "Necessity has no meaning on combined edge from " + from.name() + " to " + to.name();
-		},
-		sufficiency: function(s) {
-		    throw "Sufficiency has no meaning on on combined edge from " + from.name() + " to " + to.name();
-		},
-		node: function() {
-		    return to;
-		},
-		parent: function() {
-		    return from;
-		},
-		disconnect: function() {
-		    throw "Cannot disconnect a combined edge";
-		},
-		canModify: function() {
-		    return false;
-		}
-	    };
-	    return edge;
-	},
-	collapse: function(node) {
-	    var nodesToCollapse = d3.map(nodes),
-		edges = [];
-
-	    if (node.collapsed()) {
-		throw "Node already collapsed: " + node.name();
-	    }
-
-	    var collapsedNode = {
-		prototype: nodeInterface,
-		localEvidence: function() {
-		    throw "Local evidence not applicable for a collapsed node " + node.name();
-		},
-		dependence: function(d) {
-		    throw "Dependence has no meaning for a collapsed node " + node.name();
-		},
-		isLeaf: function() {
-		    return edges.length === 0;
-		},
-		edges: function() {
-		    return edges;
-		},
-		edgeTo: function(to) {
-		    var existingEdge;
-		    edges.forEach(function(e){
-			if (e.node() === to) {
-			    existingEdge = e;
-			}
-		    });
-		    if (existingEdge) {
-			return existingEdge;
-		    }
-
-		    throw "Cannot add new edges to a collapsed node " + node.name();
-		},
-		removeEdge: function() {
-		    throw "Cannot remove edges from a collapsed node " + node.name();
-		},
-		p: function() {
-		    return node.p();
-		},
-		name: function() {
-		    return node.name();
-		},
-		url: function() {
-		    return node.url();
-		},
-		countDescendents : function() {
-		    return node.countDescendents();
-		},
-		collapsed: function(shouldCollapse) {
-		    if (shouldCollapse === false) {
-			if (root === collapsedNode) {
-			    root = node;
-			}
-
-			edgesToNode(collapsedNode).forEach(function(e){
-			    e.disconnect();
-			    e.parent().edgeTo(node)
-				.necessity(e.necessity())
-				.sufficiency(e.sufficiency());
-			});
-
-			removeUnreachable();
-
-			nodesToCollapse.values().forEach(function(n){
-			    nodes.set(n.name(), n);
-			});
-		    }
-		    return true;
-		},
-		canCollapse: function() {
-		    return false;
-		}
-	    };
-
-	    if (root === node) {
-		root = collapsedNode;
-	    }
-
-	    edgesToNode(node).forEach(function(e){
-		e.disconnect();
-		e.parent().edgeTo(collapsedNode)
-		    .necessity(e.necessity())
-		    .sufficiency(e.sufficiency());
-	    });
-
-	    removeUnreachable();
-
-	    nodes.keys().forEach(function(n){
-		nodesToCollapse.remove(n);
-	    });
-	    nodesToCollapse.set(node.name(), node);
-
-	    var children = d3.set();
-	    nodesToCollapse.values().forEach(function(n){
-		n.edges().forEach(function(e){
-		    // don't make edges to any nodes in nodesToCollapse
-		    // don't make edges to nodes that we've already pointed at
-		    if (nodesToCollapse.has(e.node().name())
-			|| children.has(e.node().name())) {
-			return;
-		    }
-
-		    edges.push(module.combinedEdge(collapsedNode, e.node()));
-		});
-	    });
-	    return collapsedNode;
 	}
     };
 
