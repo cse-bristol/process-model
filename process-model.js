@@ -23,18 +23,39 @@ var nodeHeight = 50,
 
 var layout = ProcessModel.Layout(nodes, nodeWidth, nodeHeight);
 
+var drawMoveHandle = function(nodes, newNodes) {
+    var dragHandle = d3.behavior.drag()
+	    .on("dragstart", function(d){
+		/* Nothing else should get this click now. */
+		d3.event.sourceEvent.stopPropagation();
+	    })
+	    .on("drag", function(d){
+		d.position([d3.event.sourceEvent.clientX - nodeWidth, d3.event.sourceEvent.clientY - nodeHeight]);
+		update();
+	    }),
+	handles = newNodes.append("g")
+	    .attr("transform", "translate(" + (nodeWidth - 15) + "," + 15 + ")")
+	    .classed("move-handle", true)
+	    .append("text")
+	    .attr("draggable", true)
+	    .text(String.fromCharCode("10021"))
+	    .call(dragHandle);
+
+    // TODO button to return a node to auto layout
+};
+
 var drawNodeName = function(nodes, newNodes) {
     var foreignObjectSupported = document.implementation.hasFeature("w3.org/TR/SVG11/feature#Extensibility","1.1"),
 	nameGroups = newNodes.append("g")
 	    .classed("name", true)
 	    .attr("transform", "translate(20, 5)")
-	    .attr("width", nodeWidth - 15)
+	    .attr("width", nodeWidth - 25)
 	    .attr("height", 21);
 
     nameGroups.append("a")
 	.append("text")
 	.attr("y", 10)
-	.attr("textLength", nodeWidth - 25)
+	.attr("textLength", nodeWidth - 35)
     .attr("lengthAdjust", "spacingAndGlyphs");
 
     nodes.selectAll("g.name a")
@@ -54,7 +75,7 @@ var drawNodeName = function(nodes, newNodes) {
 	nameGroups,
 	0,
 	0, 
-	nodeWidth - 15,
+	nodeWidth - 35,
 	21, 
 	"node-name",
 	function(d, i){
@@ -220,8 +241,15 @@ var drawEndsForEdges = function(edgeGroups) {
     edgeEnds.exit().remove();
 
     edgeEnds.enter()
-	.append("circle");
-    edgeEnds     
+	.append("circle")
+	.on("click", function(d, i){
+	    if (d.canModify()) {
+		d.disconnect();
+		update();
+	    }
+	});
+    edgeEnds
+	.transition()
     	.attr("r", function(d, i){
 	    if (d.canModify()) {
 		return 2;
@@ -234,12 +262,6 @@ var drawEndsForEdges = function(edgeGroups) {
 	})
 	.attr("cy", function(d, i){
 	    return d.path[d.path.length - 1][1];
-	})
-	.on("click", function(d, i){
-	    if (d.canModify()) {
-		d.disconnect();
-		update();
-	    }
 	});
 };
 
@@ -390,6 +412,7 @@ var drawNecessitySufficiency = function(groups, position) {
 	.attr("height", circleR * 2);
 
     weights
+	.transition()
 	.attr("transform", position)
 	.style("visibility", function(d, i){
 	    return d.canModify() ? "visible" : "hidden";
@@ -505,6 +528,8 @@ var draw = function() {
     drawExpandContract(nodeDisplay);
 
     edgeJunction(nodeDisplay);
+
+    drawMoveHandle(nodeDisplay, newNodes);
     
     var edges = g.selectAll("g.edge")
 	    .data(display.edges);

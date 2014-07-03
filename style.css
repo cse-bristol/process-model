@@ -24,6 +24,10 @@ g.expander {
     cursor: pointer;
 }
 
+g.move-handle {
+    cursor: pointer;
+}
+
 input.node-name {
     font-family: "Courier New", Courier, monospace;
     width: 116px;

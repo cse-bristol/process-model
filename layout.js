@@ -192,6 +192,26 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	    displayNode.edges = function() {
 		return displayEdges;
 	    };
+
+	    displayNode.position = function(xy) {
+		if (xy) {
+		    if (!xy.length || 
+			xy.length !== 2 || 
+			!parseFloat(xy[0]) || 
+			!parseFloat(xy[1])) {
+			throw "Position should be an array of [x, y]. Was " + xy;
+		    }
+
+		    manualPositions.set(node.name(), xy);
+		    return displayNode;
+		} else {
+		    return manualPositions.get(node.name());
+		}
+	    };
+
+	    displayNode.autoPosition = function() {
+		manualPositions.remove(node.name());
+	    };
 	    
 	    if (manualPositions.has(node.name())) {
 		var xy = manualPositions.get(node.name());
@@ -211,22 +231,22 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	    toRead = [root],
 	    nodePositions = d3.map({}),
 	    edgePositions = [],
+	    manualEdgePositions = [],
 	    xOffset = root.x ? root.x : 0,
 	    yOffset = root.y ? root.y : 0;
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
-	    if (node !== root && 
-		(node.x || node.y)) {
-		// NOOP - we've already got a position for this node.
-	    } else {
-		nodePositions.set(node.name(), node);
+	    nodePositions.set(node.name(), node);
 
-		node.edges().forEach(function(e){
+	    node.edges().forEach(function(e){
+		if (e.node().x || e.node().y) {
+		    manualEdgePositions.push(e);
+		} else {
 		    toRead.push(e.node());
 		    edgePositions.push([node.name(), e.node().name()]);
-		});
-	    }
+		}
+	    });
 	}
 
 	nodePositions.keys().forEach(function(n){
@@ -265,6 +285,12 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	    });
 
 	    edge.path.push([to.x, to.y]);
+	});
+
+	manualEdgePositions.forEach(function(e){
+	    e.path = [];
+	    e.path.push([e.parent().x, e.parent().y + nodeHeight]);
+	    e.path.push([e.node().x, e.node().y]);
 	});
     };
 
