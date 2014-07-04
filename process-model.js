@@ -13,6 +13,15 @@ var zoom = d3.behavior.zoom()
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
 
+var dragging = false;
+var maybeTransition = function(selection) {
+    if (dragging) {
+	return selection;
+    } else {
+	return selection.transition();
+    };
+};
+
 zoom(svg);
 
 var nodeHeight = 50,
@@ -27,12 +36,13 @@ var drawMoveHandle = function(nodes, newNodes) {
     var dragNode = d3.behavior.drag()
 	    .origin(function(d){
 		return {
-		    x: d.x - (nodeWidth / 2),
-		    y: d.y - (nodeHeight / 2)
+		    x: d.x,
+		    y: d.y
 		};
 	    })
 	    .on("dragstart", function(d){
 		d3.event.sourceEvent.stopPropagation();
+		dragging = true;
 	    })
 	    .on("drag", function(d){
 		var x = d3.event.x,
@@ -40,6 +50,9 @@ var drawMoveHandle = function(nodes, newNodes) {
 
 		d.position([x, y]);
 		update();
+	    })
+	    .on("dragend", function(d){
+		dragging = false;
 	    });
 
     newNodes.call(dragNode);
@@ -228,7 +241,7 @@ var drawPathsForEdges = function(edgeGroups) {
 	})
 	.attr("fill", "none");
 
-    edgePaths.transition()
+    maybeTransition(edgePaths)
 	.attr("d", function(d, i){
 	    return d3.svg.line().interpolate("basis")(d.path, i);
 	})
@@ -256,8 +269,7 @@ var drawEndsForEdges = function(edgeGroups) {
 		update();
 	    }
 	});
-    edgeEnds
-	.transition()
+    maybeTransition(edgeEnds)
     	.attr("r", function(d, i){
 	    if (d.canModify()) {
 		return 2;
@@ -419,8 +431,7 @@ var drawNecessitySufficiency = function(groups, position) {
 	.attr("width", circleR * 2)
 	.attr("height", circleR * 2);
 
-    weights
-	.transition()
+    maybeTransition(weights)
 	.attr("transform", position)
 	.style("visibility", function(d, i){
 	    return d.canModify() ? "visible" : "hidden";
@@ -524,7 +535,7 @@ var draw = function() {
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
     };
 
-    nodeDisplay.transition().attr("transform", function(d, i){
+    maybeTransition(nodeDisplay).attr("transform", function(d, i){
 	return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
     });
 

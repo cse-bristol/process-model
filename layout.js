@@ -238,8 +238,8 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	    nodePositions = d3.map({}),
 	    edgePositions = [],
 	    manualEdgePositions = [],
-	    xOffset = root.x ? root.x : 0,
-	    yOffset = root.y ? root.y : 0;
+	    xOffset = root.x ? root.x : nodeWidth,
+	    yOffset = root.y ? root.y : nodeHeight;
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
@@ -271,7 +271,12 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 		.nodeSep(10)
 		.rankSep(70)
 		.rankDir("LR")
-		.run(graph);
+		.run(graph),
+	    rootLayout = layout._nodes[root.name()].value;
+
+	xOffset -= rootLayout.x;
+	yOffset -= rootLayout.y;
+
 	layout.eachNode(function(n, val){
 	    var node = nodePositions.get(n);
 	    node.x = val.x + xOffset;
