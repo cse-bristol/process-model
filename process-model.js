@@ -247,17 +247,17 @@ var drawPathsForEdges = function(edgeGroups) {
 
     edgePaths.enter()
 	.append("path")
-	.attr("stroke-width", function(d, i){
-	    if (!d.canModify()) {
-		return 1;
-	    }
-	    return d.necessity() + d.sufficiency();
-	})
 	.attr("fill", "none");
 
     maybeTransition(edgePaths)
 	.attr("d", function(d, i){
 	    return d3.svg.line().interpolate("basis")(d.path, i);
+	})
+	.attr("stroke-width", function(d, i){
+	    if (!d.canModify()) {
+		return 1;
+	    }
+	    return d.necessity() + d.sufficiency();
 	})
 	.attr("stroke", function(d, i){
 	    if (!d.canModify()) {
