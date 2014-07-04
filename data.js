@@ -1,12 +1,12 @@
 "use strict";
 
-/*global ProcessModel*/
+/*global d3, ProcessModel*/
 
 if (!ProcessModel) {
     var ProcessModel = {};
 }
 
-ProcessModel.Data = function(nodes) {
+ProcessModel.Data = function(nodes, layout) {
     var serializeEdge = function(edge) {
 	return {
 	    necessity: edge.necessity(),
@@ -60,12 +60,34 @@ ProcessModel.Data = function(nodes) {
 	return deserialized;
     };
 
+    var serializeLayout = function() {
+	return {
+	    collapsed: layout.collapsed().values(),
+	    positions: layout.position().entries()
+	};
+    };
+    
+    var deserializeLayoutAndData = function(o) {
+	o.layout.collapsed.forEach(function(c){
+	    layout.collapsed(c);
+	});
+	o.layout.positions.forEach(function(e){
+	    layout.position(e.key, e.value);
+	});
+
+	return deserializeNode(o.root);
+    };
+
     var module = {
 	serialize: function(rootNode) {
-	    return JSON.stringify(serializeNode(rootNode));
+	    return JSON.stringify(
+		{
+		    layout: serializeLayout(),
+		    root: serializeNode(rootNode)
+		});
 	},
 	deserialize: function(json) {
-	    return deserializeNode(JSON.parse(json));
+	    return deserializeLayoutAndData(JSON.parse(json));
 	}
     };
     return module;

@@ -24,24 +24,32 @@ var nodeHeight = 50,
 var layout = ProcessModel.Layout(nodes, nodeWidth, nodeHeight);
 
 var drawMoveHandle = function(nodes, newNodes) {
-    var dragHandle = d3.behavior.drag()
+    var dragNode = d3.behavior.drag()
+	    .origin(function(d){
+		return {
+		    x: d.x - (nodeWidth / 2),
+		    y: d.y - (nodeHeight / 2)
+		};
+	    })
 	    .on("dragstart", function(d){
-		/* Nothing else should get this click now. */
 		d3.event.sourceEvent.stopPropagation();
 	    })
 	    .on("drag", function(d){
-		d.position([d3.event.sourceEvent.clientX - nodeWidth, d3.event.sourceEvent.clientY - nodeHeight]);
-		update();
-	    }),
-	handles = newNodes.append("g")
-	    .attr("transform", "translate(" + (nodeWidth - 15) + "," + 15 + ")")
-	    .classed("move-handle", true)
-	    .append("text")
-	    .attr("draggable", true)
-	    .text(String.fromCharCode("10021"))
-	    .call(dragHandle);
+		var x = d3.event.x,
+		    y = d3.event.y;
 
-    // TODO button to return a node to auto layout
+		d.position([x, y]);
+		update();
+	    });
+
+    newNodes.call(dragNode);
+    
+    newNodes.on("contextmenu", function(d, i){
+	d3.event.stopPropagation();
+	d3.event.preventDefault();
+	d.autoPosition();
+	update();
+    });
 };
 
 var drawNodeName = function(nodes, newNodes) {
@@ -551,13 +559,13 @@ var updateDownloadLink = function(){
 	    return nodes.root().name() + ".json";
 	})
 	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes).serialize(nodes.root()));
+	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes, layout).serialize(nodes.root()));
 	});
 };
 
 var fromJson = function(fileName, content){
     nodes.reset();
-    nodes.root(ProcessModel.Data(nodes).deserialize(content));
+    nodes.root(ProcessModel.Data(nodes, layout).deserialize(content));
     update();
 };
 

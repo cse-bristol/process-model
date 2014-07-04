@@ -10,6 +10,10 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
     var collapsedNodes = d3.set(),
 	manualPositions = d3.map();
 
+    function isNumber(n) {
+	return !isNaN(parseFloat(n)) && isFinite(n);
+    }
+
     var cleanup = function() {
 	collapsedNodes.forEach(function(n){
 	    if (!nodes.has(n)) {
@@ -197,8 +201,8 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 		if (xy) {
 		    if (!xy.length || 
 			xy.length !== 2 || 
-			!parseFloat(xy[0]) || 
-			!parseFloat(xy[1])) {
+			!isNumber(xy[0]) || 
+			!isNumber(xy[1])) {
 			throw "Position should be an array of [x, y]. Was " + xy;
 		    }
 
@@ -322,6 +326,22 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
     };
 
     var module = {
+	position: function(name, position) {
+	    if (name && position) {
+		manualPositions.set(name, position);
+		return this;
+	    } else {
+		return manualPositions;
+	    }
+	},
+	collapsed: function(c) {
+	    if (c) {
+		collapsedNodes.add(c);
+		return this;
+	    } else {
+		return collapsedNodes;
+	    }
+	},
 	display: function() {
 	    cleanup();
 

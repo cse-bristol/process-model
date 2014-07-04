@@ -17,6 +17,10 @@ Click and drag on an empty area of the diagram to move around.
 
 Zoom in and out using your mouse scrollwheel. Alternatively, if you have a touchscreen or trackpad, use the standard pinch zoom gestures.
 
+*** Moving Nodes
+Click and drag a node with the mouse to manually position it. Its children will continue to be layed out automatically.
+
+Right click on a manually positioned node to erase its manual position, and return it to automatic layout.
 *** Edges
 Each edge has a circle showing necessity (red) and sufficiency (green) next to it. Hover over the circle and use the mouse scroll wheel on each half to change these values for that edge.
 
@@ -48,13 +52,13 @@ If you make an html table with the columns 'failure' and 'success', if will atte
 
 ** Known bugs (to fix)
  + Does not work correctly with Firefox.
- + Processes may be expanded/contracted as a visual aid to reduce clutter. There are some known bugs with this which need investigation and fixing.
 
 ** Future Plans
  + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
  + Usability improvements: at present the program cannot be used without a mouse-wheel.
  + More help and user instructions. This will largely be in the form of informative tooltips.
  + Add functionality to save changes you've made in the process modelling tool back to a wiki.
+ + Change the HTML table reading functionality to read from semantic HTML links instead.
 
 ** Source code
 [[https://github.com/cse-bristol/process-model][Get the source code]]
