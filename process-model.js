@@ -33,6 +33,16 @@ var nodeHeight = 50,
 var layout = ProcessModel.Layout(nodes, nodeWidth, nodeHeight);
 
 var drawMoveHandle = function(nodes, newNodes) {
+    var ifNotTextInput = function(c) {
+	var target = document.elementFromPoint(
+	    d3.event.sourceEvent.clientX, 
+	    d3.event.sourceEvent.clientY);
+
+	if (!target || target.tagName.toLowerCase() !== "input") {
+	    c();
+	}
+    };
+
     var dragNode = d3.behavior.drag()
 	    .origin(function(d){
 		return {
@@ -41,15 +51,19 @@ var drawMoveHandle = function(nodes, newNodes) {
 		};
 	    })
 	    .on("dragstart", function(d){
-		d3.event.sourceEvent.stopPropagation();
-		dragging = true;
+		ifNotTextInput(function(){
+		    d3.event.sourceEvent.stopPropagation();
+		    dragging = true;
+		});
 	    })
 	    .on("drag", function(d){
-		var x = d3.event.x,
-		    y = d3.event.y;
+		ifNotTextInput(function(){
+		    var x = d3.event.x,
+			y = d3.event.y;
 
-		d.position([x, y]);
-		update();
+		    d.position([x, y]);
+		    update();
+		});
 	    })
 	    .on("dragend", function(d){
 		dragging = false;
