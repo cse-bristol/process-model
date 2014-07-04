@@ -3,6 +3,10 @@
     width: 99vw;
 }
 
+g.process-node {
+    cursor: move;
+}
+
 .process-node rect {
     stroke: black;
     fill: white;
@@ -21,10 +25,6 @@
 }
 
 g.expander {
-    cursor: pointer;
-}
-
-g.move-handle {
     cursor: pointer;
 }
 
