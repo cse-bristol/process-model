@@ -8,7 +8,9 @@ if (!ProcessModel) {
 
 ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
     var collapsedNodes = d3.set(),
-	manualPositions = d3.map();
+	manualPositions = d3.map(),
+	halfWidth = nodeWidth / 2,
+	halfHeight = nodeHeight / 2;
 
     function isNumber(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
@@ -268,6 +270,7 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	var layout = dagre.layout()
 		.nodeSep(10)
 		.rankSep(70)
+		.rankDir("LR")
 		.run(graph);
 	layout.eachNode(function(n, val){
 	    var node = nodePositions.get(n);
@@ -282,18 +285,18 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 
 	    edge.path = [];
 
-	    edge.path.push([from.x, from.y + nodeHeight]);
+	    edge.path.push([from.x + halfWidth, from.y + halfHeight]);
 
 	    value.points.forEach(function(p){
-		edge.path.push([p.x + xOffset, p.y + yOffset + (nodeHeight / 2)]);
+		edge.path.push([p.x + xOffset, p.y + yOffset + halfHeight]);
 	    });
 
-	    edge.path.push([to.x, to.y]);
+	    edge.path.push([to.x - halfWidth, to.y + halfHeight]);
 	});
 
 	manualEdgePositions.forEach(function(e){
-	    var start = [e.parent().x, e.parent().y + nodeHeight],
-		end = [e.node().x, e.node().y],
+	    var start = [e.parent().x + halfWidth, e.parent().y + halfHeight],
+		end = [e.node().x - halfWidth, e.node().y + halfHeight],
 		middle = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
 
 	    e.path = [start, middle, end];
