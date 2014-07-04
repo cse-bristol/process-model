@@ -51,7 +51,8 @@ If you make an html table with the column 'dependence', it will attempt to set t
 If you make an html table with the columns 'failure' and 'success', if will attempt to set the local evidence (for a leaf node) based on the last row of that table.
 
 ** Known bugs (to fix)
- + Does not work correctly with Firefox.
+ + Scroll wheel based interface does not work correctly in Firefox.
+ + Cannot edit the names of nodes in Internet Explorer (because it does not support HTML elements inside an SVG).
 
 ** Future Plans
  + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
