@@ -404,6 +404,7 @@ var edgeJunction = function(nodes) {
 	.attr("fill", function(d, i){
 	    return d.data.color;
 	})
+	.attr("stroke-width", 0.4)
 	.call(ProcessModel.Util.onScroll, function(d, i, change){
 	    var toChange = d.data.node;
 

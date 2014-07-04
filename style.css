@@ -8,7 +8,7 @@ g.process-node {
 }
 
 .process-node rect {
-    stroke: black;
+    stroke: #708090;
     fill: white;
 }
 
@@ -56,13 +56,18 @@ rect.conflict {
     fill: #27408B;
 }
 
+.handle {
+    stroke: #708090;
+}
+
 .handle:hover {
     cursor: move;
 }
 
 .edge circle {
     fill: green;
-    stroke: black;
+    stroke: #708090;
+
 }
 
 .edge circle:hover {
