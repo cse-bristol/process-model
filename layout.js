@@ -288,9 +288,11 @@ ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
 	});
 
 	manualEdgePositions.forEach(function(e){
-	    e.path = [];
-	    e.path.push([e.parent().x, e.parent().y + nodeHeight]);
-	    e.path.push([e.node().x, e.node().y]);
+	    var start = [e.parent().x, e.parent().y + nodeHeight],
+		end = [e.node().x, e.node().y],
+		middle = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
+
+	    e.path = [start, middle, end];
 	});
     };
 
