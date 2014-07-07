@@ -377,7 +377,6 @@ var edgeJunction = function(nodes) {
 	.append("g")
 	.classed("handle", true)
 	.attr("transform", "translate(" + nodeWidth + "," + nodeCenter[1] + ")")
-	.attr("stroke", "black")
 	.attr("width", circleR)
 	.attr("height", circleR)
 	.attr("draggable", true)
