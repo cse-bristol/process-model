@@ -9,10 +9,6 @@ if (!ProcessModel) {
 ProcessModel.Nodes = function() {
     var nodes, newNodes, root;
 
-    var clamp = function(min, num, max) {
-	return Math.max(min, Math.min(max, num));
-    };
-
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen) {
 	    if (seen.indexOf(node.name()) >= 0) {
@@ -62,6 +58,9 @@ ProcessModel.Nodes = function() {
     };
 
     var module = {
+	registerType: function(key, extendNode) {
+	    ProcessModel.Nodes.types.set(key, extendNode);
+	},
 	all : function() {
 	    return nodes.values();
 	},
@@ -83,54 +82,29 @@ ProcessModel.Nodes = function() {
 	    }
 	    return root;
 	},
-	create : function(startName) {
+	create : function(type, startName) {
 	    if (nodes.has(startName)) {
-		throw "Tried to create a node that already exists " + startName;
+		throw new Error("Tried to create a node that already exists " + startName);
 	    }
 
-	    var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
-		localDep = 1,
-		edges = [],
+	    if (!ProcessModel.Nodes.types.has(type)) {
+		throw new Error("Unknown type of node " + type);
+	    }
+
+	    var edges = [],
 		url = null,
-		name = startName ? startName : "new " + newNodes++;	    
+		name = startName ? startName : "new " + newNodes++;
+
 	    var node = {
-		localEvidence: function(evidence) {
-		    if (evidence) {
-			if (edges.length > 0) {
-			    throw "Cannot set local evidence on a node which has children";
-			}
-
-			if (evidence[0] < 0) {
-			    evidence[0] = 0;
-			} else if (evidence[0] > 1) {
-			    evidence[0] = 1;
-			}
-			if (evidence[1] < 0) {
-			    evidence[1] = 0;
-			} else if (evidence[1] > 1) {
-			    evidence[1] = 1;
-			}
-			if (evidence[0] > evidence[1]) {
-			    var mid = (evidence[0] + evidence[1]) / 2;
-			    evidence[0] = mid;
-			    evidence[1] = mid;
-			}
-
-			localE = evidence;
-			return node;
-		    }
-		    return localE;
+		type: type,
+		childTypes: function() {
+		    throw new Error("Child types was not implemented for node of type " + type);
 		},
-		dependence: function(dependence) {
-		    if (edges.length === 0) {
-			throw "Dependence is not used for leaf nodes.";
-		    }
-
-		    if (dependence) {
-			localDep = clamp(0, dependence, 1);
-		    }
-
-		    return localDep;
+		incomingEdges: function() {
+		    return edgesToNode(node);
+		},
+		extendIncomingEdge: function(edge) {
+		    return edge;
 		},
 		isLeaf : function() {
 		    return edges.length === 0;
@@ -162,19 +136,6 @@ ProcessModel.Nodes = function() {
 		    } catch (err) {
 			edges.splice(edges.indexOf(edgeTo), 1);
 			throw err;
-		    }
-		},
-		p: function() {
-		    if (edges.length === 0) {
-			return localE;
-		    } else {
-			return ProcessModel.CombineEvidence(localDep, edges.map(function(e){
-			    return {
-				necessity: e.necessity(),
-				sufficiency: e.sufficiency(),
-				evidence: e.node().p()
-			    };
-			}));
 		    }
 		},
 		name: function(n) {
@@ -224,27 +185,16 @@ ProcessModel.Nodes = function() {
 	    }
 	    nodes.set(node.name(), node);
 
+	    ProcessModel.Nodes.types.get(type)(node);
+
 	    return node;
 	},
 	edge: function(from, to) {
-	    var necessity = 0.5,
-		sufficiency = 0.5;
+	    if (!(to.type === 'undecided' || from.allowedChildren.has(to.type))) {
+	    	throw new Error("Cannot connect node of type " + from.type + " to node of type " + to.type);
+	    }
 
 	    var edge = {
-		necessity : function(n) {
-		    if (n) {
-			necessity = clamp(0, n, 1);
-			return edge;
-		    }
-		    return necessity;
-		},
-		sufficiency : function(s) {
-		    if (s) {
-			sufficiency = clamp(0, s, 1);
-			return edge;
-		    }
-		    return sufficiency;
-		},
 		node: function() {
 		    return to;
 		},
@@ -256,6 +206,8 @@ ProcessModel.Nodes = function() {
 		    from.removeEdge(edge);
 		}
 	    };
+
+	    to.extendIncomingEdge(edge);
 	    return edge;
 	}
     };
@@ -263,3 +215,5 @@ ProcessModel.Nodes = function() {
     module.reset();
     return module;
 };
+
+ProcessModel.Nodes.types = d3.map();

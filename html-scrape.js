@@ -134,7 +134,7 @@ ProcessModel.Scrape = function(nodes){
 		return;
 	    }
 
-	    var node = nodes.create(title)
+	    var node = nodes.create("process", title)
 		    .url(originURL);
 
 	    children.forEach(function(child){

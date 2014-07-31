@@ -28,6 +28,10 @@ g.expander {
     cursor: pointer;
 }
 
+g.node-type text {
+    fill: maroon;
+}
+
 input.node-name {
     font-family: "Courier New", Courier, monospace;
     width: 116px;
@@ -87,4 +91,11 @@ g.weight-half:hover {
     -webkit-transform: scale(1.8);
     -ms-transform: scale(1.8);
     -o-transform: scale(1.8);
+}
+
+iframe.url-preview-frame {
+    transform: scale(0.3);
+    -moz-transform:scale(0.3);
+    -o-transform: scale(0.3);
+    -webkit-transform: scale(0.3);
 }
