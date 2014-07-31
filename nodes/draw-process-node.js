@@ -163,6 +163,47 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	    .attr("d", arc);
     };
 
+    var toggleableText = function(nodeDisplay, clazz, text, colouring, toggle) {
+	var issueSettled = nodeDisplay.selectAll("g." + clazz)
+		.data(function(d, i) {
+		    return [d];
+		});
+
+	issueSettled.exit().remove();
+
+	issueSettled.enter().append("g")
+	    .classed(clazz, true);
+
+	var issueSettledText = issueSettled
+	    .selectAll("text")
+	    .data(function(d, i) {
+		return [d];
+	    });
+
+	issueSettledText.exit().remove();
+
+	issueSettledText.enter().append("text")
+	    .attr("x", drawNodes.nodeCenter[0])
+	    .attr("y", drawNodes.nodeCenter[1] + 15)
+	    .attr("width", drawNodes.nodeInnerWidth)
+	    .style("text-anchor", "middle");
+
+	issueSettledText
+	    .text(function(d, i) {
+		return text(d);
+	    })
+	    .attr("fill", function(d, i) {
+		return colouring(d);
+	    })
+	    .on("click", function(d, i) {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+
+		toggle(d);
+		update();
+	    });
+    };
+
     ProcessModel.DrawNodes.types.set("undecided", function(newNodes, nodeDisplay) {
 	newNodes.append("g")
 	    .classed("change-node-type", true);
@@ -277,44 +318,17 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);
 	drawSimpleJunction(junctions);
 
-	var issueSettled = nodeDisplay.selectAll("g.issue-settled-display")
-		.data(function(d, i) {
-		    return [d];
-		});
-
-	issueSettled.exit().remove();
-
-	issueSettled.enter().append("g")
-	    .classed("issue-settled-display", true);
-
-	var issueSettledText = issueSettled
-	    .selectAll("text")
-	    .data(function(d, i) {
-		return [d];
-	    });
-
-	issueSettledText.exit().remove();
-
-	issueSettledText.enter().append("text")
-	    .attr("x", drawNodes.nodeCenter[0])
-	    .attr("y", drawNodes.nodeCenter[1] + 15)
-	    .attr("width", drawNodes.nodeInnerWidth)
-	    .style("text-anchor", "middle");
-
-	issueSettledText
-	    .text(function(d, i) {
-		return d.settled() ? "Settled" : "Open";
-	    })
-	    .attr("fill", function(d, i) {
-		return d.settled() ? "green" : "red";
-	    })
-	    .on("click", function(d, i) {
-		d3.event.preventDefault();
-		d3.event.stopPropagation();
-
-		d.settled(!d.settled());
-		update();
-	    });
+	toggleableText(nodeDisplay, 
+		       "issue-settled-display", 
+		       function text(d) {
+			   return d.settled() ? "Settled" : "Open";
+		       }, 
+		       function colouring(d) {
+			   return d.settled() ? "green" : "red";
+		       },
+		       function toggle(d) {
+			   d.settled(!d.settled());
+		       });
     });
 
     ProcessModel.DrawNodes.types.set("option", function(newNodes, nodeDisplay) {
@@ -323,6 +337,16 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
     });
 
     ProcessModel.DrawNodes.types.set("argument", function(newNodes, nodeDisplay) {
-	// TODO support/refute
+	toggleableText(nodeDisplay, 
+		       "issue-settled-display", 
+		       function text(d) {
+			   return d.support() ? "Supports" : "Refutes";
+		       }, 
+		       function colouring(d) {
+			   return d.support() ? "green" : "red";
+		       },
+		       function toggle(d) {
+			   d.support(!d.support());
+		       });
     });
 };
