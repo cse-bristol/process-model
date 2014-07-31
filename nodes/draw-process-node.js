@@ -102,7 +102,16 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
     };
 
     var drawSimpleJunction = function(junctions) {
-	junctions.append("circle")
+	var circles = junctions.selectAll("circle")
+	    .data(function(d, i) {
+		return [d];
+	    });
+
+	circles.exit().remove();
+
+	circles
+	    .enter()
+	    .append("circle")
 	    .attr("r", junctionRadius);
     };
 
