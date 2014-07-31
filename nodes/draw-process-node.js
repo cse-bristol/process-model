@@ -159,18 +159,18 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	    .classed("change-node-type", true);
 
 	var typeOptions = nodeDisplay.selectAll("g.change-node-type g.node-type-option")
-	.data(function(d, i) {
-	    return trackAllowedTypes.allowedTypesForNode(d.name())
-		    .values()
-		    .map(function(option) {
-			return {node: d, option: option};
-		    });
-	});
+		.data(function(d, i) {
+		    return trackAllowedTypes.allowedTypesForNode(d.name())
+			.values()
+			.map(function(option) {
+			    return {node: d, option: option};
+			});
+		});
 
 	typeOptions.exit().remove();
 
 	var newOptions = typeOptions.enter().append("g")
-	    .classed("node-type-option", true)
+		.classed("node-type-option", true)
 		.attr("transform", function(d, i) {
 		    return "translate(" + (5 + (i * 25)) + "," + drawNodes.nodeCenter[1] + ")";
 		})
@@ -267,7 +267,45 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
     ProcessModel.DrawNodes.types.set("issue", function(newNodes, nodeDisplay) {
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);
 	drawSimpleJunction(junctions);
-	// TODO settled
+
+	var issueSettled = nodeDisplay.selectAll("g.issue-settled-display")
+		.data(function(d, i) {
+		    return [d];
+		});
+
+	issueSettled.exit().remove();
+
+	issueSettled.enter().append("g")
+	    .classed("issue-settled-display", true);
+
+	var issueSettledText = issueSettled
+	    .selectAll("text")
+	    .data(function(d, i) {
+		return [d];
+	    });
+
+	issueSettledText.exit().remove();
+
+	issueSettledText.enter().append("text")
+	    .attr("x", drawNodes.nodeCenter[0])
+	    .attr("y", drawNodes.nodeCenter[1] + 15)
+	    .attr("width", drawNodes.nodeInnerWidth)
+	    .style("text-anchor", "middle");
+
+	issueSettledText
+	    .text(function(d, i) {
+		return d.settled() ? "Settled" : "Open";
+	    })
+	    .attr("fill", function(d, i) {
+		return d.settled() ? "green" : "red";
+	    })
+	    .on("click", function(d, i) {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+
+		d.settled(!d.settled());
+		update();
+	    });
     });
 
     ProcessModel.DrawNodes.types.set("option", function(newNodes, nodeDisplay) {
