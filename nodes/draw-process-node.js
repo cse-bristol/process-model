@@ -206,16 +206,15 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
     };
 
     ProcessModel.DrawNodes.types.set("undecided", function(newNodes, nodeDisplay) {
-	newNodes.append("g")
-	    .classed("change-node-type", true);
-
-	var typeOptions = nodeDisplay.selectAll("g.change-node-type g.node-choice")
+	var typeOptions = nodeDisplay.selectAll("g.node-choice")
 		.data(function(d, i) {
 		    return trackAllowedTypes.allowedTypesForNode(d.name())
 			.values()
 			.map(function(option) {
 			    return {node: d, option: option};
 			});
+		}, function (d, i) {
+		    return d.node + "/" + d.option;
 		});
 
 	typeOptions.exit().remove();
@@ -224,9 +223,6 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 		.classed("node-choice", true)
 		.each(function(d, i) {
 		    d3.select(this).classed("node-choice-" + d.option, true);
-		})
-		.attr("transform", function(d, i) {
-		    return "translate(" + (5 + (i * 25)) + "," + drawNodes.nodeCenter[1] + ")";
 		})
 		.on("click", function(d, i) {
 		    var replacement = nodes.create(d.option),
@@ -252,6 +248,10 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	    .text(function(d, i) {
 		return d.option[0].toUpperCase();
 	    });
+
+	typeOptions.transition().attr("transform", function(d, i) {
+	    return "translate(" + (5 + (i * 25)) + "," + drawNodes.nodeCenter[1] + ")";
+	});
     });
 
     ProcessModel.DrawNodes.types.set("process", function(newNodes, nodeDisplay) {
