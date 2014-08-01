@@ -32,34 +32,31 @@ ProcessModel.Files = function() {
 		var files = toArray(d3.event.dataTransfer.files);
 
 		if (files.length === 0) {
-		    throw "No files found.";
+		    throw new Error("No files found.");
 		}
 
 		files.forEach(function(file){
 		    var reader = new FileReader(),
 			len = handlers.length,
-			errors = [],
 			success = false;
 
 		    reader.onload = function() {
-			for (var i = 0; i < len; i++) {
-			    try {
-				handlers[i](file.name, reader.result);
-				success = true;
-			    } catch (err) {
-				errors.push(err);
-			    }
-			}
+			var ext = file.name.split('.').pop();
+			var matching = handlers.filter(function(h) {
+			    return h.extensions.indexOf(ext) >= 0;
+			});
 
-			if(!success) {
-			    errors.forEach(function(err){
-				console.log("A handler failed to load file " + file.name + " " + err + " " + err.stack);
-			    });
+			if (matching.length === 0) {
+			    throw new Error("No handlers for file " + file.name);
+			} else if (matching.length > 1) {
+			    throw new Error("Too many handlers for file " + file.name);
+			} else {
+			    matching[0](file.name, reader.result);			    
 			}
 		    };
 
 		    reader.onerror = function(err) {
-			throw "Failed to load file " + file.name + " " + err + " " + err.stack;
+			throw new Error("Failed to load file " + file.name + " " + err + " " + err.stack);
 		    };
 
 		    reader.readAsText(file);

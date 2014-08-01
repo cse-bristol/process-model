@@ -90,7 +90,6 @@ ProcessModel.Data = function(nodes, layout) {
 	    deserialized.support(node.support);
 	}
 
-	nodes.root(deserialized);
 	return deserialized;
     };
 

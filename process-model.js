@@ -58,12 +58,14 @@ var fromJson = function(fileName, content){
     nodes.root(ProcessModel.Data(nodes, layout).deserialize(content));
     update();
 };
+fromJson.extensions = ["json"];
 
 var fromXML = function(fileName, content) {
     nodes.reset();
     ProcessModel.PerimetaXML(nodes).deserialize(content);
     update();
 };
+fromXML.extensions = ["xml"];
 
 ProcessModel.Files.drop(svg, [fromJson, fromXML]);
 

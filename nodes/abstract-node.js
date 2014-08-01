@@ -10,15 +10,15 @@ ProcessModel.Nodes = function() {
     var nodes, newNodes, root;
 
     var assertNoCycles = function(node) {
-	var assertNoCyclesAccum = function(node, seen) {
+	var assertNoCyclesAccum = function(node, seen, edge) {
 	    if (seen.indexOf(node.name()) >= 0) {
-		throw "Cycle detected";
+		throw new Error("Cycle detected for node " + node.name() + " from " + edge.parent().name());
 	    }
 
 	    node.edges().forEach(function(e){
 		var copy = seen.slice(0);
 		copy.push(node.name());
-		assertNoCyclesAccum(e.node(), copy);
+		assertNoCyclesAccum(e.node(), copy, e);
 	    });
 	};
 	
@@ -93,7 +93,11 @@ ProcessModel.Nodes = function() {
 
 	    var edges = [],
 		url = null,
-		name = startName ? startName : "new " + newNodes++;
+		name = startName;
+
+	    while (!name || nodes.has(name)) {
+		name = "new " + newNodes++;
+	    }
 
 	    var node = {
 		type: type,
