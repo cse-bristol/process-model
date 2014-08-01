@@ -5,11 +5,26 @@ Evidence is specified as interval probabilities. These are two numbers in the fo
 
 We implement a process model as a directed acyclic graph.
 
-Each leaf node has local evidence, which is a single interval probability.
+** Processes
+If a process node is a leaf node (it has no chidren), it will contain local evidence in the form of an interval probability.
 
-Each non-leaf node has dependence, which is a single number between 0 and 1 inclusive which indicates how closely related its children are. Dependence of 1 means that only the most significant of those children will have an effect. Dependence of 0 means that
+If a process node has children, it will combine the evidence from all of its children. How this happens is controlled by a number called dependence which is a single number between 0 and 1 inclusive. This indicates how closely related its children are. Dependence of 1 means that only the most significant of those children will have an effect. Dependence of 0 means that.
 
-Each edge has two numbers necessity and sufficiency, which are between 0 and 1 inclusive. These specify how important that child's evidence is. Necessity affects change of failure, and sufficiency affects chance of success.
+Edges which go into process nodes have two numbers necessity and sufficiency, each between 0 and 1 inclusive. These specify how important that child's evidence is. Necessity affects change of failure, and sufficiency affects chance of success.
+
+The top level node in a graph will always be a process node.
+
+** Undecided Nodes
+If you create a child for a node which may have many kinds of children, you will get an undecided node. Click on one of the options it contains to choose which node it should actually be.
+
+** Issues
+Issue nodes contain no evidence. They may be either settled or open. Click on the text to change between these states.
+
+** Options
+Option nodes contain no evidence.
+
+** Arguments
+Argument nodes contain no evidence. They may either support or refute. Click on the text to change between these states.
 
 ** Using the model
 *** Pan and Zoom
@@ -21,18 +36,23 @@ Zoom in and out using your mouse scrollwheel. Alternatively, if you have a touch
 Click and drag a node with the mouse to manually position it. Its children will continue to be layed out automatically.
 
 Right click on a manually positioned node to erase its manual position, and return it to automatic layout.
-*** Edges
-Each edge has a circle showing necessity (red) and sufficiency (green) next to it. Hover over the circle and use the mouse scroll wheel on each half to change these values for that edge.
+*** Disconnecting Edges
+At the end of each edge is a small green circle, which turns red when you hover over it. Click on this circle to cut the link between two nodes.
+
+Disconnecting all edges going into a node will remove that node (unless it is the root).
 
 *** Evidence
 At the bottom of each node is its evidence. For leaf nodes, this is local evidence and may be adjusted by hovering over it and using the mouse scroll wheel.
 
 Red means certainty of failure. Green means certainty of success. White means uncertainty. Blue means conflict (conflict cannot occur on leaf nodes).
 
+*** Changing necessity and sufficiency
+Each edge has a circle showing necessity (red) and sufficiency (green) next to it. Hover over the circle and use the mouse scroll wheel on each half to change these values for that edge.
+
 *** Node junction
 At the right of each node is a junction.
 
- + Hover over the junction and use the mouse scroll wheel to change that node's dependence. This will have no effect for leaf nodes.
+ + Hover over the junction and use the mouse scroll wheel to change that node's dependence. This will only effect process nodes which have children..
  + Clicking on a junction creates a new node.
  + Click-and-drag from a junction to another node to create a new edge. If the new edge would cause a cycle in the graph, it will not be created.
 
