@@ -74,9 +74,7 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
 
 	nameGroups.append("a")
 	    .append("text")
-	    .attr("y", 10)
-	    .attr("textLength", nodeWidth - 35)
-	    .attr("lengthAdjust", "spacingAndGlyphs");
+	    .attr("y", 10);
 
 	nodes.selectAll("g.name a")
             .attr("xlink:href", function(d, i){
@@ -204,12 +202,7 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
 	    transitions.maybeTransition(nodeDisplay).attr("transform", function(d, i){
 		return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
 	    });
-
-	    newNodes.append("g")
-		.classed("interval", "true")
-		.attr("transform", "rotate(180, 75, 0)translate(0,-45)");
-
-	    
+ 
 	    drawExpandContract(nodeDisplay);
 
 	    drawMoveHandle(nodeDisplay, newNodes);

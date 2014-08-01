@@ -21,6 +21,7 @@ ProcessModel.svgEditableText = function(selection, x, y, width, height, name, in
 	    .append("xhtml:input")
 	    .attr("type", "text")
 	    .attr("name", name)
+	    .style("width", width + "px")
 	    .classed(name, "true")
 	    .on("input", inputFunction)
 	    .call(preventDrag);

@@ -17,7 +17,7 @@ var update = function() {
 };
 
 
-var drawNodes = ProcessModel.DrawNodes(g, transitions, 50, 150, update);
+var drawNodes = ProcessModel.DrawNodes(g, transitions, 50, 200, update);
 
 ProcessModel.DrawNodeTypes(drawNodes,
 			   trackAllowedTypes,

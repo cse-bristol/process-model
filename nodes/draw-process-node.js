@@ -312,6 +312,10 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	    });
 	};
 
+	newNodes.append("g")
+	    .classed("interval", "true")
+	    .attr("transform", "rotate(180," +  (drawNodes.nodeWidth / 2) + ", 0)translate(0," + (4 - drawNodes.nodeHeight)  + ")");
+
 	drawIntervalParts(nodeDisplay.selectAll("g.interval"));
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);
 	drawDependencyArc(junctions);

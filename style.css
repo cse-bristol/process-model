@@ -70,9 +70,9 @@ g.expander {
 }
 
 input.node-name {
-    font-family: "Courier New", Courier, monospace;
-    width: 116px;
+    font-family: Serifs Georgia;
     margin: 0;
+    font-size: x-small;
     display: block;
     height: 10px;
 }
