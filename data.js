@@ -8,23 +8,44 @@ if (!ProcessModel) {
 
 ProcessModel.Data = function(nodes, layout) {
     var serializeEdge = function(edge) {
-	return {
-	    necessity: edge.necessity(),
-	    sufficiency: edge.sufficiency(),
+	var serialized = {
 	    to: serializeNode(edge.node())
 	};
+	
+	if (edge.necessity) {
+	    serialized.necessity = edge.necessity();
+	}
+
+	if (edge.sufficiency) {
+	    serialized.sufficiency = edge.sufficiency();
+	}
+
+	return serialized;
     };
 
     var serializeNode = function(node) {
 	var serialized = {
-	    name: node.name()
+	    name: node.name(),
+	    type: node.type
 	};
 
 	if (node.isLeaf()) {
-	    serialized.evidence = node.localEvidence();
+	    if (node.localEvidence) {
+		serialized.evidence = node.localEvidence();		
+	    }
 	} else {
 	    serialized.edges = node.edges().map(serializeEdge);
-	    serialized.dependence = node.dependence();
+	    if (node.dependence) {
+		serialized.dependence = node.dependence();
+	    }
+	}
+
+	if (node.settled) {
+	    serialized.settled = node.settled();
+	}
+
+	if (node.support) {
+	    serialized.support = node.support();
 	}
 
 	return serialized;
@@ -37,14 +58,19 @@ ProcessModel.Data = function(nodes, layout) {
 	    return deserialized;
 	}
 
-	deserialized = nodes.create(node.name);
+	deserialized = nodes.create(node.type, node.name);
 
 	if (node.edges && node.edges.length > 0) {
 	    node.edges.forEach(function(e){
 		var target = deserializeNode(e.to);
-		deserialized.edgeTo(target)
-		    .necessity(e.necessity)
-		    .sufficiency(e.sufficiency);
+		var edge = deserialized.edgeTo(target);
+
+		if (edge.necessity) {
+		    edge.necessity(e.necessity);
+		}
+		if (edge.sufficiency) {
+		    edge.sufficiency(e.sufficiency);
+		}
 	    });
 	    
 	    if (node.dependence) {
@@ -54,6 +80,14 @@ ProcessModel.Data = function(nodes, layout) {
 	    if (node.localEvidence) {
 		deserialized.localEvidence(node.evidence);
 	    }
+	}
+
+	if (deserialized.settled) {
+	    deserialized.settled(node.settled);
+	}
+
+	if (deserialized.support) {
+	    deserialized.support(node.support);
 	}
 
 	nodes.root(deserialized);
