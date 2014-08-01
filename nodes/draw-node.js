@@ -194,7 +194,10 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
 	    newNodes
 		.append("rect")
 		.attr("width", nodeWidth + "px")
-		.attr("height", nodeHeight + "px");
+		.attr("height", nodeHeight + "px")
+		.each(function(d, i) {
+			d3.select(this).classed("node-box-" + d.type, true);
+		    });
 
 	    drawNodeName(nodeDisplay, newNodes);
 

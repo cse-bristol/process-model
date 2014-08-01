@@ -208,7 +208,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	newNodes.append("g")
 	    .classed("change-node-type", true);
 
-	var typeOptions = nodeDisplay.selectAll("g.change-node-type g.node-type-option")
+	var typeOptions = nodeDisplay.selectAll("g.change-node-type g.node-choice")
 		.data(function(d, i) {
 		    return trackAllowedTypes.allowedTypesForNode(d.name())
 			.values()
@@ -220,7 +220,10 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	typeOptions.exit().remove();
 
 	var newOptions = typeOptions.enter().append("g")
-		.classed("node-type-option", true)
+		.classed("node-choice", true)
+		.each(function(d, i) {
+		    d3.select(this).classed("node-choice-" + d.option, true);
+		})
 		.attr("transform", function(d, i) {
 		    return "translate(" + (5 + (i * 25)) + "," + drawNodes.nodeCenter[1] + ")";
 		})
@@ -343,7 +346,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 			   return d.support() ? "Supports" : "Refutes";
 		       }, 
 		       function colouring(d) {
-			   return d.support() ? "green" : "red";
+			   return d.support() ? "yellow" : "cyan";
 		       },
 		       function toggle(d) {
 			   d.support(!d.support());

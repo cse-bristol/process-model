@@ -7,11 +7,6 @@ g.process-node {
     cursor: move;
 }
 
-.process-node rect {
-    stroke: #708090;
-    fill: white;
-}
-
 .process-node {
     opacity: 0.7;
 }
@@ -24,12 +19,54 @@ g.process-node {
     opacity: 1.0;
 }
 
-g.expander {
-    cursor: pointer;
+
+.process-node rect {
+    stroke: #708090;
+    fill: white;
+}
+
+.process-node rect.node-box-process {
+    fill: #C0C0C0;
+}
+
+.process-node rect.node-box-issue {
+    fill: #6699EE;
+}
+
+.process-node rect.node-box-option {
+    fill: #55CC55;
+}
+
+.process-node rect.node-box-argument {
+    fill: #9966EE;
+}
+
+g.node-choice-process rect {
+    fill: #C0C0C0;
+}
+
+g.node-choice-issue rect {
+    fill: #6699EE;
+}
+
+g.node-choice-option rect {
+    fill: #55CC55;
+}
+
+g.node-choice-argument rect {
+    fill: #9966EE;
 }
 
 g.node-type text {
     fill: maroon;
+}
+
+g.node-type-option text {
+    fill: maroon;
+}
+
+g.expander {
+    cursor: pointer;
 }
 
 input.node-name {
