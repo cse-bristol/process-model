@@ -9,9 +9,9 @@ if (!ProcessModel) {
 ProcessModel.TrackAllowedTypes = function(nodes) {
     var allowedTypes = d3.map();
     var intersection = function(a, b) {
-	return a.values().filter(function(o) {
+	return d3.set(a.values().filter(function(o) {
 	    return b.has(o);
-	});
+	}));
     };
     
     return {

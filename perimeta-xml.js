@@ -42,7 +42,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
     
     var loadNode = function(n) {
 	var name = n.getAttribute("name"),
-	    node = nodes.create(name);
+	    node = nodes.create(n.parentElement.tagName, name);
 
 	return node;
     };
@@ -57,17 +57,17 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	    localEvidenceWeight = aspect.getElementsByTagName("localFOMWeight"),
 	    propagatedEvidenceWeight = aspect.getElementsByTagName("propFOMWeight");
 
-	if (dependence.length > 0 && !node.isLeaf()) {
+	if (dependence.length > 0 && !node.isLeaf() && node.dependence) {
 	    node.dependence(loadDependence(dependence[0]), true);
 	}
 
-	if (localEvidence.length > 0) {
+	if (localEvidence.length > 0 && node.localEvidence) {
 	    var evidence = loadEvidence(localEvidence[0]);
 	    
 	    if (node.isLeaf()) {
 		node.localEvidence(evidence);
 	    } else {
-		var evidenceNode = nodes.create(node.name() + " evidence");
+		var evidenceNode = nodes.create("process", node.name() + " evidence");
 		evidenceNode.localEvidence(evidence);
 		var localEvidenceEdge = node.edgeTo(evidenceNode);
 		if (localEvidenceWeight > 0 && propagatedEvidenceWeight > 0) {
@@ -96,11 +96,11 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 		necessity = aspect.getElementsByTagName("necessity"),
 		sufficiency = aspect.getElementsByTagName("sufficiency");
 
-	    if (necessity.length > 0) {
+	    if (necessity.length > 0 && edge.necessity) {
 		edge.necessity(num(necessity));
 	    }
-	    if (sufficiency.length > 0) {
-		edge.sufficiency(num(necessity));
+	    if (sufficiency.length > 0 && edge.sufficiency) {
+		edge.sufficiency(num(sufficiency));
 	    }
 	});
     };

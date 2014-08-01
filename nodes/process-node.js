@@ -111,7 +111,7 @@ ProcessModel.Nodes.types.set("issue", function(node){
 });
 
 ProcessModel.Nodes.types.set("option", function(node){
-    node.allowedChildren = d3.set(["argument"]);
+    node.allowedChildren = d3.set(["argument", "option"]);
 });
 
 ProcessModel.Nodes.types.set("argument", function(node){
