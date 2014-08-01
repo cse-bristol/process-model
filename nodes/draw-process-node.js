@@ -112,7 +112,8 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	circles
 	    .enter()
 	    .append("circle")
-	    .attr("r", junctionRadius);
+	    .attr("r", junctionRadius)
+	    .style("fill", "white");
     };
 
     var drawDependencyArc = function(junctions) {
@@ -247,7 +248,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 
 	newOptions.append("text")
 	    .attr("y", 15)
-	    .attr("x", 5)
+	    .attr("x", 6)
 	    .text(function(d, i) {
 		return d.option[0].toUpperCase();
 	    });
