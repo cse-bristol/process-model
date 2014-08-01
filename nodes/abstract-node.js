@@ -42,16 +42,21 @@ ProcessModel.Nodes = function() {
 
     var edgesToNode = function(node) {
 	var edges = [],
-	    stack = [root];
+	    stack = [root],
+	    seen = d3.set();
 
 	while (stack.length > 0) {
-	    stack.pop().edges().forEach(function(e){
-		if (e.node() === node) {
-		    edges.push(e);
-		} else {
-		    stack.push(e.node());
-		}
-	    });
+	    var current = stack.pop();
+	    if (!seen.has(current.name())) {
+		seen.add(current.name());
+		current.edges().forEach(function(e){
+		    if (e.node() === node) {
+			edges.push(e);
+		    } else {
+			stack.push(e.node());
+		    }
+		});
+	    }
 	}
 
 	return edges;
