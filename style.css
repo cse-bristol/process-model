@@ -58,10 +58,12 @@ g.node-choice-argument rect {
 }
 
 g.node-type text {
+    font-family: monospace;
     fill: maroon;
 }
 
-g.node-type-option text {
+g.node-choice text {
+    font-family: monospace;
     fill: maroon;
 }
 
