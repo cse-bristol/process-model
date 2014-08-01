@@ -19,6 +19,9 @@ g.process-node {
     opacity: 1.0;
 }
 
+text {
+    font-family: monospace;
+}
 
 .process-node rect {
     stroke: #708090;
