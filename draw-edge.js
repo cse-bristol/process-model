@@ -1,12 +1,11 @@
 "use strict";
 
-/*global d3, ProcessModel*/
+/*global require, module*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3"),
+    onScroll = require("./helpers.js").onScroll;
 
-ProcessModel.DrawEdges = function(container, transitions, update) {
+module.exports = function(container, transitions, update) {
     
     var drawPathsForEdges = function(edgeGroups) {
 	var colourScale = d3.scale.linear()
@@ -138,7 +137,7 @@ ProcessModel.DrawEdges = function(container, transitions, update) {
 	    .attr("fill", function(d, i){
 		return d.data.color;
 	    })
-	    .call(ProcessModel.Util.onScroll, function(d, i, change){
+	    .call(onScroll, function(d, i, change){
 		var toChange = d.data.target;
 
 		if (!toChange.canModify()) {

@@ -1,15 +1,15 @@
 "use strict";
 
-/*global d3, ProcessModel*/
+/*global module, require*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3"),
+    svgEditableText = require("../svg-editable-text.js");
 
-ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth, update) {
+module.exports = function(container, transitions, nodeHeight, nodeWidth, update) {
     var nodeSidePadding = 10,
 	nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
-	nodeCenter = [nodeWidth / 2 , nodeHeight / 2];
+	nodeCenter = [nodeWidth / 2 , nodeHeight / 2],
+	types = d3.map();
 
     var filterByType = function(nodeSelection, type) {
 	return nodeSelection.filter(function(d, i) {
@@ -89,7 +89,7 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
 		return d.name(); 
 	    });
 
-	ProcessModel.svgEditableText(
+	svgEditableText(
 	    nameGroups,
 	    0,
 	    0, 
@@ -171,6 +171,9 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
     };
 
     return {
+	registerType: function(key, value) {
+	    types.set(key, value);
+	},
 	nodeWidth: nodeWidth,
 	nodeHeight: nodeHeight,
 	nodeSidePadding: nodeSidePadding,
@@ -209,7 +212,7 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
 
 	    drawNodeType(newNodes);
 
-	    ProcessModel.DrawNodes.types.entries().forEach(function(e) {
+	    types.entries().forEach(function(e) {
 		e.value(
 		    filterByType(newNodes, e.key),
 		    filterByType(nodeDisplay, e.key)
@@ -219,5 +222,3 @@ ProcessModel.DrawNodes = function(container, transitions, nodeHeight, nodeWidth,
     };
     
 };
-
-ProcessModel.DrawNodes.types = d3.map();

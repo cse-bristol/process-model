@@ -1,12 +1,10 @@
 "use strict";
 
-/*global d3, ProcessModel*/
+/*global require, module*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3");
 
-ProcessModel.Data = function(nodes, layout) {
+module.exports = function(nodes, layout) {
     var serializeEdge = function(edge) {
 	var serialized = {
 	    to: serializeNode(edge.node())

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmamDocument xmlns="http://www.cen.bris.ac.uk/civil/cmam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cen.bris.ac.uk/civil/cmam cmam-model.xsd">
+  <model name="Belief Propagation - Testcase 1" desc="Expected evidence for Belief Prop with conditionals table is [0.25,0.25]" learningRate="1.0" necessityPower="1.0" directCondProb="true" propagationAlgorithm="Belief Propagation" normalizationMethod="Yager's Method" />
+  <aspect id="0" name="Overview" colour="-1" />
+  <perfInd id="1" name="New Performance Indicator 1">
+    <valueFunction name="Linear">
+      <maxBound>100.0</maxBound>
+      <minBound>0.0</minBound>
+      <uncertaintyFrom>0.0</uncertaintyFrom>
+      <uncertaintyTo>0.0</uncertaintyTo>
+    </valueFunction>
+  </perfInd>
+  <process>
+    <node id="1" name="New Process 1">
+      <location x="170" y="30" nodeWidth="84" nodeHeight="80" />
+      <optionalAttribute key="Owner" value="" />
+      <optionalAttribute key="How Enacted" value="" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.25</sn>
+          <sp>0.25</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+        <directCondProb psi="[1, 1]" h="1.0" noth="0.0" />
+        <directCondProb psi="[1, 2]" h="0.0" noth="1.0" />
+        <directCondProb psi="[2, 1]" h="0.0" noth="1.0" />
+        <directCondProb psi="[2, 2]" h="0.0" noth="1.0" />
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="2" name="New Process 2">
+      <location x="110" y="150" nodeWidth="84" nodeHeight="80" />
+      <optionalAttribute key="Owner" value="" />
+      <optionalAttribute key="How Enacted" value="" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.5</sn>
+          <sp>0.5</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+        <evidencePerfInd>
+          <perfIndId>1</perfIndId>
+          <value>
+            <single>50.0</single>
+            <variance>0.0</variance>
+          </value>
+          <weight>1.0</weight>
+        </evidencePerfInd>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="3" name="New Process 3">
+      <location x="220" y="150" nodeWidth="84" nodeHeight="80" />
+      <optionalAttribute key="Owner" value="" />
+      <optionalAttribute key="How Enacted" value="" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.5</sn>
+          <sp>0.5</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+        <evidencePerfInd>
+          <perfIndId>1</perfIndId>
+          <value>
+            <single>50.0</single>
+            <variance>0.0</variance>
+          </value>
+          <weight>1.0</weight>
+        </evidencePerfInd>
+      </nodeAspect>
+    </node>
+  </process>
+  <link parentNodeId="1" childNodeId="2">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.3</sufficiency>
+      <importance>1.0</importance>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="3">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.3</sufficiency>
+      <importance>1.0</importance>
+    </linkAspect>
+  </link>
+</cmamDocument>
+

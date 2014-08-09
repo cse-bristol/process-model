@@ -1,12 +1,10 @@
 "use strict";
 
-/*global d3, ProcessModel*/
+/*global module, require*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3");
 
-ProcessModel.TrackAllowedTypes = function(nodes) {
+module.exports = function(nodes) {
     var allowedTypes = d3.map();
     var intersection = function(a, b) {
 	return d3.set(a.values().filter(function(o) {

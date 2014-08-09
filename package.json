@@ -1,0 +1,14 @@
+{
+    "name": "process-model",
+    "version": "0.5.0",
+    "description": "",
+    "keywords": ["process model", "systems thinking", "directed acyclic graph"],
+    "url": "https://github.com/cse-bristol/process-model",
+    "license": "MIT",
+    "dependencies": {
+	"d3": "3.4.11",
+	"dagre": "0.4.6",
+	"xmldom": "0.1.16",
+	"browserify": "5.9.1"
+    }
+}

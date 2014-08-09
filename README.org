@@ -71,7 +71,6 @@ If you make an html table with the column 'dependence', it will attempt to set t
 If you make an html table with the columns 'failure' and 'success', if will attempt to set the local evidence (for a leaf node) based on the last row of that table.
 
 ** Known bugs (to fix)
- + Scroll wheel based interface does not work correctly in Firefox.
  + Cannot edit the names of nodes in Internet Explorer (because it does not support HTML elements inside an SVG).
 
 ** Future Plans
@@ -85,15 +84,15 @@ If you make an html table with the columns 'failure' and 'success', if will atte
 [[https://github.com/cse-bristol/process-model][Get the source code]]
 
 ** Installing
-To install, clone the repository, then download the libraries using git submodule as follows.
-#+BEGIN_SRC sh
-  git clone git@github.com:cse-bristol/process-model.git
-  cd process-model
-  git submodule init
-  git subsubmodule update
-#+END_SRC
-
-Then serve using any web server, for example using python3 on a Debian system:
+To install, clone the repository then serve using any web server, for example using python3 on a Debian system:
 #+BEGIN_SRC sh
   sudo python3 -m http.server 80 &
+#+END_SRC
+
+To build the code, begin by installing [[http://nodejs.org/][Node JS]], then run the following:
+#+BEGIN_SRC sh
+  npm -g install browserify # Install Browserify as a command you can run.
+  npm install # Install the various packages we depend on (listed in package.json).
+  node test.js # Run the tests
+  browserify process-model.js -o bin/main.js # Package all the Javascript code together in a way that we can load into a browser.
 #+END_SRC

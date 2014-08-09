@@ -1,12 +1,12 @@
 "use strict";
 
-/*global ProcessModel, DOMParser, d3*/
+/*global module, require*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3"),
+    DOMParser = require('xmldom').DOMParser;
 
-ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
+module.exports = function(nodes) {
+
     var num = function(elArray) {
 	return parseFloat(elArray[0].childNodes[0].data);
     };
@@ -18,7 +18,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	    return num(single);
 	}
 
-	console.error("Unknown type of dependancy element " + d);
+	throw new Error("Unknown type of dependancy element " + d);
 	return 0;
     };
 
@@ -36,13 +36,13 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 		    sp.length === 0 ? 1 : num(sp)];
 	}
 	
-	console.error("Unknown evidence type " + e);
+	throw new Error("Unknown evidence type " + e);
 	return [0, 1];
     };
     
     var loadNode = function(n) {
 	var name = n.getAttribute("name"),
-	    node = nodes.create(n.parentElement.tagName, name);
+	    node = nodes.create(n.parentNode.tagName, name);
 
 	return node;
     };
@@ -109,7 +109,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	var candidates = nodesById.values();
 
 	if (candidates.length === 0 ) {
-	    throw "No nodes created";
+	    throw new Error("No nodes created");
 	} else if (candidates.length === 1) {
 	    return candidates[0];
 	}
@@ -127,7 +127,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	});
 
 	if (nodesWithoutParents.length === 0) {
-	    throw "Founds nodes, but no possible root node. We must have introduced a cyclic dependency";
+	    throw new Error("Founds nodes, but no possible root node. We must have introduced a cyclic dependency");
 	} else if (nodesWithoutParents.length === 1) {
 	    return nodesWithoutParents[0];
 	}
@@ -141,8 +141,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
     
     return {
 	deserialize: function(text) {
-	    var parser = new DOMParser(),
-		doc = parser.parseFromString(text, "text/xml"),
+	    var doc = new DOMParser().parseFromString(text, "text/xml"),
 		nodeElements = doc.getElementsByTagName("node"),
 		links = doc.getElementsByTagName("link"),
 		nodesById = d3.map();
@@ -160,7 +159,7 @@ ProcessModel.PerimetaXML = function PerimetaXML(nodes) {
 	    nodes.root(findRootNodes(nodesById));
 	},
 	serialize: function(rootnode) {
-	    throw "not implemented";
+	    throw new Error("not implemented");
 	}
     };
 };

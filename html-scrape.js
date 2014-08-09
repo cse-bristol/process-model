@@ -1,12 +1,10 @@
 "use strict";
 
-/*global d3, ProcessModel*/
+/*global require, module*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3");
 
-ProcessModel.Scrape = function(nodes){
+module.exports = function(nodes){
     var num = function(el) {
 	return parseFloat(el.childNodes[0].data);
     };

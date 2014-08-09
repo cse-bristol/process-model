@@ -1,12 +1,10 @@
 "use strict";
 
-/*global d3, FileReader, ProcessModel */
+/*global require, module, FileReader*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3");
 
-ProcessModel.Files = function() {
+module.exports = function() {
     var toArray = function(filelist) {
 	var arr = [];
 	var len = filelist.length;

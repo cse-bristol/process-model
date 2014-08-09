@@ -1,12 +1,11 @@
 "use strict";
 
-/*global d3, dagre, ProcessModel */
+/*global require, module*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3"),
+    dagre = require("dagre");
 
-ProcessModel.Layout = function(nodes, nodeWidth, nodeHeight) {
+module.exports = function(nodes, nodeWidth, nodeHeight) {
     var collapsedNodes = d3.set(),
 	manualPositions = d3.map(),
 	halfWidth = nodeWidth / 2,

@@ -1,14 +1,16 @@
 "use strict";
 
-/*global parent, d3, ProcessModel */
+/*global parent, require*/
 
-var svg = d3.select("svg#model");
-
-var g = svg.append("g");
-
-var nodes = ProcessModel.Nodes();
-var trackAllowedTypes = ProcessModel.TrackAllowedTypes(nodes);
-var transitions = ProcessModel.Transition();
+var d3 = require("d3"),
+    svg = d3.select("svg#model"),
+    g = svg.append("g"),
+    nodes = require("./nodes/abstract-node.js"),
+    trackAllowedTypes = require("./nodes/allowed-types.js")(nodes),
+    transitions = require("./transition-switch.js")(),
+    dataConstructor = require("./data.js"),
+    perimetaConstructor = require("./perimeta-xml.js"),
+    htmlScrapeConstructor = require("./html-scrape.js");
 
 var update = function() {
     trackAllowedTypes.update();
@@ -16,24 +18,17 @@ var update = function() {
     updateDownloadLink();
 };
 
-
-var drawNodes = ProcessModel.DrawNodes(g, transitions, 50, 200, update);
-
-ProcessModel.DrawNodeTypes(drawNodes,
-			   trackAllowedTypes,
-			   nodes,
-			   update);
-
-var drawEdges = ProcessModel.DrawEdges(g, transitions, update);
-
-var zoom = d3.behavior.zoom()
+var drawNodes = require("./nodes/draw-node.js")(g, transitions, 50, 200, update),
+    drawEdges = require("./draw-edge.js")(g, transitions, update),
+    zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
 
+require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, update);
 zoom(svg);
 
-var layout = ProcessModel.Layout(nodes, drawNodes.nodeWidth, drawNodes.nodeHeight);
+var layout = require("./layout.js")(nodes, drawNodes.nodeWidth, drawNodes.nodeHeight);
 
 var draw = function() {
     var display = layout.display();
@@ -49,33 +44,33 @@ var updateDownloadLink = function(){
 	    return nodes.root().name() + ".json";
 	})
 	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(ProcessModel.Data(nodes, layout).serialize(nodes.root()));
+	    return "data:application/json," + encodeURIComponent(dataConstructor(nodes, layout).serialize(nodes.root()));
 	});
 };
 
 var fromJson = function(fileName, content){
     nodes.reset();
-    nodes.root(ProcessModel.Data(nodes, layout).deserialize(content));
+    nodes.root(dataConstructor(nodes, layout).deserialize(content));
     update();
 };
 fromJson.extensions = ["json"];
 
 var fromXML = function(fileName, content) {
     nodes.reset();
-    ProcessModel.PerimetaXML(nodes).deserialize(content);
+    perimetaConstructor(nodes).deserialize(content);
     update();
 };
 fromXML.extensions = ["xml"];
 
-ProcessModel.Files.drop(svg, [fromJson, fromXML]);
+require("./files.js").drop(svg, [fromJson, fromXML]);
 
 if (parent !== window) {
     /* If we're in an iframe, assume our parent is what we want to scrape. */
-    ProcessModel.Scrape(nodes).scrape(document.referrer, update);
+    htmlScrapeConstructor(nodes).scrape(document.referrer, update);
 } 
 if (nodes.root() === null) {
-    ProcessModel.Scrape(nodes).scrapeCurrent(update);
+    htmlScrapeConstructor(nodes).scrapeCurrent(update);
 }
 if (nodes.root() === null) {
-    ProcessModel.Scrape(nodes).scrape("table-test.html", update);
+    htmlScrapeConstructor.Scrape(nodes).scrape("table-test.html", update);
 }

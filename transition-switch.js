@@ -1,15 +1,11 @@
 "use strict";
 
-/*global d3, ProcessModel*/
-
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+/*global module*/
 
 /*
  Allows us to temporarily switch off transitions. This is useful, for example, when a user is dragging nodes around.
  */
-ProcessModel.Transition = function(){
+module.exports = function(){
     var enabled = true;
 
     var module = {

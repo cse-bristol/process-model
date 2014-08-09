@@ -1,12 +1,11 @@
 "use strict";
 
-/*global d3, ProcessModel*/
+/*global module, require*/
 
-if (!ProcessModel) {
-    var ProcessModel = {};
-}
+var d3 = require("d3"),
+    onScroll = require("../helpers.js").onScroll;
 
-ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, update) {
+module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
     var junctionRadius = 5;
 
     var findDragTarget = function() {
@@ -103,9 +102,9 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 
     var drawSimpleJunction = function(junctions) {
 	var circles = junctions.selectAll("circle")
-	    .data(function(d, i) {
-		return [d];
-	    });
+		.data(function(d, i) {
+		    return [d];
+		});
 
 	circles.exit().remove();
 
@@ -143,7 +142,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 		return d.data.color;
 	    })
 	    .attr("stroke-width", 0.4)
-	    .call(ProcessModel.Util.onScroll, function(d, i, change){
+	    .call(onScroll, function(d, i, change){
 		var toChange = d.data.node;
 
 		if(toChange.isLeaf() || toChange.collapsed()) {
@@ -176,10 +175,10 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	    .classed(clazz, true);
 
 	var issueSettledText = issueSettled
-	    .selectAll("text")
-	    .data(function(d, i) {
-		return [d];
-	    });
+		.selectAll("text")
+		.data(function(d, i) {
+		    return [d];
+		});
 
 	issueSettledText.exit().remove();
 
@@ -205,7 +204,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	    });
     };
 
-    ProcessModel.DrawNodes.types.set("undecided", function(newNodes, nodeDisplay) {
+    drawNodes.registerType("undecided", function(newNodes, nodeDisplay) {
 	var typeOptions = nodeDisplay.selectAll("g.node-choice")
 		.data(function(d, i) {
 		    return trackAllowedTypes.allowedTypesForNode(d.name())
@@ -254,7 +253,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	});
     });
 
-    ProcessModel.DrawNodes.types.set("process", function(newNodes, nodeDisplay) {
+    drawNodes.registerType("process", function(newNodes, nodeDisplay) {
 	var drawIntervalParts = function(g) {
 	    /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
 	    var parts = g.selectAll("rect")
@@ -287,7 +286,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 		    return (drawNodes.nodeInnerWidth * d.width) + "px";
 		});
 
-	    parts.call(ProcessModel.Util.onScroll, function(d, i, change){
+	    parts.call(onScroll, function(d, i, change){
 		if (!d.node.isLeaf() || d.node.collapsed()) {
 		    return;
 		}
@@ -322,7 +321,7 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 	drawDependencyArc(junctions);
     });
 
-    ProcessModel.DrawNodes.types.set("issue", function(newNodes, nodeDisplay) {
+    drawNodes.registerType("issue", function(newNodes, nodeDisplay) {
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);
 	drawSimpleJunction(junctions);
 
@@ -339,12 +338,12 @@ ProcessModel.DrawNodeTypes = function(drawNodes, trackAllowedTypes, nodes, updat
 		       });
     });
 
-    ProcessModel.DrawNodes.types.set("option", function(newNodes, nodeDisplay) {
+    drawNodes.registerType("option", function(newNodes, nodeDisplay) {
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);
 	drawSimpleJunction(junctions);
     });
 
-    ProcessModel.DrawNodes.types.set("argument", function(newNodes, nodeDisplay) {
+    drawNodes.registerType("argument", function(newNodes, nodeDisplay) {
 	toggleableText(nodeDisplay, 
 		       "issue-settled-display", 
 		       function text(d) {

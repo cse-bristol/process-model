@@ -1,10 +1,6 @@
 "use strict";
 
-/*global ProcessModel*/
-
-if (!ProcessModel) {
-    ProcessModel = {};
-}
+/*global module*/
 
 /* 
  Based on Alistair Fletcher and John Davis, 'Dialectical Evidence Assembly for Discovery' in Discovery Science DS2003.
@@ -26,7 +22,7 @@ if (!ProcessModel) {
  3. We assume that P(H|¬E) and P(¬H|E) are 0 (which is a conservative assumption).
  */
 
-ProcessModel.CombineEvidence = function(dependence, evidence) {
+module.exports = function(dependence, evidence) {
     var getSn = function(interval) {
 	return interval[0];
     };
@@ -119,5 +115,4 @@ ProcessModel.CombineEvidence = function(dependence, evidence) {
     goodness = clamp(0, goodness, 1);
 
     return [sn, 1 - goodness];
-
 };
