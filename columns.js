@@ -3,7 +3,6 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    clamp = require("./helpers").clamp,
     defaultColumnProp = 0.2,
     epsilon = 0.01;
 
@@ -100,13 +99,33 @@ module.exports = function(columns, startProportions) {
 		  })
 		  .on("drag", function(d, uninterestingChildI) {
 		      var x = d3.event.dx,
-			  sizeIncrease = clamp(
-			      -proportions[i], 
-			      (-x / window.innerWidth), 
-			      proportions[i-1]);
-		      
-		      proportions[i] += sizeIncrease;
-		      proportions[i-1] -= sizeIncrease;
+			  change = x / window.innerWidth,
+			  direction = change > 0 ? 1 : -1,
+			  // If we're moving right, increase the left column and vice-versa.
+			  growColumn = change > 0 ? i-1 : i,
+			  shrinkColumn = growColumn + direction;
+			  
+		      if (change < 0) {
+			  change *= -1;
+		      }
+
+		      console.log("change " + change + " in direction " + direction);
+
+		      while (change > 0 
+			     && shrinkColumn >= 0 
+			     && shrinkColumn < proportions.length) {
+			  var diff = d3.min(
+			      [proportions[shrinkColumn], 
+			       change]);
+
+			  proportions[shrinkColumn] -= diff;
+			  proportions[growColumn] += diff;
+			  change -= diff;
+			  shrinkColumn += direction;
+
+			  console.log(proportions);
+		      }
+
 		  })
 		  .on("dragend", function() {
 		      updateProportions(columns, proportions);      
