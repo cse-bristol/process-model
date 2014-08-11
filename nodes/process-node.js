@@ -18,7 +18,7 @@ module.exports = d3.map({
 	node.allowedChildren = d3.set(["process", "issue", "option"]);
 
 	node.localEvidence = function(evidence) {
-	    if (evidence) {
+	    if (evidence !== undefined) {
 		if (node.edges().length > 0) {
 		    throw new Error("Cannot set local evidence on a node which has children");
 		}
@@ -50,7 +50,7 @@ module.exports = d3.map({
 		throw "Dependence is not used for leaf nodes.";
 	    }
 	    
-	    if (dependence) {
+	    if (dependence !== undefined) {
 		localDep = clamp(0, dependence, 1);
 	    }
 	    
@@ -80,14 +80,14 @@ module.exports = d3.map({
 		sufficiency = 0.5;
 	    
 	    edge.necessity = function(n) {
-		if (n) {
+		if (n !== undefined) {
 		    necessity = clamp(0, n, 1);
 		    return edge;
 		}
 		return necessity;
 	    };
 	    edge.sufficiency = function(s) {
-		if (s) {
+		if (s !== undefined) {
 		    sufficiency = clamp(0, s, 1);
 		    return edge;
 		}
