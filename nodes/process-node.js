@@ -8,10 +8,14 @@ var d3 = require("d3"),
 
 module.exports = d3.map({
     "undecided" : function(node) {
+	node.help = "A choice between many possible kinds of nodes. Click on a letter to choose the type of this node.";
+
 	node.allowedChildren = d3.set();
     },
 
     "process" : function(node){
+	node.help = "An activity that realizes a transformation.";
+
 	var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
 	    localDep = 1;
 
@@ -44,6 +48,7 @@ module.exports = d3.map({
 	    }
 	    return localE;
 	};
+	node.localEvidence.help = "Local evidence about this process represented as an interval probability [Sn, Sp] and displayed as an Italian flag. This value is only valid on leaf nodes, and must satisfy the constraint 0 <= Sn <= Sp <= 1. Change these values within these ranges by hovering over the appropriate section of the Italian flag and scrolling the mousewheel.";
 
 	node.dependence = function(dependence) {
 	    if (node.edges().length === 0) {
@@ -56,6 +61,7 @@ module.exports = d3.map({
 	    
 	    return localDep;
 	};
+	node.dependence.help = "The relatedness of evidence propagated up from children of this process. This varies from 0 to 1, and is represented as the proportion of the junction circle which is coloured black. 0 is entirely white, and represents completely independent evidence. 1 is entirely black, and represents equivalent evidence. This value only makes sense on process which have children with evidence. It may be changed by hovering over the junction circle and scrolling the mousehweel.";
 
 	node.p = function() {
 	    if (node.edges().length === 0) {
@@ -74,6 +80,7 @@ module.exports = d3.map({
 						    }));
 	    }
 	};
+	node.p.help = "The evidence for this node propagated up from its children and represented as an Italian flag. This is only valid for a node which has children with evidence. It is a derived value, and may not be modified";
 
 	node.extendIncomingEdge = function(edge) {
 	    var necessity = 0.5,
@@ -98,6 +105,8 @@ module.exports = d3.map({
     },
 
     "issue" : function(node){
+	node.help = "A concern or question about the Process, subjected to debate and discussion.";
+
 	var settled = false;
 
 	node.allowedChildren = d3.set(["option"]);
@@ -109,13 +118,18 @@ module.exports = d3.map({
 		return node;
 	    }
 	};
+	node.settled.help = "Whether the issue is settled or open. Click on the text to toggle its value.";
     },
 
     "option" : function(node){
+	node.help = "Possible answers, alternatives or courses of action in reply to the Issue.";
+
 	node.allowedChildren = d3.set(["argument", "option"]);
     },
 
     "argument" : function(node){
+	node.help = "Evidence, reason or opinions in favor or against an Option.";
+
 	var support = false;
 
 	node.allowedChildren = d3.set();
@@ -127,6 +141,7 @@ module.exports = d3.map({
 		return node;
 	    }
 	};
+	node.support.help = "Whether the argument supports or refutes the option. Click on the text to toggle its value.";
     }
 });
 

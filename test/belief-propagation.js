@@ -2,7 +2,7 @@
 
 /*global module, require*/
 
-var nodes = require("../nodes/abstract-node.js"),
+var nodes = require("../nodes/abstract-node.js")(),
     deserialize = require("../perimeta-xml.js")(nodes).deserialize,
     fs = require("fs"),
     StringDecoder = require('string_decoder').StringDecoder,

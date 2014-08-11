@@ -5,80 +5,25 @@ Evidence is specified as interval probabilities. These are two numbers in the fo
 
 We implement a process model as a directed acyclic graph.
 
-** Processes
-If a process node is a leaf node (it has no chidren), it will contain local evidence in the form of an interval probability.
-
-If a process node has children, it will combine the evidence from all of its children. How this happens is controlled by a number called dependence which is a single number between 0 and 1 inclusive. This indicates how closely related its children are. Dependence of 1 means that only the most significant of those children will have an effect. Dependence of 0 means that.
-
-Edges which go into process nodes have two numbers necessity and sufficiency, each between 0 and 1 inclusive. These specify how important that child's evidence is. Necessity affects change of failure, and sufficiency affects chance of success.
-
-The top level node in a graph will always be a process node.
-
-** Undecided Nodes
-If you create a child for a node which may have many kinds of children, you will get an undecided node. Click on one of the options it contains to choose which node it should actually be.
-
-** Issues
-Issue nodes contain no evidence. They may be either settled or open. Click on the text to change between these states.
-
-** Options
-Option nodes contain no evidence.
-
-** Arguments
-Argument nodes contain no evidence. They may either support or refute. Click on the text to change between these states.
-
-** Using the model
-*** Pan and Zoom
-Click and drag on an empty area of the diagram to move around.
-
-Zoom in and out using your mouse scrollwheel. Alternatively, if you have a touchscreen or trackpad, use the standard pinch zoom gestures.
-
-*** Moving Nodes
-Click and drag a node with the mouse to manually position it. Its children will continue to be layed out automatically.
-
-Right click on a manually positioned node to erase its manual position, and return it to automatic layout.
-*** Disconnecting Edges
-At the end of each edge is a small green circle, which turns red when you hover over it. Click on this circle to cut the link between two nodes.
-
-Disconnecting all edges going into a node will remove that node (unless it is the root).
-
-*** Evidence
-At the bottom of each node is its evidence. For leaf nodes, this is local evidence and may be adjusted by hovering over it and using the mouse scroll wheel.
-
-Red means certainty of failure. Green means certainty of success. White means uncertainty. Blue means conflict (conflict cannot occur on leaf nodes).
-
-*** Changing necessity and sufficiency
-Each edge has a circle showing necessity (red) and sufficiency (green) next to it. Hover over the circle and use the mouse scroll wheel on each half to change these values for that edge.
-
-*** Node junction
-At the right of each node is a junction.
-
- + Hover over the junction and use the mouse scroll wheel to change that node's dependence. This will only effect process nodes which have children..
- + Clicking on a junction creates a new node.
- + Click-and-drag from a junction to another node to create a new edge. If the new edge would cause a cycle in the graph, it will not be created.
-
-** Data formats
-You can click the download link to export the model as JSON. You can then drag and drop this file onto the page to load it.
-
-You can drag and drop an XML file exported from Perimeta onto the page to load it.
-
-If the model is embedded into a web page using an iframe, it will attempt to load the model from the parent page using the HTML table format. Note that you will either need to serve both pages from the same origin, or add the Access-Control-Allow-Origin header to the parent page.
-
-*** HTML table format
-It you make an html table with columns named 'evidence', 'necessity' and 'sufficiency', it will attempt to load a child node from each row of that table. The evidence column should contain a link.
-
-If you make an html table with the column 'dependence', it will attempt to set the dependence based on the last row of that table.
-
-If you make an html table with the columns 'failure' and 'success', if will attempt to set the local evidence (for a leaf node) based on the last row of that table.
+** Features
+ + Pan and zoom around your model.
+ + Create different kinds of node according to [[http://en.wikipedia.org/wiki/Issue-Based_Information_System][IBIS]].
+ + Evidence is automatically propagated from lower to higher levels of the model.
+ + Nodes may be arranged automatically or manually.
+ + Save and load in a custom json format.
+ + Load from linked HTML pages.
+ + Import from PeriMeta xml files.
 
 ** Known bugs (to fix)
  + Cannot edit the names of nodes in Internet Explorer (because it does not support HTML elements inside an SVG).
 
 ** Future Plans
  + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
- + Usability improvements: at present the program cannot be used without a mouse-wheel.
- + More help and user instructions. This will largely be in the form of informative tooltips.
- + Add functionality to save changes you've made in the process modelling tool back to a wiki.
- + Change the HTML table reading functionality to read from semantic HTML links instead.
+ + Keyboard shortcuts.
+ + Store metadata about nodes.
+ + Manually resize nodes.
+ + Export to wiki.
+ + Change the HTML table reading functionality to read from semantic wiki links instead.
 
 ** Source code
 [[https://github.com/cse-bristol/process-model][Get the source code]]
@@ -89,7 +34,14 @@ To install, clone the repository then serve using any web server, for example us
   sudo python3 -m http.server 80 &
 #+END_SRC
 
-To build the code, begin by installing [[http://nodejs.org/][Node JS]], then run the following:
+To build the code, begin by installing [[http://nodejs.org/][Node JS]]. On a Debian-based system, I'd recommend using this PPA:
+#+BEGIN_SRC sh
+sudo add-apt-repository ppa:chris-lea/node.js 
+sudo aptitude update
+sudo aptitude install -y nodejs
+#+END_SRC
+
+Then run the following:
 #+BEGIN_SRC sh
   npm -g install browserify # Install Browserify as a command you can run.
   npm install # Install the various packages we depend on (listed in package.json).

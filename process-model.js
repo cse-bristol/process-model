@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
-    nodes = require("./nodes/abstract-node.js"),
+    nodes = require("./nodes/abstract-node.js")(),
     trackAllowedTypes = require("./nodes/allowed-types.js")(nodes),
     transitions = require("./transition-switch.js")(),
     dataConstructor = require("./data.js"),
