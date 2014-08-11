@@ -1,6 +1,7 @@
-#model {
-    height: 95vh;
-    width: 99vw;
+#download {
+    position: fixed;
+    top: 2vh;
+    left: 1vw;
 }
 
 g.process-node {
@@ -140,4 +141,21 @@ iframe.url-preview-frame {
     -moz-transform:scale(0.3);
     -o-transform: scale(0.3);
     -webkit-transform: scale(0.3);
+}
+
+.resizeable-column {
+    display: inline-block;
+    height: 97vh;
+    border: 1px solid #9999BB;
+}
+
+.column-resize-handle {
+    display: block;
+    height: 97vh;
+    background-color: #555555;
+    width: 2px;
+ }
+
+.column-resize-handle:hover {
+    cursor: ew-resize;
 }

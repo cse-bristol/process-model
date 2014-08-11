@@ -12,6 +12,10 @@ var d3 = require("d3"),
     perimetaConstructor = require("./perimeta-xml.js"),
     htmlScrapeConstructor = require("./html-scrape.js");
 
+require("./columns.js")(
+    d3.selectAll("#model, #metadata, #help"), 
+    [0.8, 0.2, 0.0]);
+
 var update = function() {
     trackAllowedTypes.update();
     draw();
