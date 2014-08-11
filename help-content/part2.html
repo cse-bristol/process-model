@@ -1,0 +1,16 @@
+<h2>Import and Export</h2>
+<p>You may save your process model by clicking on the download link. You can reload the file produced by dragging and dropping it back onto the page.<p>
+
+<p>The model has support for importing xml files exported from PeriMeta. Again, drag and drop the file onto the page.</p>
+
+<h3>Html Import</h3>
+<p>The model may also be loaded from a set of linked html pages. Embed process-model/index.html as an iframe inside the page which is to act as the root node. The following properties will be scraped:</p>
+
+<ul>
+  <li>The title of the page forms the root of a node.</li>
+  <li>A table containing columns named 'evidence', 'necessity' and 'sufficiency' is a list of edges. The evidence column should contain an HTML link.</li>
+  <li>A table containing the column 'dependence' will be used to set the dependence value for a node which is not a leaf node (has no children).</li>
+  <li>A table containing the columns 'success' and 'failure' will be used to set the local evidence for a leaf node.</li>
+</ul>
+
+<p>Note that you will either need to serve all pages from the same origin, or add the Access-Control-Allow-Origin header to the parent page.</p>

@@ -14,7 +14,9 @@ var d3 = require("d3"),
 
 require("./columns.js")(
     d3.selectAll("#model, #metadata, #help"), 
-    [0.8, 0.2, 0.0]);
+    [0.5, 0.2, 0.3]);
+
+require("./help.js")(d3.select("#help"));
 
 var update = function() {
     trackAllowedTypes.update();

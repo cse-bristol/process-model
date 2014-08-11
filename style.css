@@ -145,17 +145,27 @@ iframe.url-preview-frame {
 
 .resizeable-column {
     display: inline-block;
-    height: 97vh;
+    height: 96vh;
     border: 1px solid #9999BB;
 }
 
 .column-resize-handle {
     display: block;
-    height: 97vh;
+    position: absolute;
+    height: 96vh;
     background-color: #555555;
     width: 2px;
  }
 
 .column-resize-handle:hover {
     cursor: ew-resize;
+}
+
+#help {
+    text-overflow: ellipsis;
+}
+
+.help-text {
+    padding-left: 10px;
+    width: 95%;
 }

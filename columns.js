@@ -25,7 +25,12 @@ var updateProportions = function(columns, proportions) {
 	.transition()
 	.style("width", function(d, i) {
 	    return proportions[i] * 97 + "vw";
-	});
+	})
+	.style("overflow-y", function(d, i) {
+	    // Only show the scrollbar when our column has some width.
+	    return proportions[i] === 0 ? "hidden" : "auto";
+	})
+	.style("overflow-x", "hidden");
 };
 
 /*
