@@ -6,6 +6,11 @@ var d3 = require("d3"),
     types = require("./nodes/process-node.js"),
     nodes = require("./nodes/abstract-node.js")();
 
+var propertyNames = d3.map({
+    "extendIncomingEdge" : "edge-properties",
+    "p" : "propagated-evidence"
+});
+
 var tag = function(tag, contents) {
     return "<" + tag + ">" + contents + "</" + tag + ">";
 };
@@ -29,7 +34,8 @@ var nodeTypeHelp = function() {
 		return example[key].help !== undefined;
 	    })
 	    .map(function(key) {
-		return tag("dt", key) + tag("dd", example[key].help);
+		return tag("dt", propertyNames.has(key) ? propertyNames.get(key) : key) 
+		    + tag("dd", example[key].help);
 	    });
 
 	if (properties.length === 0) {
