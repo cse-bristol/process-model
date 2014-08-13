@@ -26,7 +26,7 @@ var text = function(onClick) {
 	},
 	'update': function(container, val, o) {
 	    var p = container.select('p.metadata-text-readonly')
-		.text(val);
+		    .text(val);
 
 	    if (onClick) {
 		p.on("click", onClick(o));
@@ -44,16 +44,6 @@ var link = {
 	container.select("a.metadata-link")
 	    .attr('href', vals[0])
 	    .text(vals[0] ? vals[1] : "");
-    }
-};
-
-var metadataTree = {
-    'create': function(d, i, container) {
-	// TODO
-	
-    },
-    'update': function(d, i, container, o) {
-	// TODO
     }
 };
 
@@ -96,6 +86,87 @@ module.exports = function(container, select, update) {
 	};
     };
 
+    var metadataTree = {
+	'create': function(d, i, container) {
+	    container.append("ul")
+		.classed("metadata-tree", true);
+	},
+	'update': function(container, val, o) {
+	    var around = function(node) {
+		var li = node.selectAll("li")
+			.data(function(d, i) {
+			    return d;
+			}).enter()
+			.append("li");
+
+		li.append("input")
+		    .attr("type", "text")
+		    .attr("value", function(d, i) {
+			return d.name;
+		    });
+
+		li
+		    .append("span")
+		    .classed("more-metadata", true)
+		    .text(function(d, i) {
+			return d.value === undefined ? "→" : 
+			    typeof d.value === "string" ? "" : "↓";
+		    })
+		    .on("click", function(d, i) {
+			if (d.value === undefined) {
+			    
+			    var parent = d.parent,
+				grandparent = parent.parent,
+				child = {};
+
+			    child[d.name] = "new value";
+			    grandparent.value[parent.name] = child;
+
+			} else if (typeof d.value === "string") {
+			    throw new Error("Should never reach here.");
+
+			} else {
+			    var newKey = "new key";
+			    while (d.value[newKey] !== undefined) {
+				newKey += "+";
+			    }
+			    d.value[newKey] = "new value";
+			}
+
+			update();
+		    });
+
+		var children = li
+			.filter(function(d, i) {
+			    return d.value !== undefined;
+			})
+			.append("ul")
+			.datum(function(d, i) {
+			    if (typeof d.value === 'string') {
+				return [{name: d.value, parent: d}];
+			    } else {
+				return Object.keys(d.value).map(function(k) {
+				    return {value: d.value[k], name: k, parent: d};
+				});
+			    }
+			});
+
+		if (children.size() > 0) {
+		    children.call(around);
+		}
+	    };
+
+	    container.select('ul.metadata-tree')
+		.selectAll('li')
+		.remove();
+
+	    container.select("ul.metadata-tree")
+		.datum([{name: 'metadata', value: val}])
+		.call(around);
+	}
+    };
+
+
     var fields = [
 	{'prop': 'type', display: withLabel(text())},
 	{'prop': 'name', display: withLabel(editableText)},
@@ -123,9 +194,9 @@ module.exports = function(container, select, update) {
 	    });
 
 	    var fieldDivs = div.selectAll("div")
-		.data(currentFields, function(d, i) {
-		    return d.key ? d.key : d.prop;
-		});
+		    .data(currentFields, function(d, i) {
+			return d.key ? d.key : d.prop;
+		    });
 
 	    fieldDivs.exit().remove();
 	    fieldDivs.enter().append("div")
@@ -139,7 +210,7 @@ module.exports = function(container, select, update) {
 			d.prop.map(function(p) {
 			    return get(current[p]);
 			}) :
-			get(current[d.prop]);
+		    get(current[d.prop]);
 
 		
 		d.display.update(d3.select(this), vals, current);

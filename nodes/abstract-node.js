@@ -106,7 +106,8 @@ module.exports = function() {
 
 	    var edges = [],
 		url = "",
-		name = startName;
+		name = startName,
+		metadata = {};
 
 	    while (!name || nodes.has(name)) {
 		name = "new " + newNodes++;
@@ -175,6 +176,14 @@ module.exports = function() {
 			return this;
 		    }
 		    return url;
+		},
+		metadata: function(val) {
+		    if (val === undefined) {
+			return metadata;
+		    } else {
+			metadata = val;
+			return this;
+		    }
 		},
 		countDescendents: function() {
 		    var seen = [],

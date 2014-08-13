@@ -196,3 +196,7 @@ iframe.url-preview-frame {
 .metadata-link {
     margin-left: 10px;
 }
+
+.more-metadata {
+    cursor: pointer;
+}
