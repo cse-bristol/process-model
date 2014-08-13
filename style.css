@@ -169,3 +169,30 @@ iframe.url-preview-frame {
     padding-left: 10px;
     width: 95%;
 }
+
+.metadata-field {
+    margin-top: 0.5em;
+}
+
+.metadata-label {
+    width: 20%;
+    margin-left: 10px;
+    display: inline-block;
+}
+
+.metadata-text-readonly {
+    width: 70%;
+    display: inline;
+}
+
+.metadata-text-editable {
+    width: 70%;
+    /* Negative margin here bumps the text field up a big relative to the label. */
+    margin-bottom: -1em;
+    display: inline;
+    resize: vertical;
+}
+
+.metadata-link {
+    margin-left: 10px;
+}

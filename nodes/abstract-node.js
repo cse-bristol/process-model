@@ -6,7 +6,9 @@ var d3 = require("d3"),
     types = require("./process-node.js");
 
 module.exports = function() {
-    var nodes, newNodes, root;
+    var nodes, newNodes, root,
+	onCreate = [],
+	onRoot = [];
 
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen, edge) {
@@ -76,12 +78,22 @@ module.exports = function() {
 	    newNodes = 1;
 	    root = null;
 	},
+	onRoot: function(callback) {
+	    onRoot.push(callback);
+	},
 	root: function(newRoot) {
-	    if (newRoot) {
+	    if (newRoot !== undefined) {
 		root = newRoot;
 		return this;
+
+		onRoot.forEach(function(callback) {
+		    callback(root);
+		});
 	    }
 	    return root;
+	},
+	onCreate: function(callback) {
+	    onCreate.push(callback);
 	},
 	create : function(type, startName) {
 	    if (nodes.has(startName)) {
@@ -93,7 +105,7 @@ module.exports = function() {
 	    }
 
 	    var edges = [],
-		url = null,
+		url = "",
 		name = startName;
 
 	    while (!name || nodes.has(name)) {
@@ -191,6 +203,10 @@ module.exports = function() {
 	    nodes.set(node.name(), node);
 
 	    types.get(type)(node);
+
+	    onCreate.forEach(function(callback) {
+		callback(node);
+	    });
 
 	    return node;
 	},

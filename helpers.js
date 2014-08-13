@@ -25,5 +25,14 @@ module.exports = {
     },
     clamp: function(min, num, max) {
 	return Math.max(min, Math.min(max, num));
+    },
+    all: function(list, f) {
+	var len = list.length;
+	for (var i = 0; i < len; i++) {
+	    if (!f(list[i])) {
+		return false;
+	    }
+	}
+	return true;
     }
 };

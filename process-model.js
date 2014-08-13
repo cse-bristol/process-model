@@ -6,15 +6,17 @@ var d3 = require("d3"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
     nodes = require("./nodes/abstract-node.js")(),
+    selection = require("./selection.js")(nodes),
     trackAllowedTypes = require("./nodes/allowed-types.js")(nodes),
     transitions = require("./transition-switch.js")(),
     dataConstructor = require("./data.js"),
     perimetaConstructor = require("./perimeta-xml.js"),
     htmlScrapeConstructor = require("./html-scrape.js");
 
+
 require("./columns.js")(
     d3.selectAll("#model, #metadata, #help"), 
-    [0.5, 0.2, 0.3]);
+    [0.4, 0.2, 0.4]);
 
 require("./help.js")(d3.select("#help"));
 
@@ -22,10 +24,24 @@ var update = function() {
     trackAllowedTypes.update();
     draw();
     updateDownloadLink();
+}, withUpdate = function(f) {
+    return function(args) {
+	f(args);
+	update();
+    };
 };
 
-var drawNodes = require("./nodes/draw-node.js")(g, transitions, 50, 200, update),
+var drawMetadata = require("./draw-metadata.js")(
+    d3.select("#metadata"), 
+    selection.select, 
+    update),
+
+    drawNodes = require("./nodes/draw-node.js")(g, transitions, 50, 200, 
+						withUpdate(selection.selected),
+						update),
+
     drawEdges = require("./draw-edge.js")(g, transitions, update),
+
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -42,6 +58,8 @@ var draw = function() {
     drawNodes.draw(display.nodes);
  
     drawEdges.draw(display.edges);
+
+    drawMetadata.draw(selection.selected());
 };
 
 var updateDownloadLink = function(){

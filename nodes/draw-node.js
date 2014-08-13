@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js");
 
-module.exports = function(container, transitions, nodeHeight, nodeWidth, update) {
+module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHandler, update) {
     var nodeSidePadding = 10,
 	nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
 	nodeCenter = [nodeWidth / 2 , nodeHeight / 2],
@@ -198,7 +198,10 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, update)
 		.attr("height", nodeHeight + "px")
 		.each(function(d, i) {
 			d3.select(this).classed("node-box-" + d.type, true);
-		    });
+		    })
+		.on("click", function(d, i) {
+		    clickHandler(d);
+		});
 
 	    drawNodeName(nodeDisplay, newNodes);
 
