@@ -114,8 +114,6 @@ module.exports = function(columns, startProportions) {
 			  change *= -1;
 		      }
 
-		      console.log("change " + change + " in direction " + direction);
-
 		      while (change > 0 
 			     && shrinkColumn >= 0 
 			     && shrinkColumn < proportions.length) {
