@@ -55,7 +55,8 @@ module.exports = function(nodes) {
 	    dependence = aspect.getElementsByTagName("dependancy"),
 	    localEvidence = aspect.getElementsByTagName("localFOM"),
 	    localEvidenceWeight = aspect.getElementsByTagName("localFOMWeight"),
-	    propagatedEvidenceWeight = aspect.getElementsByTagName("propFOMWeight");
+	    propagatedEvidenceWeight = aspect.getElementsByTagName("propFOMWeight"),
+	    metadata = n.getElementsByTagName("optionalAttribute");
 
 	if (dependence.length > 0 && !node.isLeaf() && node.dependence) {
 	    node.dependence(loadDependence(dependence[0]), true);
@@ -83,6 +84,12 @@ module.exports = function(nodes) {
 		}
 	    }
 	}
+
+	Array.prototype.slice.call(metadata).forEach(function(m) {
+	    node.metadata.push({name: m.getAttribute("key"), children: [
+		{name: m.getAttribute("value"), children: []}
+	    ]});
+	});
     };
 
     var loadLinks = function(links, nodesById) {
