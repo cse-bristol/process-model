@@ -5,11 +5,8 @@
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js");
 
-module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHandler, update) {
-    var nodeSidePadding = 10,
-	nodeInnerWidth = nodeWidth - (2 * nodeSidePadding),
-	nodeCenter = [nodeWidth / 2 , nodeHeight / 2],
-	types = d3.map();
+module.exports = function(container, transitions, layout, clickHandler, update) {
+    var types = d3.map();
 
     var filterByType = function(nodeSelection, type) {
 	return nodeSelection.filter(function(d, i) {
@@ -64,17 +61,56 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHa
 	});
     };
 
+    var dragResize = d3.behavior.drag()
+    	    .origin(function(d){
+		return {
+		    x: d.size()[0],
+		    y: d.size()[1]
+		};
+	    })
+	    .on("dragstart", function(d){
+		d3.event.sourceEvent.stopPropagation();
+		transitions.enabled(false);
+		d3.select(this.parentNode).attr("id", "resizing-node");
+	    })
+	    .on("drag", function(d){
+		var x = d3.event.x,
+		    y = d3.event.y;
+		
+		d.size([x, y]);
+		update();
+	    })
+	    .on("dragend", function(d) {
+		transitions.enabled(true);
+		d3.select("#resizing-node").attr("id", null);
+	    });
+
+    var drawResizeHandle = function(nodes, newNodes) {
+	newNodes.append("g")
+	    .classed("resize-handle", true)
+	    .call(dragResize)
+	    .append("text")
+	    .text("⇲");
+
+	nodes.selectAll("g.resize-handle")
+	    .attr("transform", function(d, i) {
+		return "translate(" + (d.size()[0] - 8) + "," + (d.size()[1] - 0.5) + ")";
+	    });
+
+    };
+
     var drawNodeName = function(nodes, newNodes) {
 	var foreignObjectSupported = document.implementation.hasFeature("w3.org/TR/SVG11/feature#Extensibility","1.1"),
-	    nameGroups = newNodes.append("g")
+	    newNameGroups = newNodes.append("g")
 		.classed("name", true)
-		.attr("transform", "translate(20, 5)")
-		.attr("width", nodeWidth - 25)
-		.attr("height", 21);
+		.attr("transform", "translate(20, 5)");
 
-	nameGroups.append("a")
+	newNameGroups.append("a")
 	    .append("text")
 	    .attr("y", 10);
+
+	var nameGroups = nodes.selectAll("g.name")
+	    .attr("height", 21);
 
 	nodes.selectAll("g.name a")
             .attr("xlink:href", function(d, i){
@@ -91,9 +127,12 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHa
 
 	svgEditableText(
 	    nameGroups,
+	    newNameGroups,
 	    0,
 	    0, 
-	    nodeWidth - 35,
+	    function(d, i) {
+		return (d.size()[0] - 35);
+	    },
 	    21, 
 	    "node-name",
 	    function(d, i){
@@ -159,14 +198,18 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHa
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
     };
 
-    var drawNodeType = function(newNodes) {
+    var drawNodeType = function(displayNodes, newNodes) {
 	newNodes
 	    .append("g")
 	    .classed("node-type", true)
-	    .attr("transform", "translate(" + (nodeWidth - nodeSidePadding - 2) + "," + 13 + ")")
 	    .append("text")
 	    .text(function(d, i){
 		return d.type[0].toUpperCase();
+	    });
+
+	displayNodes.selectAll("g.node-type")
+	    .attr("transform", function(d, i) {
+		return "translate(" + (d.size()[0] - d.sidePadding() - 2) + "," + 13 + ")";
 	    });
     };
 
@@ -174,11 +217,6 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHa
 	registerType: function(key, value) {
 	    types.set(key, value);
 	},
-	nodeWidth: nodeWidth,
-	nodeHeight: nodeHeight,
-	nodeSidePadding: nodeSidePadding,
-	nodeInnerWidth: nodeInnerWidth,
-	nodeCenter: nodeCenter,
 	
 	draw: function(displayNodes) {
 	    var nodeDisplay = container.selectAll("g.process-node")
@@ -194,8 +232,7 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHa
 
 	    newNodes
 		.append("rect")
-		.attr("width", nodeWidth + "px")
-		.attr("height", nodeHeight + "px")
+		.classed("node-box", true)
 		.each(function(d, i) {
 			d3.select(this).classed("node-box-" + d.type, true);
 		    })
@@ -203,17 +240,27 @@ module.exports = function(container, transitions, nodeHeight, nodeWidth, clickHa
 		    clickHandler(d);
 		});
 
+	    nodeDisplay
+		.selectAll("rect.node-box")
+		.attr("width", function(d, i) {
+		    return d.size()[0] + "px";
+		})
+		.attr("height", function(d, i) {
+		    return d.size()[1] + "px";
+		});
+
 	    drawNodeName(nodeDisplay, newNodes);
 
 	    transitions.maybeTransition(nodeDisplay).attr("transform", function(d, i){
-		return "translate(" + (d.x - nodeCenter[0]) + "," + d.y + ")";
+		return "translate(" + (d.x) + "," + d.y + ")";
 	    });
  
 	    drawExpandContract(nodeDisplay);
 
 	    drawMoveHandle(nodeDisplay, newNodes);
+	    drawResizeHandle(nodeDisplay, newNodes);
 
-	    drawNodeType(newNodes);
+	    drawNodeType(nodeDisplay, newNodes);
 
 	    types.entries().forEach(function(e) {
 		e.value(

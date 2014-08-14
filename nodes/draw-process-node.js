@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll;
 
-module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
+module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, update) {
     var junctionRadius = 5;
 
     var findDragTarget = function() {
@@ -89,13 +89,16 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
 	junctions.enter()
 	    .append("g")
 	    .classed("handle", true)
-	    .attr("transform", "translate(" + drawNodes.nodeWidth + "," + drawNodes.nodeCenter[1] + ")")
 	    .attr("draggable", true)
 	    .call(dragNode);
 
-	junctions.style("visibility", function(d, i){
-	    return d.collapsed() ? "hidden" : "visible";
-	});
+	junctions
+	    .style("visibility", function(d, i){
+		return d.collapsed() ? "hidden" : "visible";
+	    })
+	    .attr("transform", function(d, i) {
+		return "translate(" + d.size()[0] + "," + d.center()[1] + ")";
+	    });
 
 	return junctions;
     };
@@ -183,12 +186,18 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
 	issueSettledText.exit().remove();
 
 	issueSettledText.enter().append("text")
-	    .attr("x", drawNodes.nodeCenter[0])
-	    .attr("y", drawNodes.nodeCenter[1] + 15)
-	    .attr("width", drawNodes.nodeInnerWidth)
 	    .style("text-anchor", "middle");
 
 	issueSettledText
+	    .attr("x", function(d, i) {
+		return d.center()[0];
+	    })
+	    .attr("y", function(d, i) {
+		return d.center()[1] + 15;
+	    })
+	    .attr("width", function(d, i) {
+		return d.innerWidth();
+	    })
 	    .text(function(d, i) {
 		return text(d);
 	    })
@@ -248,13 +257,19 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
 		return d.option[0].toUpperCase();
 	    });
 
-	typeOptions.transition().attr("transform", function(d, i) {
-	    return "translate(" + (5 + (i * 25)) + "," + drawNodes.nodeCenter[1] + ")";
-	});
+	transitions.maybeTransition(typeOptions)
+	    .attr("transform", function(d, i) {
+		return "translate(" + (5 + (i * 25)) + "," + d.node.center()[1] + ")";
+	    });
     });
 
     drawNodes.registerType("process", function(newNodes, nodeDisplay) {
 	var drawIntervalParts = function(g) {
+	    g.attr("transform", function(d, i) {
+		return "rotate(180," +  (d.size()[0] / 2) + ", 0)translate(" + 0 + "," + (4 - d.size()[1])  + ")";
+	    });
+
+
 	    /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
 	    var parts = g.selectAll("rect")
     		    .data(function(d, i){
@@ -280,10 +295,10 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
 		    return d.type;
 		})
 		.attr("x", function(d, i){
-		    return (drawNodes.nodeSidePadding + (drawNodes.nodeInnerWidth * d.x)) + "px";
+		    return (d.node.sidePadding() + (d.node.innerWidth() * d.x)) + "px";
 		})
 		.attr("width", function(d, i){
-		    return (drawNodes.nodeInnerWidth * d.width) + "px";
+		    return (d.node.innerWidth() * d.width) + "px";
 		});
 
 	    parts.call(onScroll, function(d, i, change){
@@ -313,8 +328,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, update) {
 	};
 
 	newNodes.append("g")
-	    .classed("interval", "true")
-	    .attr("transform", "rotate(180," +  (drawNodes.nodeWidth / 2) + ", 0)translate(0," + (4 - drawNodes.nodeHeight)  + ")");
+	    .classed("interval", "true");
 
 	drawIntervalParts(nodeDisplay.selectAll("g.interval"));
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);

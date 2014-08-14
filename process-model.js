@@ -36,7 +36,9 @@ var drawMetadata = require("./draw-metadata.js")(
     selection.select, 
     update),
 
-    drawNodes = require("./nodes/draw-node.js")(g, transitions, 50, 200, 
+    layout = require("./layout.js")(nodes, 200, 50, 10),
+
+    drawNodes = require("./nodes/draw-node.js")(g, transitions, layout,
 						withUpdate(selection.selected),
 						update),
 
@@ -47,10 +49,8 @@ var drawMetadata = require("./draw-metadata.js")(
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
 
-require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, update);
+require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);
-
-var layout = require("./layout.js")(nodes, drawNodes.nodeWidth, drawNodes.nodeHeight);
 
 var draw = function() {
     var display = layout.display();

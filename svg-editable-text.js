@@ -4,23 +4,33 @@
 
 var d3 = require("d3");
 
-module.exports = function(selection, x, y, width, height, name, inputFunction) {
+module.exports = function(selection, newSelection, x, y, width, height, name, inputFunction) {
     var preventDrag = d3.behavior.drag()
 	    .on("dragstart", function(d){
 		d3.event.sourceEvent.stopPropagation();
 	    });
 
-    var foreign = selection
+    var newForeign = newSelection
 	    .append("foreignObject")
+	    .classed("svg-editable-text", true)
 	    .attr("x", x)
-	    .attr("y", y)
+	    .attr("y", y);
+
+    var foreign = selection.selectAll(".svg-editable-text")
 	    .attr("width", width)
-	    .attr("height", height)
+	    .attr("height", height);
+
+    var newInput = newForeign
 	    .append("xhtml:input")
 	    .attr("type", "text")
-	    .attr("name", name)
-	    .style("width", width + "px")
 	    .classed(name, "true")
 	    .on("input", inputFunction)
 	    .call(preventDrag);
+
+    foreign.selectAll("." + name)
+	    .attr("name", name)
+	    .style("width", function(d, i) {
+		var w = width instanceof Function ? width(d, i) : width;
+		return (w - 5) + "px";
+	    });
 };

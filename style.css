@@ -16,6 +16,10 @@ g.process-node {
     opacity: 1.0;
 }
 
+#resizing-node {
+    opacity: 1.0;
+}
+
 .drag-target {
     opacity: 1.0;
 }

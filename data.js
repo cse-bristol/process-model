@@ -109,7 +109,8 @@ module.exports = function(nodes, layout) {
     var serializeLayout = function() {
 	return {
 	    collapsed: layout.collapsed().values(),
-	    positions: layout.position().entries()
+	    positions: layout.position().entries(),
+	    sizes: layout.size().entries()
 	};
     };
     
@@ -119,6 +120,9 @@ module.exports = function(nodes, layout) {
 	});
 	o.layout.positions.forEach(function(e){
 	    layout.position(e.key, e.value);
+	});
+	o.layout.sizes.forEach(function(e) {
+	    layout.size(e.key, e.value);
 	});
 
 	return deserializeNode(o.root);

@@ -5,11 +5,10 @@
 var d3 = require("d3"),
     dagre = require("dagre");
 
-module.exports = function(nodes, nodeWidth, nodeHeight) {
+module.exports = function(nodes, nodeWidth, nodeHeight, nodeSidePadding) {
     var collapsedNodes = d3.set(),
 	manualPositions = d3.map(),
-	halfWidth = nodeWidth / 2,
-	halfHeight = nodeHeight / 2;
+	manualSizes = d3.map();
 
     function isNumber(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
@@ -216,6 +215,35 @@ module.exports = function(nodes, nodeWidth, nodeHeight) {
 
 	    displayNode.autoPosition = function() {
 		manualPositions.remove(node.name());
+		manualSizes.remove(node.name());
+	    };
+
+	    displayNode.size = function(pos) {
+		if (pos === undefined) {
+		    if (manualSizes.has(node.name())) {
+			return manualSizes.get(node.name());
+		    } else {
+			return [nodeWidth, nodeHeight];
+		    }
+		}
+		manualSizes.set(node.name(), [
+		    pos[0] < 80 ? 80 : pos[0],
+		    pos[1] < 50 ? 50 : pos[1]
+		]);
+		return displayNode;
+	    };
+
+	    displayNode.innerWidth = function() {
+		return displayNode.size()[0] - (2 * displayNode.sidePadding());
+	    };
+
+	    displayNode.center = function() {
+		var s = displayNode.size();
+		return [s[0] / 2, s[1] / 2];
+	    };
+
+	    displayNode.sidePadding = function() {
+		return nodeSidePadding;
 	    };
 	    
 	    if (manualPositions.has(node.name())) {
@@ -285,22 +313,26 @@ module.exports = function(nodes, nodeWidth, nodeHeight) {
 	layout.eachEdge(function(e, u, v, value){
 	    var from = nodePositions.get(u),
 		to = nodePositions.get(v),
-		edge = from.edgeTo(to);
+		edge = from.edgeTo(to),
+		fromSize = from.size(),
+		toSize = to.size();
 
 	    edge.path = [];
 
-	    edge.path.push([from.x + halfWidth, from.y + halfHeight]);
+	    edge.path.push([from.x + fromSize[0], from.y + fromSize[1] / 2]);
 
 	    value.points.forEach(function(p){
-		edge.path.push([p.x + xOffset, p.y + yOffset + halfHeight]);
+		edge.path.push([p.x + (fromSize[0] / 2) + xOffset, p.y + yOffset + ((toSize[1] + fromSize[1]) / 4)]);
 	    });
 
-	    edge.path.push([to.x - halfWidth, to.y + halfHeight]);
+	    edge.path.push([to.x, to.y + toSize[1] / 2]);
 	});
 
 	manualEdgePositions.forEach(function(e){
-	    var start = [e.parent().x + halfWidth, e.parent().y + halfHeight],
-		end = [e.node().x - halfWidth, e.node().y + halfHeight],
+	    var fromSize = e.parent().size(),
+		toSize = e.node().size(),
+		start = [e.parent().x + fromSize[0], e.parent().y + fromSize[1] / 2],
+		end = [e.node().x, e.node().y + toSize[1] / 2],
 		middle = [(start[0] + end[0]) / 2, (start[1] + end[1]) / 2];
 
 	    e.path = [start, middle, end];
@@ -336,7 +368,7 @@ module.exports = function(nodes, nodeWidth, nodeHeight) {
 	position: function(name, position) {
 	    if (name && position) {
 		manualPositions.set(name, position);
-		return this;
+		return module;
 	    } else {
 		return manualPositions;
 	    }
@@ -344,9 +376,17 @@ module.exports = function(nodes, nodeWidth, nodeHeight) {
 	collapsed: function(c) {
 	    if (c) {
 		collapsedNodes.add(c);
-		return this;
+		return module;
 	    } else {
 		return collapsedNodes;
+	    }
+	},
+	size: function(name, s) {
+	    if (s === undefined) {
+		return manualSizes;
+	    } else {
+		manualSizes.set(name, s);
+		return module;
 	    }
 	},
 	display: function() {
