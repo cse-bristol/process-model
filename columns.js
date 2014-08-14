@@ -125,8 +125,6 @@ module.exports = function(columns, startProportions) {
 			  proportions[growColumn] += diff;
 			  change -= diff;
 			  shrinkColumn += direction;
-
-			  console.log(proportions);
 		      }
 
 		  })
