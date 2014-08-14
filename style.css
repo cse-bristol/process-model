@@ -197,6 +197,21 @@ iframe.url-preview-frame {
     margin-left: 10px;
 }
 
-.more-metadata {
+.metadata-tree {
+    margin-left: 5px;
+}
+
+.metadata-tree-field {
+    overflow: hidden;
+    width: 7em;
+}
+
+.metadata-tree-field input {
+    width: 6em;
+    margin-right: 2px;
+}
+
+.metadata-tree-control {
+    font-family: monospace;
     cursor: pointer;
 }

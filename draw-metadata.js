@@ -3,7 +3,8 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    all = require("./helpers.js").all;
+    all = require("./helpers.js").all,
+    metadataTreeMaker = require("./metadata-tree.js");
 
 var withLabel = function(f) {
     return {
@@ -87,85 +88,87 @@ module.exports = function(container, select, update) {
     };
 
     var metadataTree = {
-	'create': function(d, i, container) {
-	    container.append("ul")
-		.classed("metadata-tree", true);
+	create: function(d, i, container) {
+	    container.append('table')
+		.classed('metadata-tree', true)
+		.append("tbody");
 	},
-	'update': function(container, val, o) {
-	    var around = function(node) {
-		var li = node.selectAll("li")
-			.data(function(d, i) {
-			    return d;
-			}).enter()
-			.append("li");
+	update: function(container, val, o) {
+	    if (val.length === 0) {
+		val.push({name: "", children: []});
+	    }
 
-		li.append("input")
-		    .attr("type", "text")
-		    .attr("value", function(d, i) {
-			return d.name;
-		    });
+	    var table = metadataTreeMaker.toTable(val);
 
-		li
-		    .append("span")
-		    .classed("more-metadata", true)
-		    .text(function(d, i) {
-			return d.value === undefined ? "→" : 
-			    typeof d.value === "string" ? "" : "↓";
-		    })
-		    .on("click", function(d, i) {
-			if (d.value === undefined) {
-			    
-			    var parent = d.parent,
-				grandparent = parent.parent,
-				child = {};
+	    var tbody = container.select("table.metadata-tree").select("tbody");
+	    tbody.selectAll("tr").remove();
 
-			    child[d.name] = "new value";
-			    grandparent.value[parent.name] = child;
+	    var rows = tbody
+		.selectAll("tr")
+		.data(table);
 
-			} else if (typeof d.value === "string") {
-			    throw new Error("Should never reach here.");
+	    rows.exit().remove();
+	    rows.enter().append("tr");
 
-			} else {
-			    var newKey = "new key";
-			    while (d.value[newKey] !== undefined) {
-				newKey += "+";
-			    }
-			    d.value[newKey] = "new value";
-			}
+	    var cells = rows.selectAll("td")
+		.data(function(d, i) {
+		    return d;
+		});
 
-			update();
-		    });
+	    var td = cells.enter()
+		    .append("td")
+		    .append("div")
+		    .classed("metadata-tree-field", true);
 
-		var children = li
-			.filter(function(d, i) {
-			    return d.value !== undefined;
-			})
-			.append("ul")
-			.datum(function(d, i) {
-			    if (typeof d.value === 'string') {
-				return [{name: d.value, parent: d}];
-			    } else {
-				return Object.keys(d.value).map(function(k) {
-				    return {value: d.value[k], name: k, parent: d};
-				});
-			    }
-			});
 
-		if (children.size() > 0) {
-		    children.call(around);
-		}
-	    };
+	    var nonBlank = td.filter(function(d, i) {
+		    return d.type !== 'blank';
+		});
 
-	    container.select('ul.metadata-tree')
-		.selectAll('li')
-		.remove();
+	    nonBlank
+		.append("input")
+		.attr("type", "text")
+		.attr("value", function(d, i) {
+		    return d.name;
+		})
+		.on("change", function(d, i) {
+		    d.obj.name = d3.event.target.value;
+		    update();
+		});
 
-	    container.select("ul.metadata-tree")
-		.datum([{name: 'metadata', value: val}])
-		.call(around);
+	    nonBlank.append("span")
+		.text("x")
+		.classed("metadata-tree-control", true)
+		.on("click", function(d, i) {
+		    d.parent.splice(d.parent.indexOf(d.obj), 1);
+		    update();
+		});
+
+	    nonBlank
+		.filter(function(d) {
+		    return d.parent.indexOf(d.obj) === (d.parent.length - 1);
+		})
+		.append("span")
+		.text("↓")
+	    	.classed("metadata-tree-control", true)
+		.on("click", function(d, i) {
+	    	    d.parent.push({name: "", children: []});
+		    update();
+		});
+
+	    nonBlank
+		.filter(function(d) {
+		    return d.obj.children.length === 0;
+		})
+		.append("span")
+		.text("→")
+	    	.classed("metadata-tree-control", true)
+		.on("click", function(d, i) {
+		    d.obj.children.push({name: "", children: []});
+		    update();
+		});
 	}
     };
-
 
     var fields = [
 	{'prop': 'type', display: withLabel(text())},
@@ -175,7 +178,7 @@ module.exports = function(container, select, update) {
 	{'prop': 'description', display: withLabel(editableText)},
 	{'prop': 'parent', display: withLabel(text(selectNode))},
 	{'prop': 'child', display: withLabel(text(selectNode))},
-	{'prop': 'metadata', display: metadataTree}
+	{'prop': 'metadata', display: withLabel(metadataTree)}
     ];
 
     var div = container.append("div").classed("metadata", true);

@@ -106,8 +106,8 @@ module.exports = function() {
 
 	    var edges = [],
 		url = "",
-		name = startName,
-		metadata = {};
+		description = "",
+		name = startName;
 
 	    while (!name || nodes.has(name)) {
 		name = "new " + newNodes++;
@@ -177,14 +177,15 @@ module.exports = function() {
 		    }
 		    return url;
 		},
-		metadata: function(val) {
+		description: function(val) {
 		    if (val === undefined) {
-			return metadata;
+			return description;
 		    } else {
-			metadata = val;
+			description = val;
 			return this;
 		    }
 		},
+		metadata:[],
 		countDescendents: function() {
 		    var seen = [],
 			stack = edges.slice(0);

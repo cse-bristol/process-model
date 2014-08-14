@@ -24,7 +24,10 @@ module.exports = function(nodes, layout) {
     var serializeNode = function(node) {
 	var serialized = {
 	    name: node.name(),
-	    type: node.type
+	    type: node.type,
+	    metadata: node.metadata,
+	    description: node.description(),
+	    url: node.url()
 	};
 
 	if (node.isLeaf()) {
@@ -78,6 +81,18 @@ module.exports = function(nodes, layout) {
 	    if (node.localEvidence) {
 		deserialized.localEvidence(node.evidence);
 	    }
+	}
+
+	if (node.metadata) {
+	    deserialized.metadata = node.metadata;
+	}
+
+	if (node.description) {
+	    deserialized.description(node.description);
+	}
+
+	if (node.url) {
+	    deserialized.url(node.url);
 	}
 
 	if (deserialized.settled) {
