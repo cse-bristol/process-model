@@ -51,7 +51,11 @@ var link = {
 var get = function(val) {
     if (val instanceof Function) {
 	// If val is a function, we'll treat it as a getter.
-	return val();
+	try {
+	    return val();
+	} catch (e) {
+	    return "";
+	}
     } else {
 	// Otherwise, assume it's already been gotten.
 	return val;
@@ -170,12 +174,51 @@ module.exports = function(container, select, update) {
 	}
     };
 
+    var slider = {
+	create: function(d, i, container) {
+	    container.append("input")
+		.classed("metadata-slider", true)
+		.attr("type", "range")
+		.attr("min", 0)
+		.attr("max", 1)
+		.attr("step", 0.05);
+	},
+	update: function(container, val, o) {
+	    container
+		.select(".metadata-slider")
+		.on("change", function(d, i) {
+		    o[d.prop](d3.event.target.value);
+		    update();
+		})[0][0].value = val;
+	}
+    };
+
+    var checkbox = {
+	create: function(d, i, container) {
+	    container.append("input")
+		.classed("metadata-toggle", true)
+		.attr("type", "checkbox");
+	},
+	update: function(container, val, o) {
+	    container.select(".metadata-toggle")
+	    .on("change", function(d, i) {
+		o[d.prop](this.checked);
+		update();
+	    })[0][0].checked = val;
+	}
+    };
+
     var fields = [
 	{'prop': 'type', display: withLabel(text())},
 	{'prop': 'name', display: withLabel(editableText)},
 	{'prop': 'url', display: withLabel(editableText)},
 	{'prop': ['url', 'name'], key: 'clickable-link', display: link},
 	{'prop': 'description', display: withLabel(editableText)},
+	{'prop': 'dependence', display: withLabel(slider)},
+	{'prop': 'support', display: withLabel(checkbox)},
+	{'prop': 'settled', display: withLabel(checkbox)},
+	{'prop': 'necessity', display: withLabel(slider)},
+	{'prop': 'sufficiency', display: withLabel(slider)},
 	{'prop': 'parent', display: withLabel(text(selectNode))},
 	{'prop': 'child', display: withLabel(text(selectNode))},
 	{'prop': 'metadata', display: withLabel(metadataTree)}
