@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     dagre = require("dagre");
 
-module.exports = function(nodes, nodeWidth, nodeHeight, nodeSidePadding) {
+module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePadding) {
     var collapsedNodes = d3.set(),
 	manualPositions = d3.map(),
 	manualSizes = d3.map();
@@ -223,7 +223,7 @@ module.exports = function(nodes, nodeWidth, nodeHeight, nodeSidePadding) {
 		    if (manualSizes.has(node.name())) {
 			return manualSizes.get(node.name());
 		    } else {
-			return [nodeWidth, nodeHeight];
+			return [defaultNodeWidth, defaultNodeHeight];
 		    }
 		}
 		manualSizes.set(node.name(), [
@@ -265,8 +265,9 @@ module.exports = function(nodes, nodeWidth, nodeHeight, nodeSidePadding) {
 	    nodePositions = d3.map({}),
 	    edgePositions = [],
 	    manualEdgePositions = [],
-	    xOffset = root.x ? root.x : nodeWidth,
-	    yOffset = root.y ? root.y : nodeHeight;
+	    // If the root node isn't manually positioned, we'll offset it a little bit.
+	    xOffset = root.x ? root.x : 50,
+	    yOffset = root.y ? root.y : 50;
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
@@ -283,10 +284,11 @@ module.exports = function(nodes, nodeWidth, nodeHeight, nodeSidePadding) {
 	}
 
 	nodePositions.keys().forEach(function(n){
+	    var size = manualSizes.has(n) ? manualSizes.get(n) : [defaultNodeWidth, defaultNodeHeight];
 	    graph.addNode(n, {
 		label: n,
-		width: nodeWidth,
-		height: nodeHeight
+		width: size[0], 
+		height: size[1]
 	    });
 	});
 
