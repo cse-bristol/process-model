@@ -34,7 +34,10 @@ To install, clone the repository then serve using any web server, for example us
   sudo python3 -m http.server 80 &
 #+END_SRC
 
-To build the code, begin by installing [[http://nodejs.org/][Node JS]]. On a Debian-based system, I'd recommend using this PPA:
+*** Building
+If you make changes to the code, you will need to rebuild it. Our Javascript files our arranged as node.js modules, and we use the 'browserify' tool to combine them into a single file.
+
+Begin by installing [[http://nodejs.org/][Node JS]]. On a Debian-based system, I'd recommend using this PPA:
 #+BEGIN_SRC sh
 sudo add-apt-repository ppa:chris-lea/node.js 
 sudo aptitude update
