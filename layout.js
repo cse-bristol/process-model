@@ -265,9 +265,11 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 	    nodePositions = d3.map({}),
 	    edgePositions = [],
 	    manualEdgePositions = [],
-	    // If the root node isn't manually positioned, we'll offset it a little bit.
-	    xOffset = root.x ? root.x : 50,
-	    yOffset = root.y ? root.y : 50;
+	    rootSize = root.size(),
+	    /* If the root node isn't manually positioned, we'll offset it a little bit.
+	     We also account for Dagre using the middle of the node, while we use the top-left corner. */
+ 	    xOffset = root.x ? root.x : 50 + (rootSize[0] / 2),
+	    yOffset = root.y ? root.y : 50 + (rootSize[1] / 2);
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
@@ -307,9 +309,14 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 	yOffset -= rootLayout.y;
 
 	layout.eachNode(function(n, val){
-	    var node = nodePositions.get(n);
-	    node.x = val.x + xOffset;
-	    node.y = val.y + yOffset;
+	    var node = nodePositions.get(n),
+		size = node.size();
+	    /* 
+	     Account for the initial position of the root node (which modes the whole graph).
+	     Also account for Dagre's coordinates being the centre of the node.
+	     */
+	    node.x = val.x + xOffset - (size[0] / 2);
+	    node.y = val.y + yOffset - (size[1] / 2);
 	});
 
 	layout.eachEdge(function(e, u, v, value){
@@ -324,7 +331,7 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 	    edge.path.push([from.x + fromSize[0], from.y + fromSize[1] / 2]);
 
 	    value.points.forEach(function(p){
-		edge.path.push([p.x + (fromSize[0] / 2) + xOffset, p.y + yOffset + ((toSize[1] + fromSize[1]) / 4)]);
+		edge.path.push([p.x + xOffset, p.y + yOffset]);
 	    });
 
 	    edge.path.push([to.x, to.y + toSize[1] / 2]);
