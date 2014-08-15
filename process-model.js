@@ -15,8 +15,8 @@ var d3 = require("d3"),
 
 
 require("./columns.js")(
-    d3.selectAll("#model, #metadata, #help"), 
-    [0.4, 0.2, 0.4]);
+    d3.selectAll("#model, #metadata"), 
+    [0.7, 0.3]);
 
 require("./help.js")(d3.select("#help"));
 

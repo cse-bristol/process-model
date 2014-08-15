@@ -66,8 +66,7 @@ var nodeTypeHelp = function() {
 
 module.exports = function(container) {
     var loaded = [],
-	expected = 0,
-	textDiv = container.append("div").classed("help-text", true);
+	expected = 0;
 
     var loadThis = function(fileName, position) {
 	expected++;
@@ -82,7 +81,12 @@ module.exports = function(container) {
 	    expected--;
 
 	    if (expected === 0) {
-		textDiv.html(loaded.join(" "));
+		var html = "<!DOCTYPE html>\r\n" 
+			+ tag("html", 
+			      loaded.join(""));
+		
+		container
+		    .attr("href", "data:text/html," + encodeURIComponent(html));
 	    }
 	});
     };

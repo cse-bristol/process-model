@@ -166,7 +166,10 @@ iframe.url-preview-frame {
 }
 
 #help {
-    text-overflow: ellipsis;
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: xx-large;
 }
 
 .help-text {
