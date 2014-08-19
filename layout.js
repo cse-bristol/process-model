@@ -27,6 +27,13 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 	});
     };
 
+    var rename = function (lookup, oldName, newName) {
+	if (lookup.has(oldName)) {
+	    lookup.set(newName, lookup.get(oldName));
+	    lookup.remove(oldName);
+	}
+    };
+
     var nodesToKeep = function() {
 	var stack = [nodes.root()],
 	    found = d3.map(),
@@ -192,6 +199,25 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 		    }
 		};
 	    }
+
+	    displayNode.name = function(n) {
+		if (n === undefined) {
+		    return node.name();
+		} else {
+		    var oldName = node.name();
+			
+		    node.name(n);
+
+		    if (collapsedNodes.has(oldName)) {
+			collapsedNodes.remove(oldName);
+			collapsedNodes.add(n);
+		    }
+
+		    rename(manualPositions, oldName, n);
+		    rename(manualSizes, oldName, n);
+		    return displayNode;
+		}
+	    };
 
 	    displayNode.edges = function() {
 		return displayEdges;
