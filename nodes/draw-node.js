@@ -134,7 +134,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		return (d.size()[0] - 35);
 	    },
 	    function(d, i) {
-		return (d.size()[1] / 2) - 10;
+		return (d.size()[1] - 32);
 	    }, 
 	    "node-name",
 	    function content(d, i) {

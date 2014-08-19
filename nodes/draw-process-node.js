@@ -193,7 +193,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 		return d.center()[0];
 	    })
 	    .attr("y", function(d, i) {
-		return d.center()[1] + 15;
+		return d.size()[1] - 10;
 	    })
 	    .attr("width", function(d, i) {
 		return d.innerWidth();
@@ -259,7 +259,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
-		return "translate(" + (5 + (i * 25)) + "," + d.node.center()[1] + ")";
+		return "translate(" + (5 + (i * 25)) + "," + (d.node.size()[1]- 24) + ")";
 	    });
     });
 
