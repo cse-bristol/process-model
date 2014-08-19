@@ -105,25 +105,8 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		.classed("name", true)
 		.attr("transform", "translate(20, 5)");
 
-	newNameGroups.append("a")
-	    .append("text")
-	    .attr("y", 10);
-
 	var nameGroups = nodes.selectAll("g.name")
 		.attr("height", 21);
-
-	nodes.selectAll("g.name a")
-            .attr("xlink:href", function(d, i){
-		return d.url();
-	    })
-	    .attr("target", "_parent")
-	    .style("visibility", function(d, i){
-		return (d.url() || !foreignObjectSupported) ? "visible" : "hidden";
-	    })
-	    .selectAll("text")
-	    .text(function(d, i){ 
-		return d.name(); 
-	    });
 
 	svgEditableText(
 	    nameGroups,
@@ -150,11 +133,6 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    },
 	    function onLoseFocus(d, i) {
 		update();
-	    });
-
-	nodes.selectAll(".node-name")
-	    .style("visibility", function(d, i){
-		return (d.url() && foreignObjectSupported) ? "hidden" : "visible";
 	    });
     };
 
