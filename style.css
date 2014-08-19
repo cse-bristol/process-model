@@ -170,6 +170,7 @@ iframe.url-preview-frame {
     top: 10px;
     right: 10px;
     font-size: xx-large;
+    text-decoration: none;
 }
 
 .help-text {
