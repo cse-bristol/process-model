@@ -26,7 +26,6 @@ module.exports = function(nodes, layout) {
 	    name: node.name(),
 	    type: node.type,
 	    metadata: node.metadata,
-	    description: node.description(),
 	    url: node.url()
 	};
 
@@ -85,10 +84,6 @@ module.exports = function(nodes, layout) {
 
 	if (node.metadata) {
 	    deserialized.metadata = node.metadata;
-	}
-
-	if (node.description) {
-	    deserialized.description(node.description);
 	}
 
 	if (node.url) {

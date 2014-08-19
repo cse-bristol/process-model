@@ -213,7 +213,6 @@ module.exports = function(container, select, update) {
 	{'prop': 'name', display: withLabel(editableText)},
 	{'prop': 'url', display: withLabel(editableText)},
 	{'prop': ['url', 'name'], key: 'clickable-link', display: link},
-	{'prop': 'description', display: withLabel(editableText)},
 	{'prop': 'dependence', display: withLabel(slider)},
 	{'prop': 'support', display: withLabel(checkbox)},
 	{'prop': 'settled', display: withLabel(checkbox)},
