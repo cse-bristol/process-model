@@ -110,7 +110,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    .attr("y", 10);
 
 	var nameGroups = nodes.selectAll("g.name")
-	    .attr("height", 21);
+		.attr("height", 21);
 
 	nodes.selectAll("g.name a")
             .attr("xlink:href", function(d, i){
@@ -133,23 +133,28 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    function(d, i) {
 		return (d.size()[0] - 35);
 	    },
-	    21, 
+	    function(d, i) {
+		return (d.size()[1] / 2) - 10;
+	    }, 
 	    "node-name",
-	    function(d, i){
+	    function content(d, i) {
+		return d.name();
+	    },
+	    function onChange(d, i, val) {
 		try {
-		    d.name(this.value);
+		    d.name(val);
 		    d3.select(this).classed("name-error", false);
 		} catch (err) {
 		    d3.select(this).classed("name-error", true);
 		}
+	    },
+	    function onLoseFocus(d, i) {
+		update();
 	    });
 
 	nodes.selectAll(".node-name")
 	    .style("visibility", function(d, i){
 		return (d.url() && foreignObjectSupported) ? "hidden" : "visible";
-	    })
-	    .attr("value", function(d, i){
-		return d.name();
 	    });
     };
 
@@ -234,8 +239,8 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		.append("rect")
 		.classed("node-box", true)
 		.each(function(d, i) {
-			d3.select(this).classed("node-box-" + d.type, true);
-		    })
+		    d3.select(this).classed("node-box-" + d.type, true);
+		})
 		.on("click", function(d, i) {
 		    clickHandler(d);
 		});
@@ -254,7 +259,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    transitions.maybeTransition(nodeDisplay).attr("transform", function(d, i){
 		return "translate(" + (d.x) + "," + d.y + ")";
 	    });
- 
+	    
 	    drawExpandContract(nodeDisplay);
 
 	    drawMoveHandle(nodeDisplay, newNodes);
