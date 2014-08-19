@@ -175,7 +175,8 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 	issueSettled.exit().remove();
 
 	issueSettled.enter().append("g")
-	    .classed(clazz, true);
+	    .classed(clazz, true)
+	    .classed("toggleable-text", true);
 
 	var issueSettledText = issueSettled
 		.selectAll("text")
