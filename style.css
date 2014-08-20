@@ -33,6 +33,11 @@ text {
     fill: white;
 }
 
+.node-name {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
 .process-node rect.node-box-process {
     fill: #C0C0C0;
 }

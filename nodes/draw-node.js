@@ -121,7 +121,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    }, 
 	    "node-name",
 	    function content(d, i) {
-		return d.name();
+		return '<div style="float:right;">' + d.name() + "</div>";
 	    },
 	    function onChange(d, i, val) {
 		try {
