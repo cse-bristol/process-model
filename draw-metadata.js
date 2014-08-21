@@ -6,6 +6,10 @@ var d3 = require("d3"),
     all = require("./helpers.js").all,
     metadataTreeMaker = require("./metadata-tree.js");
 
+var isURL = function(text) {
+    return text.slice(0, 4) === 'http';
+};
+
 var withLabel = function(f) {
     return {
 	'create': function(d, i, container) {
@@ -41,10 +45,10 @@ var link = {
 	container.append('a')
 	    .classed('metadata-link', true);
     },
-    'update': function(container, vals, o) {
+    'update': function(container, val, o) {
 	container.select("a.metadata-link")
-	    .attr('href', vals[0])
-	    .text(vals[0] ? vals[1] : "");
+	    .attr('href', val)
+	    .text(val);
     }
 };
 
@@ -211,16 +215,15 @@ module.exports = function(container, select, update) {
     var fields = [
 	{'prop': 'type', display: withLabel(text())},
 	{'prop': 'name', display: withLabel(editableText)},
-	{'prop': 'url', display: withLabel(editableText)},
-	{'prop': ['url', 'name'], key: 'clickable-link', display: link},
+	{'prop': 'name', condition: isURL, key: 'clickable-link', display: link},
+	{'prop': 'description', display: withLabel(editableText)},
 	{'prop': 'dependence', display: withLabel(slider)},
 	{'prop': 'support', display: withLabel(checkbox)},
 	{'prop': 'settled', display: withLabel(checkbox)},
 	{'prop': 'necessity', display: withLabel(slider)},
 	{'prop': 'sufficiency', display: withLabel(slider)},
 	{'prop': 'parent', display: withLabel(text(selectNode))},
-	{'prop': 'child', display: withLabel(text(selectNode))},
-	{'prop': 'metadata', display: withLabel(metadataTree)}
+	{'prop': 'child', display: withLabel(text(selectNode))}
     ];
 
     var div = container.append("div").classed("metadata", true);
@@ -228,14 +231,9 @@ module.exports = function(container, select, update) {
     return {
 	draw: function(current) {
 	    var currentFields = fields.filter(function(f) {
-		var p = f.prop;
-		if (!(p instanceof Array)) {
-		    p = [p];
-		}
-
-		return all(p, function(prop) {
-		    return current[prop] !== undefined;
-		});
+		var val = current[f.prop];
+		return val !== undefined &&
+		    (f.condition === undefined || f.condition(get(val)));
 	    });
 
 	    var fieldDivs = div.selectAll("div")
@@ -251,13 +249,7 @@ module.exports = function(container, select, update) {
 		});
 
 	    fieldDivs.each(function(d, i) {
-		var vals = d.prop instanceof Array ?
-			d.prop.map(function(p) {
-			    return get(current[p]);
-			}) :
-		    get(current[d.prop]);
-
-		
+		var vals = get(current[d.prop]);
 		d.display.update(d3.select(this), vals, current);
 	    });
 	}

@@ -105,7 +105,7 @@ module.exports = function() {
 	    }
 
 	    var edges = [],
-		url = "",
+		description = "Write about this node here.",
 		name = startName;
 
 	    while (!name || nodes.has(name)) {
@@ -169,14 +169,14 @@ module.exports = function() {
 		    }
 		    return name;
 		},
-		url: function(u) {
-		    if (u) {
-			url = u;
+		description: function(c) {
+		    if (c === undefined) {
+			return description;
+		    } else {
+			description = c;
 			return this;
 		    }
-		    return url;
 		},
-		metadata:[],
 		countDescendents: function() {
 		    var seen = [],
 			stack = edges.slice(0);

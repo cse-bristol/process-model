@@ -100,13 +100,11 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
     };
 
     var drawNodeName = function(nodes, newNodes) {
-	var foreignObjectSupported = document.implementation.hasFeature("w3.org/TR/SVG11/feature#Extensibility","1.1"),
-	    newNameGroups = newNodes.append("g")
+	var newNameGroups = newNodes.append("g")
 		.classed("name", true)
 		.attr("transform", "translate(20, 5)");
 
-	var nameGroups = nodes.selectAll("g.name")
-		.attr("height", 21);
+	var nameGroups = nodes.selectAll("g.name");
 
 	svgEditableText(
 	    nameGroups,
@@ -116,9 +114,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    function(d, i) {
 		return (d.size()[0] - 35);
 	    },
-	    function(d, i) {
-		return (d.size()[1] - 32);
-	    }, 
+	    21,
 	    "node-name",
 	    function content(d, i) {
 		return '<div style="float:right;">' + d.name() + "</div>";
@@ -130,6 +126,36 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		} catch (err) {
 		    d3.select(this).classed("name-error", true);
 		}
+	    },
+	    function onLoseFocus(d, i) {
+		update();
+	    });
+    };
+
+    var drawNodeDescription = function(nodes, newNodes) {
+	var newDescriptionGroups = newNodes.append("g")
+		.classed("description", true)
+		.attr("transform", "translate(20, 26)");
+
+	var descriptionGroups = nodes.selectAll("g.description");
+
+	svgEditableText(
+	    descriptionGroups,
+	    newDescriptionGroups,
+	    0,
+	    0, 
+	    function(d, i) {
+		return (d.size()[0] - 35);
+	    },
+	    function(d, i) {
+		return (d.size()[1] - 40);
+	    },
+	    "node-description",
+	    function content(d, i) {
+		return d.description();
+	    },
+	    function onChange(d, i, val) {
+		d.description(val);
 	    },
 	    function onLoseFocus(d, i) {
 		update();
@@ -233,6 +259,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		});
 
 	    drawNodeName(nodeDisplay, newNodes);
+	    drawNodeDescription(nodeDisplay, newNodes);
 
 	    transitions.maybeTransition(nodeDisplay).attr("transform", function(d, i){
 		return "translate(" + (d.x) + "," + d.y + ")";

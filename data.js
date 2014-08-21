@@ -25,8 +25,7 @@ module.exports = function(nodes, layout) {
 	var serialized = {
 	    name: node.name(),
 	    type: node.type,
-	    metadata: node.metadata,
-	    url: node.url()
+	    metadata: node.metadata
 	};
 
 	if (node.isLeaf()) {
@@ -38,6 +37,10 @@ module.exports = function(nodes, layout) {
 	    if (node.dependence) {
 		serialized.dependence = node.dependence();
 	    }
+	}
+
+	if (node.description) {
+	    serialized.description = node.description();
 	}
 
 	if (node.settled) {
@@ -72,6 +75,10 @@ module.exports = function(nodes, layout) {
 		    edge.sufficiency(e.sufficiency);
 		}
 	    });
+
+	    if (node.description) {
+		deserialized.description(node.description);
+	    }
 	    
 	    if (node.dependence) {
 		deserialized.dependence(node.dependence);
@@ -84,10 +91,6 @@ module.exports = function(nodes, layout) {
 
 	if (node.metadata) {
 	    deserialized.metadata = node.metadata;
-	}
-
-	if (node.url) {
-	    deserialized.url(node.url);
 	}
 
 	if (deserialized.settled) {

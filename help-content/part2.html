@@ -1,9 +1,6 @@
 <h2>Details</h2>
 <p>The middle column contains details about the currently selected node or edge. From here you may view and edit its properties.</p>
 
-<h3>Metadata</h3>
-<p>When a node is selected, the metadata field will be shown in the details column. This is a place where you may add arbitrary properties to your nodes.<p>
-
 <h2>Import and Export</h2>
 <p>You may save your process model by clicking on the download link. You can reload the file produced by dragging and dropping it back onto the page.<p>
 
@@ -13,7 +10,7 @@
 <p>The model may also be loaded from a set of linked html pages. Embed process-model/index.html as an iframe inside the page which is to act as the root node. The following properties will be scraped:</p>
 
 <ul>
-  <li>The title of the page forms the root of a node.</li>
+  <li>The URL of the page becomes the name of the node.</li>
   <li>A table containing columns named 'evidence', 'necessity' and 'sufficiency' is a list of edges. The evidence column should contain an HTML link.</li>
   <li>A table containing the column 'dependence' will be used to set the dependence value for a node which is not a leaf node (has no children).</li>
   <li>A table containing the columns 'success' and 'failure' will be used to set the local evidence for a leaf node.</li>

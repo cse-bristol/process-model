@@ -38,6 +38,10 @@ text {
     white-space: nowrap;
 }
 
+.node-description {
+    font-size: small;
+}
+
 .process-node rect.node-box-process {
     fill: #C0C0C0;
 }

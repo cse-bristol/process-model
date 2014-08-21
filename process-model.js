@@ -36,7 +36,7 @@ var drawMetadata = require("./draw-metadata.js")(
     selection.select, 
     update),
 
-    layout = require("./layout.js")(nodes, 200, 50, 10),
+    layout = require("./layout.js")(nodes, 240, 70, 10),
 
     drawNodes = require("./nodes/draw-node.js")(g, transitions, layout,
 						withUpdate(selection.selected),

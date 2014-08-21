@@ -103,18 +103,6 @@ module.exports = function(nodes){
 	}
     };
 
-    var parseTitle = function(doc, query, url) {
-	if (doc.title) {
-	    return doc.title;
-	}
-	var title = query.call(doc, "title");
-	if (title.length > 0) {
-	    return title[0].text;
-	}
-
-	return url;
-    };
-
     var scrapeNode = function(doc, originURL, nodeCallbackHandler, callback) {
 	var children = [],
 	    errors = [],
@@ -125,15 +113,12 @@ module.exports = function(nodes){
 	    query = doc.getElementsByTagName ? doc.getElementsByTagName : doc.querySelectorAll;
 
 	var finished = function() {
-	    var title = parseTitle(doc, query);
-
-	    if (nodes.has(title)) {
-		callback(nodes.get(title));
+	    if (nodes.has(originURL)) {
+		callback(nodes.get(originURL));
 		return;
 	    }
 
-	    var node = nodes.create("process", title)
-		    .url(originURL);
+	    var node = nodes.create("process", originURL);
 
 	    children.forEach(function(child){
 		node.edgeTo(child.node)
