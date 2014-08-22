@@ -10,7 +10,12 @@ module.exports = function(nodes) {
 	    if (val === undefined) {
 		return selected;
 	    } else {
+		if (selected) {
+		    selected.selected = false;
+		}
+
 		selected = val;
+		val.selected = true;
 		return this;
 	    }
 	}

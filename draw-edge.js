@@ -184,6 +184,11 @@ module.exports = function(container, transitions, update) {
 		.append("g")
 		.classed("edge", true);
 
+	    edges
+		.classed("selected", function(d, i) {
+		    return d.selected;
+		});
+
 	    drawPathsForEdges(edges);
 	    drawEndsForEdges(edges);
 

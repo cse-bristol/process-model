@@ -16,6 +16,10 @@ g.process-node {
     opacity: 1.0;
 }
 
+g.selected {
+    opacity: 1.0;
+}
+
 #resizing-node {
     opacity: 1.0;
 }
@@ -118,6 +122,10 @@ rect.conflict {
 
 .handle:hover {
     cursor: pointer;
+}
+
+.edge {
+    opacity: 0.7;
 }
 
 .edge circle {

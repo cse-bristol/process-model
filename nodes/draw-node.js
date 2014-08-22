@@ -250,6 +250,9 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		});
 
 	    nodeDisplay
+		.classed("selected", function(d, i) {
+		    return d.selected;
+		})
 		.selectAll("rect.node-box")
 		.attr("width", function(d, i) {
 		    return d.size()[0] + "px";
