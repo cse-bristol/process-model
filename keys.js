@@ -24,6 +24,7 @@ var lookup = d3.map({
     "Right": "right",
     "Up": "up",
     "Down": "down",
+    "U+001B": "esc",
     "U+00BB": "+",
     "U+00BD": "-"
 });
@@ -54,14 +55,17 @@ var tryKeys = function(key, event, keyHandlers, update, property) {
 				     function(modifier) {
 					 // Cooerce to boolean, then compare.
 					 return (!event[modifier]) === (!option[modifier]);
-				     });
+				     }),
+		textEdit = event.target.getAttribute("contenteditable") || event.target.tagName.toLowerCase() === "input";
+		
+	    modifiersMatch = modifiersMatch && (!textEdit) === !option.textEdit;
 	    
 	    if (modifiersMatch) {
 		event.preventDefault();
 		event.stopPropagation();
 		
 		if (option.action !== undefined) {
-		    option.action();
+		    option.action(event);
 		} else {
 		    property(get(option.value));
 		}
@@ -87,17 +91,20 @@ module.exports = function(selection, zoom, update) {
 	    key: "-",
 	    description: "zoom out",
 	    action: zoom.out
+	},
+	{
+	    key: "esc",
+	    description: "save text",
+	    textEdit: true,
+	    action: function(event) {
+		event.target.blur();
+	    }
 	}
     ];
 
     document.addEventListener(
 	"keydown", 
 	function(e) {
-	    if (e.target.getAttribute("contenteditable") || e.target.tagName.toLowerCase() === "input") {
-		// Don't handle keys while we're in a text edit area.
-		return;
-	    }
-
 	    var current = selection.selected(),
 		props = Object.keys(current),
 		key = lookupKey(e);
