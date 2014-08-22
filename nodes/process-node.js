@@ -9,7 +9,7 @@ var d3 = require("d3"),
 var spaceToToggle = function(prop) {
     prop.keys = [{
 	key: " ",
-	description: "to toggle",
+	description: "toggle",
 	value: function() {
 	    return !prop();
 	}
@@ -146,6 +146,7 @@ module.exports = d3.map({
 		}
 		return necessity;
 	    };
+	    edge.necessity.help = "Necessity weights the importance of a child process' evidence to the parent, and may be thought of as P(¬H|¬E). It may range from 0 to 1 inclusive. It is represented as a red semi-circle. Hover over it and scroll the mouse whell to modify it.";
 	    increaseDecreaseKey(edge.necessity, "n", 0.05);
 
 	    edge.sufficiency = function(s) {
@@ -156,10 +157,9 @@ module.exports = d3.map({
 		return sufficiency;
 	    };
 	    increaseDecreaseKey(edge.sufficiency, "s", 0.05);
-		
+	    edge.sufficiency.help = "Sufficiency weights the importance of a child process' evidence to the parent, and may be thought of as P(H|E). It may range from 0 to 1 inclusive. It is represented as a green semi-circle. Hover over it and scroll the mouse whell to modify it.";
 	    return edge;
 	};
-	node.extendIncomingEdge.help = "Necessity and Sufficiency weight the child node's importance to the parent. The may range from 0 to 1 inclusive, and are represented on an edge as red and green semi-circles respectively. Hover over the appropriate semi-circle and scroll the mouse wheel to modify it.";
     },
 
     "issue" : function(node, nodes) {

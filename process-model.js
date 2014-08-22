@@ -18,8 +18,6 @@ require("./columns.js")(
     d3.selectAll("#model, #metadata"), 
     [0.7, 0.3]);
 
-require("./help.js")(helpLink);
-
 var update = function() {
     trackAllowedTypes.update();
     draw();
@@ -58,7 +56,9 @@ zoom.out = function() {
     zoom.event(g);
 };
 
-require("./keys.js")(selection, helpLink, zoom, update);
+var shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
+
+require("./help.js")(helpLink, shortcutKeys.universalKeys());
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);
 

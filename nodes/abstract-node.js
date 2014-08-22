@@ -229,7 +229,7 @@ module.exports = function() {
 	    node.keys = [
 		{
 		    key: 'del',
-		    description: 'remove an edge leading to this node',
+		    description: 'remove an incoming edge',
 		    action: function() {
 			var e = edgesToNode(node)[0];
 			e.parent().removeEdge(e);
@@ -313,18 +313,14 @@ module.exports = function() {
 		}
 	    };
 
-	    edge.disconnect.keys = [
+	    edge.keys = [
 		{
 		    key: "del",
 		    description: "disconnect this edge",
-		    value: function() {
-			// We already know which edge to disconnect, so we don't need to return anything here.
-			return;
+		    action: function() {
+			edge.disconnect();
 		    }
-		}
-	    ];
-
-	    edge.keys = [
+		},
 		{
 		    key: "left",
 		    description: "navigate to the parent node",

@@ -66,7 +66,7 @@ var tryKeys = function(key, event, keyHandlers, update, property) {
 		event.stopPropagation();
 		
 		if (option.action !== undefined) {
-		    option.action(event);
+		    option.action();
 		} else {
 		    property(get(option.value));
 		}
@@ -94,16 +94,8 @@ module.exports = function(selection, helpLink, zoom, update) {
 	    action: zoom.out
 	},
 	{
-	    key: "esc",
-	    description: "save text",
-	    textEdit: true,
-	    action: function(event) {
-		event.target.blur();
-	    }
-	},
-	{
 	    key: "f1",
-	    description: "help",
+	    description: "get help",
 	    action: function() {
 		window.location = helpLink.attr("href");
 	    }
@@ -138,4 +130,10 @@ module.exports = function(selection, helpLink, zoom, update) {
 	},
 	// Use capture
 	false);
+
+    return {
+	universalKeys: function() {
+	    return universalKeys;
+	}
+    };
 };
