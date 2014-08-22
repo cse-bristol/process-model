@@ -198,12 +198,24 @@ module.exports = function() {
 		}
 	    };
 
+	    node.keys = [
+		{
+		    key: 'del',
+		    description: 'remove an edge leading to this node',
+		    action: function() {
+			var e = edgesToNode(node)[0];
+			e.parent().removeEdge(e);
+		    }
+		}
+	    ];
+		
+
 	    if (nodes.empty()) {
 		root = node;
 	    }
 	    nodes.set(node.name(), node);
 
-	    types.get(type)(node);
+	    types.get(type)(node, nodeContainer);
 
 	    onCreate.forEach(function(callback) {
 		callback(node);

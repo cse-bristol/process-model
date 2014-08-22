@@ -13,7 +13,6 @@ var d3 = require("d3"),
     perimetaConstructor = require("./perimeta-xml.js"),
     htmlScrapeConstructor = require("./html-scrape.js");
 
-
 require("./columns.js")(
     d3.selectAll("#model, #metadata"), 
     [0.7, 0.3]);
@@ -30,6 +29,8 @@ var update = function() {
 	update();
     };
 };
+
+require("./keys.js")(selection, update);
 
 var drawMetadata = require("./draw-metadata.js")(
     d3.select("#metadata"), 

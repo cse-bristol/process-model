@@ -34,5 +34,12 @@ module.exports = {
 	    }
 	}
 	return true;
+    },
+    get: function(val) {
+	if (typeof val === "function") {
+	    return val();
+	} else {
+	    return val;
+	}
     }
 };

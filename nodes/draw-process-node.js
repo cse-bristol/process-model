@@ -129,7 +129,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 
 	var dependenceArc = junctions.selectAll("path")
 		.data(function(d, i){
-		    var dependence = d.collapsed() || d.isLeaf() ? 0 : d.dependence(),
+		    var dependence = d.collapsed() ? 0 : d.dependence(),
 			independence = 1 - dependence;
 		    
 		    return pie([
@@ -234,15 +234,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 		    d3.select(this).classed("node-choice-" + d.option, true);
 		})
 		.on("click", function(d, i) {
-		    var replacement = nodes.create(d.option),
-			name = d.node.name();
-		    
-		    d.node.incomingEdges().forEach(function(e) {
-			e.parent().edgeTo(replacement);
-			e.disconnect();
-		    });
-
-		    replacement.name(name);
+		    d.node.chooseType(d.option);
 		    update();
 		});
 

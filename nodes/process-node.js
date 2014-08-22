@@ -6,14 +6,18 @@ var d3 = require("d3"),
     combineEvidence = require("../combine-evidence.js"),
     clamp = require("../helpers.js").clamp;
 
+var enterToToggle = function(obj, prop) {
+    obj[prop].keys = [{
+	key: "Enter",
+	description: "to toggle",
+	value: function() {
+	    return !obj[prop]();
+	}
+    }];
+};
+
 module.exports = d3.map({
-    "undecided" : function(node) {
-	node.help = "A choice between many possible kinds of nodes. Click on a letter to choose the type of this node.";
-
-	node.allowedChildren = d3.set();
-    },
-
-    "process" : function(node){
+    "process" : function(node, nodes){
 	node.help = "An activity that realizes a transformation.";
 
 	var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
@@ -50,11 +54,39 @@ module.exports = d3.map({
 	};
 	node.localEvidence.help = "Local evidence about this process represented as an interval probability [Sn, Sp] and displayed as an Italian flag. This value is only valid on leaf nodes, and must satisfy the constraint 0 <= Sn <= Sp <= 1. Change these values within these ranges by hovering over the appropriate section of the Italian flag and scrolling the mousewheel.";
 
-	node.dependence = function(dependence) {
-	    if (node.edges().length === 0) {
-		throw "Dependence is not used for leaf nodes.";
+	var changeEvidence = function(i, direction) {
+	    return function() {
+		var e = node.localEvidence().slice();
+		e[i] += direction * 0.05;
+		return e;
+	    };
+	};
+	node.localEvidence.keys = [
+	    {
+		key: 'p',
+		description: 'increase evidence of success.',
+		value: changeEvidence(1, -1)
+	    },
+	    {
+		key: 'p',
+		shiftKey: true,
+		description: 'decrease evidence of success.',
+		value: changeEvidence(1, 1)
+	    },
+	    {
+		key: 'n',
+		description: 'increase evidence of failure.',
+		value: changeEvidence(0, 1)
+	    },
+	    {
+		key: 'n',
+		shiftKey: true,
+		description: 'decrease evidence of failure.',
+		value: changeEvidence(0, -1)
 	    }
-	    
+	];
+
+	node.dependence = function(dependence) {
 	    if (dependence !== undefined) {
 		localDep = clamp(0, dependence, 1);
 	    }
@@ -62,6 +94,23 @@ module.exports = d3.map({
 	    return localDep;
 	};
 	node.dependence.help = "The relatedness of evidence propagated up from children of this process. This varies from 0 to 1, and is represented as the proportion of the junction circle which is coloured black. 0 is entirely white, and represents completely independent evidence. 1 is entirely black, and represents equivalent evidence. This value only makes sense on process which have children with evidence. It may be changed by hovering over the junction circle and scrolling the mousehweel.";
+	node.dependence.keys = [
+	    {
+		key: 'd',
+		description: "increase",
+		value: function() {
+		    return node.dependence() + 0.05;
+		}
+	    },
+	    {
+		key: 'd',
+		shiftKey: true,
+		description: "decrease",
+		value: function() {
+		    return node.dependence() - 0.05;
+		}
+	    }
+	];
 
 	node.p = function() {
 	    if (node.edges().length === 0) {
@@ -105,7 +154,7 @@ module.exports = d3.map({
 	node.extendIncomingEdge.help = "Necessity and Sufficiency weight the child node's importance to the parent. The may range from 0 to 1 inclusive, and are represented on an edge as red and green semi-circles respectively. Hover over the appropriate semi-circle and scroll the mouse wheel to modify it.";
     },
 
-    "issue" : function(node){
+    "issue" : function(node, nodes) {
 	node.help = "A concern or question about the Process, subjected to debate and discussion.";
 
 	var settled = false;
@@ -120,15 +169,16 @@ module.exports = d3.map({
 	    }
 	};
 	node.settled.help = "Whether the issue is settled or open. Click on the text to toggle its value.";
+	enterToToggle(node, "settled");
     },
 
-    "option" : function(node){
+    "option" : function(node, nodes) {
 	node.help = "Possible answers, alternatives or courses of action in reply to the Issue.";
 
 	node.allowedChildren = d3.set(["argument", "option"]);
     },
 
-    "argument" : function(node){
+    "argument" : function(node, nodes) {
 	node.help = "Evidence, reason or opinions in favor or against an Option.";
 
 	var support = false;
@@ -143,8 +193,33 @@ module.exports = d3.map({
 	    }
 	};
 	node.support.help = "Whether the argument supports or refutes the option. Click on the text to toggle its value.";
+	enterToToggle(node, "support");
     }
 });
 
+module.exports.set("undecided", function(node, nodes) {
+    node.help = "A choice between many possible kinds of nodes.";
 
+    node.allowedChildren = d3.set();
 
+    node.chooseType = function(option) {
+	var replacement = nodes.create(option),
+	    name = node.name();
+	
+	node.incomingEdges().forEach(function(e) {
+	    e.parent().edgeTo(replacement);
+	    e.disconnect();
+	});
+
+	replacement.name(name);
+    };
+    node.chooseType.help = "Click on a letter to choose the type of this node.";
+    node.chooseType.keys = module.exports.keys()
+	.map(function(k) {
+	    return {
+		key: k[0],
+		description: "choose " + k,
+		value: k
+	    };
+	});
+});
