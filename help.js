@@ -35,11 +35,15 @@ var makeExampleEdge = function(typedNode) {
 };
 
 var keypress = function(shortcut) {
-    return (altKeyNames.has(shortcut.key) ? altKeyNames.get(shortcut.key) : shortcut.key)
-	+ (shortcut.shiftKey ? " + shift" : "")
-	+ (shortcut.altKey ? " + alt" : "")
-	+ (shortcut.ctrlKey ? " + ctrl" : "")
-	+ (shortcut.metaKey ? " + meta" : "");
+    var text = "&lt;" + (altKeyNames.has(shortcut.key) ? altKeyNames.get(shortcut.key) : shortcut.key) + "&gt;";
+
+    ["shift", "alt", "ctrl", "meta"].forEach(function(modifier) {
+	if (shortcut[modifier + "Key"] !== undefined) {
+	    text += " with &lt;" + modifier + "&gt;";
+	}
+    });
+
+    return text;
 };
 
 var nodeTypeHelp = function() {
