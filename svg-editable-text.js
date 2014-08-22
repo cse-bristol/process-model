@@ -18,6 +18,7 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
     var newInput = newForeign
 	    .append("xhtml:div")
 	    .attr("contenteditable", "true")
+	    .attr("tabindex", 0)
 	    .classed(name, "true")
 	    .on("input", function(d, i) {
 		onChange(d, i, d3.select(this).html());
