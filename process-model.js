@@ -48,6 +48,15 @@ var drawMetadata = require("./draw-metadata.js")(
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
 
+zoom.in = function() {
+    zoom.scale(zoom.scale() * 1.1);
+    zoom.event(g);
+};
+zoom.out = function() {
+    zoom.scale(zoom.scale() / 1.1);
+    zoom.event(g);
+};
+
 require("./keys.js")(selection, zoom, update);
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);

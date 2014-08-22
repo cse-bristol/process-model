@@ -81,20 +81,12 @@ module.exports = function(selection, zoom, update) {
 	    key: "+",
 	    description: "zoom in",
 	    shiftKey: true,
-	    action: function() {
-		zoom.scale(
-		    zoom.scale() / 1.1
-		);
-	    }
+	    action: zoom.in
 	},
 	{
 	    key: "-",
 	    description: "zoom out",
-	    action: function() {
-		zoom.scale(
-		    zoom.scale() * 1.1
-		);
-	    }
+	    action: zoom.out
 	}
     ];
 
