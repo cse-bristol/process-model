@@ -59,8 +59,6 @@ var draw = function() {
     drawNodes.draw(display.nodes);
  
     drawEdges.draw(display.edges);
-
-    drawMetadata.draw(selection.selected());
 };
 
 var updateDownloadLink = function(){

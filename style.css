@@ -109,6 +109,12 @@ g.node-choice text {
     fill: maroon;
 }
 
+g.node-link {
+    font-family: monospace;
+    font-size: x-large;
+    cursor: pointer;
+}
+
 g.expander {
     cursor: pointer;
 }

@@ -14,6 +14,29 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	});
     };
 
+    var drawURLLink = function(nodes, newNodes) {
+	var newG = newNodes.append("g")
+		.classed("node-link", true)
+		.attr("transform", "translate(0,15)");
+	
+	newG.append("a")
+	    .append("text")
+	    .attr("y", 15)
+	    .attr("x", 2)
+	    .text("⌖");
+	
+
+	var g = nodes.selectAll(".node-link")
+		.style("visibility", function(d, i) {
+		    return d.name().slice(0, 4).toLowerCase() === "http" ? "visible" : "hidden";
+		});
+	
+	g.selectAll("a")
+	    .attr("xlink:href", function(d, i) {
+		return d.name();
+	    });
+    };
+
     var drawMoveHandle = function(nodes, newNodes) {
 	var ifNotTextInput = function(c) {
 	    var target = document.elementFromPoint(
@@ -271,6 +294,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    });
 	    
 	    drawExpandContract(nodeDisplay);
+	    drawURLLink(nodeDisplay, newNodes);
 
 	    drawMoveHandle(nodeDisplay, newNodes);
 	    drawResizeHandle(nodeDisplay, newNodes);
