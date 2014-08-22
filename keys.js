@@ -35,7 +35,7 @@ var lookupKey = function(e) {
     if (e.key) {
 	// This is the standard. Firefox claims to not follow it, but actually does.
 	// Chrome doesn't.
-	return e.key;
+	return e.key.toLowerCase();
     } else if (e.keyIdentifier) {
 	if (lookup.has(e.keyIdentifier)) {
 	    // Sometimes the keyIdentifier is a unicode code.
