@@ -4,6 +4,19 @@
     left: 1vw;
 }
 
+#model {
+    height: 96vh;
+    width: 99vw;
+}
+
+#help {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    font-size: xx-large;
+    text-decoration: none;
+}
+
 g.process-node {
     cursor: move;
 }
@@ -155,83 +168,6 @@ g.weight-half:hover {
 
 .resize-handle {
     cursor: se-resize;
-}
-
-.resizeable-column {
-    display: inline-block;
-    height: 96vh;
-    border: 1px solid #9999BB;
-}
-
-.column-resize-handle {
-    display: block;
-    position: absolute;
-    height: 96vh;
-    background-color: #555555;
-    width: 2px;
- }
-
-.column-resize-handle:hover {
-    cursor: ew-resize;
-}
-
-#help {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    font-size: xx-large;
-    text-decoration: none;
-}
-
-.help-text {
-    padding-left: 10px;
-    width: 95%;
-}
-
-.metadata-field {
-    margin-top: 0.5em;
-}
-
-.metadata-label {
-    width: 20%;
-    margin-left: 10px;
-    display: inline-block;
-}
-
-.metadata-text-readonly {
-    width: 70%;
-    display: inline;
-}
-
-.metadata-text-editable {
-    width: 70%;
-    /* Negative margin here bumps the text field up a big relative to the label. */
-    margin-bottom: -1em;
-    display: inline;
-    resize: vertical;
-}
-
-.metadata-link {
-    margin-left: 10px;
-}
-
-.metadata-tree {
-    margin-left: 5px;
-}
-
-.metadata-tree-field {
-    overflow: hidden;
-    width: 7em;
-}
-
-.metadata-tree-field input {
-    width: 6em;
-    margin-right: 2px;
-}
-
-.metadata-tree-control {
-    font-family: monospace;
-    cursor: pointer;
 }
 
 .svg-editable-text {

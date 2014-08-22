@@ -14,10 +14,6 @@ var d3 = require("d3"),
     htmlScrapeConstructor = require("./html-scrape.js"),
     helpLink = d3.select("#help");
 
-require("./columns.js")(
-    d3.selectAll("#model, #metadata"), 
-    [0.7, 0.3]);
-
 var update = function() {
     trackAllowedTypes.update();
     draw();
@@ -29,12 +25,7 @@ var update = function() {
     };
 };
 
-var drawMetadata = require("./draw-metadata.js")(
-    d3.select("#metadata"), 
-    selection.select, 
-    update),
-
-    layout = require("./layout.js")(nodes, 240, 70, 10),
+var layout = require("./layout.js")(nodes, 240, 70, 10),
 
     drawNodes = require("./nodes/draw-node.js")(g, transitions, layout,
 						withUpdate(selection.selected),
