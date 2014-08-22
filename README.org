@@ -10,20 +10,14 @@ We implement a process model as a directed acyclic graph.
  + Create different kinds of node according to [[http://en.wikipedia.org/wiki/Issue-Based_Information_System][IBIS]].
  + Evidence is automatically propagated from lower to higher levels of the model.
  + Nodes may be arranged automatically or manually.
+ + Nodes may be resized.
  + Save and load in a custom json format.
  + Load from linked HTML pages.
- + Import from PeriMeta xml files.
-
-** Known bugs (to fix)
- + Cannot edit the names of nodes in Internet Explorer (because it does not support HTML elements inside an SVG).
+ + Import from PeriMeta XML files.
 
 ** Future Plans
  + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
- + Keyboard shortcuts.
- + Store metadata about nodes.
- + Manually resize nodes.
  + Export to wiki.
- + Change the HTML table reading functionality to read from semantic wiki links instead.
 
 ** Source code
 [[https://github.com/cse-bristol/process-model][Get the source code]]
