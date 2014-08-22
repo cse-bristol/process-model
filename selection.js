@@ -18,6 +18,7 @@ module.exports = function(nodes) {
 
     nodes.onCreate(m.selected);
     nodes.onRoot(m.selected);
+    nodes.onNavigate(m.selected);
 
     return m;
 };

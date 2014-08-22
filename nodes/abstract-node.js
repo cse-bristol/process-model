@@ -5,10 +5,26 @@
 var d3 = require("d3"),
     types = require("./process-node.js");
 
+var nextEdge = function(edge) {
+    var choices = edge.parent().edges(),
+	i = choices.indexOf(edge);
+    
+    return choices[(i+1) % choices.length];
+};
+
+var previousEdge = function(edge) {
+    var choices = edge.parent().edges(),
+	i = choices.indexOf(edge),
+	nextI = i == 0 ? choices.length - 1 : i - 1;
+
+    return choices[nextI];
+};
+
 module.exports = function() {
     var nodes, newNodes, root,
 	onCreate = [],
-	onRoot = [];
+	onRoot = [],
+	onNavigate;
 
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen, edge) {
@@ -77,6 +93,9 @@ module.exports = function() {
 	    nodes = d3.map({});
 	    newNodes = 1;
 	    root = null;
+	},
+	onNavigate: function(callback) {
+	    onNavigate = callback;
 	},
 	onRoot: function(callback) {
 	    onRoot.push(callback);
@@ -206,7 +225,40 @@ module.exports = function() {
 			var e = edgesToNode(node)[0];
 			e.parent().removeEdge(e);
 		    }
+		},
+		{
+		    key: "right",
+		    description: "navigate to first outgoing edge",
+		    action: function() {
+			onNavigate(node.edges()[0]);
+		    }
+		},
+		{
+		    key: "left",
+		    description: "navigate to first incoming edge",
+		    action: function() {
+			onNavigate(edgesToNode(node)[0]);
+		    }
+		},
+		{
+		    key: "up",
+		    description: "navigate to the previous node which comes from the same parent",
+		    action: function() {
+			onNavigate(
+			    previousEdge(edgesToNode(node)[0])
+				.node());
+		    }
+		},
+		{
+		    key: "down",
+		    description: "navigate to the next node which comes from the same parent",
+		    action: function() {
+			onNavigate(
+			    nextEdge(edgesToNode(node)[0])
+				.node());
+		    }
 		}
+
 	    ];
 		
 
@@ -220,6 +272,17 @@ module.exports = function() {
 	    onCreate.forEach(function(callback) {
 		callback(node);
 	    });
+
+	    if (!node.allowedChildren.empty()) {
+		node.allowedChildren.keys = [{
+		    key: 'enter',
+		    description: 'create a child node',
+		    action: function() {
+			var newNode = nodeContainer.create("undecided");
+			node.edgeTo(newNode);
+		    }
+		}];
+	    }
 
 	    return node;
 	},
@@ -240,6 +303,48 @@ module.exports = function() {
 		    from.removeEdge(edge);
 		}
 	    };
+
+	    edge.disconnect.keys = [
+		{
+		    key: "del",
+		    description: "disconnect this edge",
+		    value: function() {
+			// We already know which edge to disconnect, so we don't need to return anything here.
+			return;
+		    }
+		}
+	    ];
+
+	    edge.keys = [
+		{
+		    key: "left",
+		    description: "navigate to the parent node",
+		    action: function() {
+			onNavigate(edge.parent());
+		    }
+		},
+		{
+		    key: "right",
+		    description: "navigate to the child node",
+		    action: function() {
+			onNavigate(edge.node());
+		    }
+		},
+		{
+		    key: "up",
+		    description: "navigate to the previous edge which comes from the same parent",
+		    action: function() {
+			onNavigate(previousEdge(edge));
+		    }
+		},
+		{
+		    key: "down",
+		    description: "navigate to the next edge which comes from the same parent",
+		    action: function() {
+			onNavigate(nextEdge(edge));
+		    }
+		}
+	    ];
 
 	    to.extendIncomingEdge(edge);
 	    return edge;

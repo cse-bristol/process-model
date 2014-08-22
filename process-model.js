@@ -30,8 +30,6 @@ var update = function() {
     };
 };
 
-require("./keys.js")(selection, update);
-
 var drawMetadata = require("./draw-metadata.js")(
     d3.select("#metadata"), 
     selection.select, 
@@ -50,6 +48,7 @@ var drawMetadata = require("./draw-metadata.js")(
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
 
+require("./keys.js")(selection, zoom, update);
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);
 

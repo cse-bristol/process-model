@@ -6,14 +6,34 @@ var d3 = require("d3"),
     combineEvidence = require("../combine-evidence.js"),
     clamp = require("../helpers.js").clamp;
 
-var enterToToggle = function(obj, prop) {
-    obj[prop].keys = [{
-	key: "Enter",
+var enterToToggle = function(prop) {
+    prop.keys = [{
+	key: " ",
 	description: "to toggle",
 	value: function() {
-	    return !obj[prop]();
+	    return !prop();
 	}
     }];
+};
+
+var increaseDecreaseKey = function(prop, key, step) {
+    prop.keys = [
+	{
+	    key: key,
+	    description: "increase",
+	    value: function() {
+		return prop() + step;
+	    }
+	},
+	{
+	    key: key,
+	    shiftKey: true,
+	    description: "decrease",
+	    value: function() {
+		return prop() - step;
+	    }
+	}
+    ];
 };
 
 module.exports = d3.map({
@@ -94,23 +114,7 @@ module.exports = d3.map({
 	    return localDep;
 	};
 	node.dependence.help = "The relatedness of evidence propagated up from children of this process. This varies from 0 to 1, and is represented as the proportion of the junction circle which is coloured black. 0 is entirely white, and represents completely independent evidence. 1 is entirely black, and represents equivalent evidence. This value only makes sense on process which have children with evidence. It may be changed by hovering over the junction circle and scrolling the mousehweel.";
-	node.dependence.keys = [
-	    {
-		key: 'd',
-		description: "increase",
-		value: function() {
-		    return node.dependence() + 0.05;
-		}
-	    },
-	    {
-		key: 'd',
-		shiftKey: true,
-		description: "decrease",
-		value: function() {
-		    return node.dependence() - 0.05;
-		}
-	    }
-	];
+	increaseDecreaseKey(node.dependence, "d", 0.05);
 
 	node.p = function() {
 	    if (node.edges().length === 0) {
@@ -142,6 +146,8 @@ module.exports = d3.map({
 		}
 		return necessity;
 	    };
+	    increaseDecreaseKey(edge.necessity, "n", 0.05);
+
 	    edge.sufficiency = function(s) {
 		if (s !== undefined) {
 		    sufficiency = clamp(0, s, 1);
@@ -149,6 +155,8 @@ module.exports = d3.map({
 		}
 		return sufficiency;
 	    };
+	    increaseDecreaseKey(edge.sufficiency, "s", 0.05);
+		
 	    return edge;
 	};
 	node.extendIncomingEdge.help = "Necessity and Sufficiency weight the child node's importance to the parent. The may range from 0 to 1 inclusive, and are represented on an edge as red and green semi-circles respectively. Hover over the appropriate semi-circle and scroll the mouse wheel to modify it.";
@@ -169,7 +177,7 @@ module.exports = d3.map({
 	    }
 	};
 	node.settled.help = "Whether the issue is settled or open. Click on the text to toggle its value.";
-	enterToToggle(node, "settled");
+	enterToToggle(node.settled);
     },
 
     "option" : function(node, nodes) {
@@ -193,7 +201,7 @@ module.exports = d3.map({
 	    }
 	};
 	node.support.help = "Whether the argument supports or refutes the option. Click on the text to toggle its value.";
-	enterToToggle(node, "support");
+	enterToToggle(node.support);
     }
 });
 

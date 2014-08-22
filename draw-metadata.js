@@ -223,7 +223,7 @@ module.exports = function(container, select, update) {
 	{'prop': 'necessity', display: withLabel(slider)},
 	{'prop': 'sufficiency', display: withLabel(slider)},
 	{'prop': 'parent', display: withLabel(text(selectNode))},
-	{'prop': 'child', display: withLabel(text(selectNode))}
+	{'prop': 'node', key: 'child', display: withLabel(text(selectNode))}
     ];
 
     var div = container.append("div").classed("metadata", true);

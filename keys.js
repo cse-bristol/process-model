@@ -14,22 +14,34 @@ var d3 = require("d3"),
 
  If we find a matching key and modifier, we swallow the event, call the property, and then finish.
 
- TODO: navigation keys.
- TODO: text editing
-
  This is quite a slow method. If we find it is causing performance issues, we should rethink it and instead pre-extract the allowable keys for each type of thing.
  */
 
 var lookup = d3.map({
-    "U+007F": "del"
+    "U+007F": "del",
+    "Enter": "enter",
+    "Left": "left",
+    "Right": "right",
+    "Up": "up",
+    "Down": "down",
+    "U+00BB": "+",
+    "U+00BD": "-"
 });
 var lookupKey = function(e) {
+    // Handling keyboard commands in the browser is a gigantic mess. I have no idea how they managed to take such a simple thing and make it difficult.
+
     if (e.key) {
+	// This is the standard. Firefox claims to not follow it, but actually does.
+	// Chrome doesn't.
 	return e.key;
-    } else if (e.keyIdentifier && lookup.has(e.keyIdentifier)) {
-	return lookup.get(e.keyIdentifier);
+    } else if (e.keyIdentifier) {
+	if (lookup.has(e.keyIdentifier)) {
+	    // Sometimes the keyIdentifier is a unicode code.
+	    return lookup.get(e.keyIdentifier);
+	}
     }
 
+    // If nothing else works, this should at least handle the ASCII keys properly.
     return String.fromCharCode(e.keyCode).toLowerCase();
 };
 
@@ -63,7 +75,31 @@ var tryKeys = function(key, event, keyHandlers, update, property) {
 };
 
 
-module.exports = function(selection, update) {
+module.exports = function(selection, zoom, update) {
+    var universalKeys = [
+	{
+	    key: "+",
+	    description: "zoom in",
+	    shiftKey: true,
+	    action: function() {
+		zoom.scale(
+		    zoom.scale() / 1.1
+		);
+		update();
+	    }
+	},
+	{
+	    key: "-",
+	    description: "zoom out",
+	    action: function() {
+		zoom.scale(
+		    zoom.scale() * 1.1
+		);
+		update();
+	    }
+	}
+    ];
+
     document.addEventListener(
 	"keydown", 
 	function(e) {
@@ -75,6 +111,10 @@ module.exports = function(selection, update) {
 	    var current = selection.selected(),
 		props = Object.keys(current),
 		key = lookupKey(e);
+
+	    if (tryKeys(key, e, universalKeys, update, null)) {
+		return;
+	    }
 
 	    if (current.keys !== undefined) {
 		if (tryKeys(key, e, current.keys, update, null)) {
