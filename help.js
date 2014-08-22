@@ -121,7 +121,7 @@ var nodeTypeHelp = function() {
 var shortcutHelp = function(shortcutKeys) {
     return h(2, "General Shortcut Keys")
 	+ tag("ul", 
-	      tag("li", "tab repeatedly to switch edit fields")
+	      tag("li", "tab repeatedly to switch edit fields, saving the any changes you make as you go")
 	      + shortcutKeys.map(function(shortcut) {
 		  return tag("li", keypress(shortcut) + " to " + shortcut.description);
 	      }).join(""));
