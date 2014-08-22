@@ -24,6 +24,7 @@ module.exports = function() {
     var nodes, newNodes, root,
 	onCreate = [],
 	onRoot = [],
+	onDelete,
 	onNavigate;
 
     var assertNoCycles = function(node) {
@@ -52,7 +53,11 @@ module.exports = function() {
 
 	var unreached = d3.set(nodes.keys());
 	findUnreachableAccum(root, unreached);
-	unreached.forEach(function(n){
+	unreached.forEach(function(n) {
+	    onDelete("node", n);
+	    nodes.get(n).edges().forEach(function(e) {
+		onDelete("edge", e);
+	    });
 	    nodes.remove(n);
 	});
     };
@@ -111,6 +116,9 @@ module.exports = function() {
 	    }
 	    return root;
 	},
+	onDelete: function(callback) {
+	    onDelete = callback;
+	},
 	onCreate: function(callback) {
 	    onCreate.push(callback);
 	},
@@ -149,6 +157,7 @@ module.exports = function() {
 		    return edges;
 		},
 		removeEdge : function(edge) {
+		    onDelete("edge", edge);
 		    edges.splice(edges.indexOf(edge), 1);
 		    removeUnreachable();
 		},

@@ -85,7 +85,6 @@ module.exports = function(selection, zoom, update) {
 		zoom.scale(
 		    zoom.scale() / 1.1
 		);
-		update();
 	    }
 	},
 	{
@@ -95,7 +94,6 @@ module.exports = function(selection, zoom, update) {
 		zoom.scale(
 		    zoom.scale() * 1.1
 		);
-		update();
 	    }
 	}
     ];
