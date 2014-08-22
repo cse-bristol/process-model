@@ -1,144 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 "use strict";
 
-/*global module, require*/
-
-var d3 = require("d3"),
-    defaultColumnProp = 0.2,
-    epsilon = 0.01;
-
-var updateProportions = function(columns, proportions) {
-    // Things which are close to 0 shall be 0.
-    proportions.forEach(function(p, i) {
-	if (p < epsilon) {
-	    proportions[i] = 0;
-	}
-    });
-
-    // Renormalise proportions to sum to 1.
-    var weight = d3.sum(proportions);
-    proportions.forEach(function(p, i) {
-	proportions[i] = p / weight;
-    });
-
-    console.log("Columns resized to " + proportions);
-    columns
-	.transition()
-	.style("width", function(d, i) {
-	    return proportions[i] * 97 + "vw";
-	})
-	.style("overflow-y", function(d, i) {
-	    // Only show the scrollbar when our column has some width.
-	    return proportions[i] === 0 ? "hidden" : "auto";
-	})
-	.style("overflow-x", "hidden");
-};
-
-/*
- Sets up resizeable columns.
-
- Columns should be a d3 selection. Each column except for the column[0] will get a drag handle on its left border.
- StartProportions are used to determine how big a column should be once it is displayed.
- StartHidden determines whether columns should be initially displayed with width 0 or with a width determined by their startProportion.
-
- Proportions are fractions of 1. They should add up to 1 at all times.
- */
-module.exports = function(columns, startProportions) {
-    if (columns[0].length !== startProportions.length) {
-	throw new Error("Need a starting proportion for each column.");
-    }
-
-    if (!columns instanceof d3.selection) {
-	throw new Error("Columns should be a d3 selection.");
-    }
-
-    if (!d3.sum(startProportions) === 1) {
-	throw new Error("Column proportions should sum to 1.0.");
-    }
-
-    var proportions = startProportions;
-
-    columns.classed("resizeable-column", true);
-
-    // Set up some draggable/clickable borders.
-    columns.each(function(d, i) {
-	if (i === 0) {
-	    return; // Don't need a left drag handle on the first column.
-	}
-
-	d3.select(this).append("div")
-	    .classed("column-resize-handle", true)
-	    .on("click", function(d, uninterestingChildI) {
-		if (i === 0) {
-		    throw new Error("Should never receive a resize event for the left border of the leftmost column.");
-		}
-
-		if (proportions[i] === 0) {
-		    var shrinkColumn = i - 1;
-		    while (proportions[shrinkColumn] === 0) {
-			shrinkColumn -= 1;
-			if (shrinkColumn < 0) {
-			    throw new Error("Can't shrink any columns to the left of " + i);
-			}
-		    }
-
-		    // Can't shrink the column to the left more than its current size.
-		    var change = Math.min(defaultColumnProp, proportions[shrinkColumn]);
-
-		    // Expand the column, reduce the column to the left.
-		    proportions[i] = change;
-		    proportions[shrinkColumn] -= change;
-		} else {
-		    // Contract the column, increase the column to the left.
-		    proportions[i-1] += proportions[i];
-		    proportions[i] = 0;
-		}
-		updateProportions(columns, proportions);
-	    })
-	    .call(d3.behavior.drag()
-		  .origin(function(d, uninterestingChildI) {
-		      return d3.event.x;
-		  })
-		  .on("dragstart", function(d, uninterestingChildI) {
-		      /* Nothing else should get this click now. */
-		      d3.event.sourceEvent.stopPropagation();
-		  })
-		  .on("drag", function(d, uninterestingChildI) {
-		      var x = d3.event.dx,
-			  change = x / window.innerWidth,
-			  direction = change > 0 ? 1 : -1,
-			  // If we're moving right, increase the left column and vice-versa.
-			  growColumn = change > 0 ? i-1 : i,
-			  shrinkColumn = growColumn + direction;
-			  
-		      if (change < 0) {
-			  change *= -1;
-		      }
-
-		      while (change > 0 
-			     && shrinkColumn >= 0 
-			     && shrinkColumn < proportions.length) {
-			  var diff = d3.min(
-			      [proportions[shrinkColumn], 
-			       change]);
-
-			  proportions[shrinkColumn] -= diff;
-			  proportions[growColumn] += diff;
-			  change -= diff;
-			  shrinkColumn += direction;
-		      }
-
-		  })
-		  .on("dragend", function() {
-		      updateProportions(columns, proportions);      
-		  }));
-    });
-
-    updateProportions(columns, proportions);
-};
-},{"d3":12}],2:[function(require,module,exports){
-"use strict";
-
 /*global module*/
 
 /* 
@@ -256,7 +118,7 @@ module.exports = function(dependence, evidence) {
     return [sn, 1 - goodness];
 };
 
-},{}],3:[function(require,module,exports){
+},{}],2:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -284,9 +146,7 @@ module.exports = function(nodes, layout) {
 	var serialized = {
 	    name: node.name(),
 	    type: node.type,
-	    metadata: node.metadata,
-	    description: node.description(),
-	    url: node.url()
+	    metadata: node.metadata
 	};
 
 	if (node.isLeaf()) {
@@ -298,6 +158,10 @@ module.exports = function(nodes, layout) {
 	    if (node.dependence) {
 		serialized.dependence = node.dependence();
 	    }
+	}
+
+	if (node.description) {
+	    serialized.description = node.description();
 	}
 
 	if (node.settled) {
@@ -332,6 +196,10 @@ module.exports = function(nodes, layout) {
 		    edge.sufficiency(e.sufficiency);
 		}
 	    });
+
+	    if (node.description) {
+		deserialized.description(node.description);
+	    }
 	    
 	    if (node.dependence) {
 		deserialized.dependence(node.dependence);
@@ -344,14 +212,6 @@ module.exports = function(nodes, layout) {
 
 	if (node.metadata) {
 	    deserialized.metadata = node.metadata;
-	}
-
-	if (node.description) {
-	    deserialized.description(node.description);
-	}
-
-	if (node.url) {
-	    deserialized.url(node.url);
 	}
 
 	if (deserialized.settled) {
@@ -402,7 +262,7 @@ module.exports = function(nodes, layout) {
     return module;
 };
 
-},{"d3":12}],4:[function(require,module,exports){
+},{"d3":10}],3:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -589,6 +449,11 @@ module.exports = function(container, transitions, update) {
 		.append("g")
 		.classed("edge", true);
 
+	    edges
+		.classed("selected", function(d, i) {
+		    return d.selected;
+		});
+
 	    drawPathsForEdges(edges);
 	    drawEndsForEdges(edges);
 
@@ -597,274 +462,7 @@ module.exports = function(container, transitions, update) {
     };
 };
 
-},{"./helpers.js":8,"d3":12}],5:[function(require,module,exports){
-"use strict";
-
-/*global module, require*/
-
-var d3 = require("d3"),
-    all = require("./helpers.js").all,
-    metadataTreeMaker = require("./metadata-tree.js");
-
-var withLabel = function(f) {
-    return {
-	'create': function(d, i, container) {
-	    container.append('h5')
-		.classed('metadata-label', true)
-		.text(d.prop);
-
-	    f.create(d, i, container);
-	},
-	'update' : f.update
-    };
-};
-
-var text = function(onClick) {
-    return {
-	'create': function(d, i, container) {
-	    container.append('p')
-		.classed("metadata-text-readonly", true);
-	},
-	'update': function(container, val, o) {
-	    var p = container.select('p.metadata-text-readonly')
-		    .text(val);
-
-	    if (onClick) {
-		p.on("click", onClick(o));
-	    }
-	}
-    };
-};
-
-var link = {
-    'create': function(d, i, container) {
-	container.append('a')
-	    .classed('metadata-link', true);
-    },
-    'update': function(container, vals, o) {
-	container.select("a.metadata-link")
-	    .attr('href', vals[0])
-	    .text(vals[0] ? vals[1] : "");
-    }
-};
-
-var get = function(val) {
-    if (val instanceof Function) {
-	// If val is a function, we'll treat it as a getter.
-	try {
-	    return val();
-	} catch (e) {
-	    return "";
-	}
-    } else {
-	// Otherwise, assume it's already been gotten.
-	return val;
-    }
-};
-
-module.exports = function(container, select, update) {
-    var editableText = {
-	'create': function(d, i, container) {
-	    container.append('textarea')
-		.classed('metadata-text-editable', true);
-	},
-	'update': function(container, val, o) {
-	    /* We set the value on the textarea DOM element instead of using D3, since it wasn't working correctly. Tried all of the following:
-
-	     .text(val) 
-	     .attr('value', val)
-	     .html(val)
-	     */
-
-	    container.select("textarea.metadata-text-editable")
-		.on('change', function(d, i) {
-		    o[d.prop](d3.event.target.value);
-		    update();
-		})[0][0].value = val;
-	}
-    };
-
-    var selectNode = function(o) {
-	return function(d, i) {
-	    select(o);
-	    update();
-	};
-    };
-
-    var metadataTree = {
-	create: function(d, i, container) {
-	    container.append('table')
-		.classed('metadata-tree', true)
-		.append("tbody");
-	},
-	update: function(container, val, o) {
-	    if (val.length === 0) {
-		val.push({name: "", children: []});
-	    }
-
-	    var table = metadataTreeMaker.toTable(val);
-
-	    var tbody = container.select("table.metadata-tree").select("tbody");
-	    tbody.selectAll("tr").remove();
-
-	    var rows = tbody
-		.selectAll("tr")
-		.data(table);
-
-	    rows.exit().remove();
-	    rows.enter().append("tr");
-
-	    var cells = rows.selectAll("td")
-		.data(function(d, i) {
-		    return d;
-		});
-
-	    var td = cells.enter()
-		    .append("td")
-		    .append("div")
-		    .classed("metadata-tree-field", true);
-
-
-	    var nonBlank = td.filter(function(d, i) {
-		    return d.type !== 'blank';
-		});
-
-	    nonBlank
-		.append("input")
-		.attr("type", "text")
-		.attr("value", function(d, i) {
-		    return d.name;
-		})
-		.on("change", function(d, i) {
-		    d.obj.name = d3.event.target.value;
-		    update();
-		});
-
-	    nonBlank.append("span")
-		.text("x")
-		.classed("metadata-tree-control", true)
-		.on("click", function(d, i) {
-		    d.parent.splice(d.parent.indexOf(d.obj), 1);
-		    update();
-		});
-
-	    nonBlank
-		.filter(function(d) {
-		    return d.parent.indexOf(d.obj) === (d.parent.length - 1);
-		})
-		.append("span")
-		.text("↓")
-	    	.classed("metadata-tree-control", true)
-		.on("click", function(d, i) {
-	    	    d.parent.push({name: "", children: []});
-		    update();
-		});
-
-	    nonBlank
-		.filter(function(d) {
-		    return d.obj.children.length === 0;
-		})
-		.append("span")
-		.text("→")
-	    	.classed("metadata-tree-control", true)
-		.on("click", function(d, i) {
-		    d.obj.children.push({name: "", children: []});
-		    update();
-		});
-	}
-    };
-
-    var slider = {
-	create: function(d, i, container) {
-	    container.append("input")
-		.classed("metadata-slider", true)
-		.attr("type", "range")
-		.attr("min", 0)
-		.attr("max", 1)
-		.attr("step", 0.05);
-	},
-	update: function(container, val, o) {
-	    container
-		.select(".metadata-slider")
-		.on("change", function(d, i) {
-		    o[d.prop](d3.event.target.value);
-		    update();
-		})[0][0].value = val;
-	}
-    };
-
-    var checkbox = {
-	create: function(d, i, container) {
-	    container.append("input")
-		.classed("metadata-toggle", true)
-		.attr("type", "checkbox");
-	},
-	update: function(container, val, o) {
-	    container.select(".metadata-toggle")
-	    .on("change", function(d, i) {
-		o[d.prop](this.checked);
-		update();
-	    })[0][0].checked = val;
-	}
-    };
-
-    var fields = [
-	{'prop': 'type', display: withLabel(text())},
-	{'prop': 'name', display: withLabel(editableText)},
-	{'prop': 'url', display: withLabel(editableText)},
-	{'prop': ['url', 'name'], key: 'clickable-link', display: link},
-	{'prop': 'description', display: withLabel(editableText)},
-	{'prop': 'dependence', display: withLabel(slider)},
-	{'prop': 'support', display: withLabel(checkbox)},
-	{'prop': 'settled', display: withLabel(checkbox)},
-	{'prop': 'necessity', display: withLabel(slider)},
-	{'prop': 'sufficiency', display: withLabel(slider)},
-	{'prop': 'parent', display: withLabel(text(selectNode))},
-	{'prop': 'child', display: withLabel(text(selectNode))},
-	{'prop': 'metadata', display: withLabel(metadataTree)}
-    ];
-
-    var div = container.append("div").classed("metadata", true);
-
-    return {
-	draw: function(current) {
-	    var currentFields = fields.filter(function(f) {
-		var p = f.prop;
-		if (!(p instanceof Array)) {
-		    p = [p];
-		}
-
-		return all(p, function(prop) {
-		    return current[prop] !== undefined;
-		});
-	    });
-
-	    var fieldDivs = div.selectAll("div")
-		    .data(currentFields, function(d, i) {
-			return d.key ? d.key : d.prop;
-		    });
-
-	    fieldDivs.exit().remove();
-	    fieldDivs.enter().append("div")
-		.classed("metadata-field", true)
-		.each(function(d, i) {
-		    d.display.create(d, i, d3.select(this));
-		});
-
-	    fieldDivs.each(function(d, i) {
-		var vals = d.prop instanceof Array ?
-			d.prop.map(function(p) {
-			    return get(current[p]);
-			}) :
-		    get(current[d.prop]);
-
-		
-		d.display.update(d3.select(this), vals, current);
-	    });
-	}
-    };
-};
-},{"./helpers.js":8,"./metadata-tree.js":11,"d3":12}],6:[function(require,module,exports){
+},{"./helpers.js":6,"d3":10}],4:[function(require,module,exports){
 "use strict";
 
 /*global require, module, FileReader*/
@@ -932,7 +530,7 @@ module.exports = function() {
     return module;
 }();
 
-},{"d3":12}],7:[function(require,module,exports){
+},{"d3":10}],5:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -942,7 +540,6 @@ var d3 = require("d3"),
     nodes = require("./nodes/abstract-node.js")();
 
 var propertyNames = d3.map({
-    "extendIncomingEdge" : "edge-properties",
     "p" : "propagated-evidence"
 });
 
@@ -958,10 +555,45 @@ var p = function(contents) {
     return tag("p", contents);
 };
 
+var altKeyNames = d3.map({
+    " ": "space"
+});
+
+var makeExampleEdge = function(typedNode) {
+    var child = nodes.create("undecided"),
+	edge = typedNode.edgeTo(child);
+    
+    typedNode.extendIncomingEdge(edge);
+    return edge;    
+};
+
+var keypress = function(shortcut) {
+    var text = "&lt;" + (altKeyNames.has(shortcut.key) ? altKeyNames.get(shortcut.key) : shortcut.key) + "&gt;";
+
+    ["shift", "alt", "ctrl", "meta"].forEach(function(modifier) {
+	if (shortcut[modifier + "Key"] !== undefined) {
+	    text += " with &lt;" + modifier + "&gt;";
+	}
+    });
+
+    return text;
+};
+
 var nodeTypeHelp = function() {
     var result = [
 	h(3, "Types of Node")
     ];
+
+    var shortcutHelp = function(property) {
+	if (property.keys) {
+	    var shortcuts = property.keys.map(function(shortcut) {
+		return keypress(shortcut) + " to " + shortcut.description;
+	    });
+	    return p("(" + shortcuts.join(", ")  + ")");
+	} else {
+	    return "";
+	}
+    };
 
     var propertyHelp = function(example) {
 	var properties = Object.keys(example)
@@ -969,14 +601,37 @@ var nodeTypeHelp = function() {
 		return example[key].help !== undefined;
 	    })
 	    .map(function(key) {
-		return tag("dt", propertyNames.has(key) ? propertyNames.get(key) : key) 
-		    + tag("dd", example[key].help);
+		return tag("li", 
+			   h(5, propertyNames.has(key) ? propertyNames.get(key) : key) 
+			   + p(example[key].help)
+			   + shortcutHelp(example[key]));
 	    });
 
 	if (properties.length === 0) {
 	    return "";
 	} else {
-	    return tag("dl", properties.join(" "));
+	    return tag("ul", properties.join(" "));
+	}
+    };
+
+    var edgeHelp = function(node) {
+	var edge = makeExampleEdge(node),
+	    edgeProperties = Object.keys(edge)
+		.filter(function(key) {
+		    return edge[key].help !== undefined;
+		})
+		.map(function(key) {
+		    return tag("li", 
+			       h(6, key)
+			       + edge[key].help
+			       + shortcutHelp(edge[key]));
+		});
+	
+	if (edgeProperties.length === 0) {
+	    return "";
+	} else {
+	    return h(5, "incoming edge properties for " + node.type)
+		+ tag("ul", edgeProperties.join(""));
 	}
     };
 
@@ -984,13 +639,14 @@ var nodeTypeHelp = function() {
 	var example = nodes.create(type),
 	    children = example.allowedChildren.empty() > 0 ?
 		"Cannot have children" :
-		"Children: " + example.allowedChildren.values().join("; ");
+		"Possible children: " + example.allowedChildren.values().join("; ");
 	
 	return [
 	    h(4, type),
 	    p(example.help),
 	    p(children),
-	    propertyHelp(example)
+	    propertyHelp(example),
+	    edgeHelp(example)
 	    ].join(" ");
     };
 
@@ -999,7 +655,34 @@ var nodeTypeHelp = function() {
 	.join(" ");
 };
 
-module.exports = function(container) {
+var shortcutHelp = function(shortcutKeys) {
+    return h(2, "General Shortcut Keys")
+	+ tag("ul", 
+	      tag("li", "tab repeatedly to switch edit fields, saving the any changes you make as you go")
+	      + shortcutKeys.map(function(shortcut) {
+		  return tag("li", keypress(shortcut) + " to " + shortcut.description);
+	      }).join(""));
+};
+
+var nodeShortcutHelp = function() {
+    var example = nodes.create("process");
+    return h(3, "Node Shortcut Keys")
+	+ tag("ul", example.keys.map(function(shortcut) {
+	    return tag("li", keypress(shortcut) + " to " + shortcut.description);
+	}).join(""));
+};
+
+var edgeShortcutHelp = function() {
+    var node = nodes.create("process"),
+	edge = makeExampleEdge(node);
+
+    return h(3, "Edge Shortcut Keys")
+	+ tag("ul", edge.keys.map(function(shortcut) {
+		 return tag("li", keypress(shortcut) + " to " + shortcut.description);
+	     }).join(""));
+};
+
+module.exports = function(container, shortcutKeys) {
     var loaded = [],
 	expected = 0;
 
@@ -1026,11 +709,15 @@ module.exports = function(container) {
 	});
     };
 
-    loadThis('./help-content/part1.html', 0);
-    loaded[1] = nodeTypeHelp();
-    loadThis('./help-content/part2.html', 2);
+    loaded[0] = h(1, "Help");
+    loaded[1] = shortcutHelp(shortcutKeys);
+    loadThis('./help-content/part1.html', 2);
+    loaded[3] = nodeShortcutHelp();
+    loaded[4] = edgeShortcutHelp();
+    loaded[5] = nodeTypeHelp();
+    loadThis('./help-content/part2.html', 6);
 };
-},{"./nodes/abstract-node.js":62,"./nodes/process-node.js":66,"d3":12}],8:[function(require,module,exports){
+},{"./nodes/abstract-node.js":60,"./nodes/process-node.js":64,"d3":10}],6:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -1067,10 +754,17 @@ module.exports = {
 	    }
 	}
 	return true;
+    },
+    get: function(val) {
+	if (typeof val === "function") {
+	    return val();
+	} else {
+	    return val;
+	}
     }
 };
 
-},{"d3":12}],9:[function(require,module,exports){
+},{"d3":10}],7:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -1176,18 +870,6 @@ module.exports = function(nodes){
 	}
     };
 
-    var parseTitle = function(doc, query, url) {
-	if (doc.title) {
-	    return doc.title;
-	}
-	var title = query.call(doc, "title");
-	if (title.length > 0) {
-	    return title[0].text;
-	}
-
-	return url;
-    };
-
     var scrapeNode = function(doc, originURL, nodeCallbackHandler, callback) {
 	var children = [],
 	    errors = [],
@@ -1198,15 +880,12 @@ module.exports = function(nodes){
 	    query = doc.getElementsByTagName ? doc.getElementsByTagName : doc.querySelectorAll;
 
 	var finished = function() {
-	    var title = parseTitle(doc, query);
-
-	    if (nodes.has(title)) {
-		callback(nodes.get(title));
+	    if (nodes.has(originURL)) {
+		callback(nodes.get(originURL));
 		return;
 	    }
 
-	    var node = nodes.create("process", title)
-		    .url(originURL);
+	    var node = nodes.create("process", originURL);
 
 	    children.forEach(function(child){
 		node.edgeTo(child.node)
@@ -1335,7 +1014,147 @@ module.exports = function(nodes){
     return module;
 };
 
-},{"d3":12}],10:[function(require,module,exports){
+},{"d3":10}],8:[function(require,module,exports){
+"use strict";
+
+/*global require, module*/
+
+var d3 = require("d3"),
+    helpers = require("./helpers.js"),
+    all = helpers.all,
+    get = helpers.get;
+
+/*
+ Every time we receive a key press, we will look at the currently selected object's properties.
+ If any of those properties has a subproperty keys, we an array and check whether it contains an entry for the pressed key.
+ If it does, we assume its value is an array of objects. We iterate through the array looking for modifiers which match the event's modifier keys. 
+
+ If we find a matching key and modifier, we swallow the event, call the property, and then finish.
+
+ This is quite a slow method. If we find it is causing performance issues, we should rethink it and instead pre-extract the allowable keys for each type of thing.
+ */
+
+var lookup = d3.map({
+    "U+007F": "del",
+    "Enter": "enter",
+    "Left": "left",
+    "Right": "right",
+    "Up": "up",
+    "Down": "down",
+    "F1": "f1",
+    "U+001B": "esc",
+    "U+00BB": "+",
+    "U+00BD": "-"
+});
+var lookupKey = function(e) {
+    // Handling keyboard commands in the browser is a gigantic mess. I have no idea how they managed to take such a simple thing and make it difficult.
+
+    if (e.key) {
+	// This is the standard. Firefox claims to not follow it, but actually does.
+	// Chrome doesn't.
+	return e.key.toLowerCase();
+    } else if (e.keyIdentifier) {
+	if (lookup.has(e.keyIdentifier)) {
+	    // Sometimes the keyIdentifier is a unicode code.
+	    return lookup.get(e.keyIdentifier);
+	}
+    }
+
+    // If nothing else works, this should at least handle the ASCII keys properly.
+    return String.fromCharCode(e.keyCode).toLowerCase();
+};
+
+var tryKeys = function(key, event, keyHandlers, update, property) {
+    for (var i = keyHandlers.length - 1; i >= 0; i--) {
+	var option = keyHandlers[i];
+
+	if (option.key === key) {
+	    var modifiersMatch = all(['ctrlKey', 'shiftKey', 'altKey', 'metaKey'],
+				     function(modifier) {
+					 // Cooerce to boolean, then compare.
+					 return (!event[modifier]) === (!option[modifier]);
+				     }),
+		textEdit = event.target.getAttribute("contenteditable") || event.target.tagName.toLowerCase() === "input";
+		
+	    modifiersMatch = modifiersMatch && (!textEdit) === !option.textEdit;
+	    
+	    if (modifiersMatch) {
+		event.preventDefault();
+		event.stopPropagation();
+		
+		if (option.action !== undefined) {
+		    option.action();
+		} else {
+		    property(get(option.value));
+		}
+
+		update();
+		return true;
+	    }
+	}
+    }
+    return false;
+};
+
+
+module.exports = function(selection, helpLink, zoom, update) {
+    var universalKeys = [
+	{
+	    key: "+",
+	    description: "zoom in",
+	    shiftKey: true,
+	    action: zoom.in
+	},
+	{
+	    key: "-",
+	    description: "zoom out",
+	    action: zoom.out
+	},
+	{
+	    key: "f1",
+	    description: "get help",
+	    action: function() {
+		window.location = helpLink.attr("href");
+	    }
+	}
+    ];
+
+    document.addEventListener(
+	"keydown", 
+	function(e) {
+	    var current = selection.selected(),
+		props = Object.keys(current),
+		key = lookupKey(e);
+
+	    if (tryKeys(key, e, universalKeys, update, null)) {
+		return;
+	    }
+
+	    if (current.keys !== undefined) {
+		if (tryKeys(key, e, current.keys, update, null)) {
+		    return;
+		}
+	    }
+
+	    for (var prop in current) {
+		var p = current[prop];
+		if (p.keys !== undefined) {
+		    if (tryKeys(key, e, p.keys, update, p)) {
+			return;
+		    }
+		}
+	    }
+	},
+	// Use capture
+	false);
+
+    return {
+	universalKeys: function() {
+	    return universalKeys;
+	}
+    };
+};
+},{"./helpers.js":6,"d3":10}],9:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -1363,6 +1182,13 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 		manualPositions.remove(n);
 	    }
 	});
+    };
+
+    var rename = function (lookup, oldName, newName) {
+	if (lookup.has(oldName)) {
+	    lookup.set(newName, lookup.get(oldName));
+	    lookup.remove(oldName);
+	}
     };
 
     var nodesToKeep = function() {
@@ -1530,6 +1356,25 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 		    }
 		};
 	    }
+
+	    displayNode.name = function(n) {
+		if (n === undefined) {
+		    return node.name();
+		} else {
+		    var oldName = node.name();
+			
+		    node.name(n);
+
+		    if (collapsedNodes.has(oldName)) {
+			collapsedNodes.remove(oldName);
+			collapsedNodes.add(n);
+		    }
+
+		    rename(manualPositions, oldName, n);
+		    rename(manualSizes, oldName, n);
+		    return displayNode;
+		}
+	    };
 
 	    displayNode.edges = function() {
 		return displayEdges;
@@ -1767,42 +1612,7 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
     return module;
 };
 
-},{"d3":12,"dagre":13}],11:[function(require,module,exports){
-"use strict";
-
-/*global require, module*/
-
-
-
-module.exports = {
-    toTable: function(o) {
-	var table = [],
-	    row = [];
-
-	var toTableRecurse = function(arr, horizontal) {
-	    arr.forEach(function(el) {
-		while (horizontal > row.length) {
-		    row.push({type: 'blank'});
-		}
-
-		row.push({
-		    name: el.name,
-		    obj: el,
-		    parent: arr
-		});
-
-		toTableRecurse(el.children, horizontal + 1);
-
-		table.push(row);
-		row = [];
-	    });
-	};
-
-	toTableRecurse(o, 0);
-	return table;
-    }
-};
-},{}],12:[function(require,module,exports){
+},{"d3":10,"dagre":11}],10:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -11036,7 +10846,7 @@ module.exports = {
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],13:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 /*
 Copyright (c) 2012-2013 Chris Pettitt
 
@@ -11064,7 +10874,7 @@ exports.layout = require("./lib/layout");
 exports.version = require("./lib/version");
 exports.debug = require("./lib/debug");
 
-},{"./lib/debug":14,"./lib/layout":15,"./lib/version":30,"graphlib":36}],14:[function(require,module,exports){
+},{"./lib/debug":12,"./lib/layout":13,"./lib/version":28,"graphlib":34}],12:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -11115,7 +10925,7 @@ exports.dotOrdering = function(g) {
   return result;
 };
 
-},{"./util":29}],15:[function(require,module,exports){
+},{"./util":27}],13:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -11386,7 +11196,7 @@ module.exports = function() {
 };
 
 
-},{"./order":16,"./position":21,"./rank":22,"./util":29,"graphlib":36}],16:[function(require,module,exports){
+},{"./order":14,"./position":19,"./rank":20,"./util":27,"graphlib":34}],14:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -11503,7 +11313,7 @@ function sweepUp(g, layerGraphs) {
   }
 }
 
-},{"./order/crossCount":17,"./order/initLayerGraphs":18,"./order/initOrder":19,"./order/sortLayer":20,"./util":29}],17:[function(require,module,exports){
+},{"./order/crossCount":15,"./order/initLayerGraphs":16,"./order/initOrder":17,"./order/sortLayer":18,"./util":27}],15:[function(require,module,exports){
 'use strict';
 
 var util = require('../util');
@@ -11562,7 +11372,7 @@ function twoLayerCrossCount(g, layer1, layer2) {
   return cc;
 }
 
-},{"../util":29}],18:[function(require,module,exports){
+},{"../util":27}],16:[function(require,module,exports){
 'use strict';
 
 var nodesFromList = require('graphlib').filter.nodesFromList,
@@ -11615,7 +11425,7 @@ function initLayerGraphs(g) {
   return layerGraphs;
 }
 
-},{"cp-data":31,"graphlib":36}],19:[function(require,module,exports){
+},{"cp-data":29,"graphlib":34}],17:[function(require,module,exports){
 'use strict';
 
 var crossCount = require('./crossCount'),
@@ -11655,7 +11465,7 @@ function initOrder(g, random) {
   g.graph().orderCC = Number.MAX_VALUE;
 }
 
-},{"../util":29,"./crossCount":17}],20:[function(require,module,exports){
+},{"../util":27,"./crossCount":15}],18:[function(require,module,exports){
 'use strict';
 
 var util = require('../util'),
@@ -11836,7 +11646,7 @@ function adjustWeights(g, weights) {
   return adjusted;
 }
 
-},{"../util":29,"graphlib":36}],21:[function(require,module,exports){
+},{"../util":27,"graphlib":34}],19:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -12278,7 +12088,7 @@ module.exports = function() {
   }
 };
 
-},{"./util":29}],22:[function(require,module,exports){
+},{"./util":27}],20:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -12418,7 +12228,7 @@ function normalize(g) {
   g.eachNode(function(u, node) { node.rank -= m; });
 }
 
-},{"./rank/acyclic":23,"./rank/constraints":24,"./rank/feasibleTree":25,"./rank/initRank":26,"./rank/simplex":28,"./util":29,"graphlib":36}],23:[function(require,module,exports){
+},{"./rank/acyclic":21,"./rank/constraints":22,"./rank/feasibleTree":23,"./rank/initRank":24,"./rank/simplex":26,"./util":27,"graphlib":34}],21:[function(require,module,exports){
 'use strict';
 
 var util = require('../util');
@@ -12483,7 +12293,7 @@ function undo(g) {
   });
 }
 
-},{"../util":29}],24:[function(require,module,exports){
+},{"../util":27}],22:[function(require,module,exports){
 'use strict';
 
 exports.apply = function(g) {
@@ -12654,7 +12464,7 @@ exports.relax = function(g) {
   });
 };
 
-},{}],25:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 'use strict';
 
 /* jshint -W079 */
@@ -12781,7 +12591,7 @@ function slack(g, u, v) {
   return rankDiff - maxMinLen;
 }
 
-},{"../util":29,"cp-data":31,"graphlib":36}],26:[function(require,module,exports){
+},{"../util":27,"cp-data":29,"graphlib":34}],24:[function(require,module,exports){
 'use strict';
 
 var util = require('../util'),
@@ -12815,7 +12625,7 @@ function initRank(g) {
   });
 }
 
-},{"../util":29,"graphlib":36}],27:[function(require,module,exports){
+},{"../util":27,"graphlib":34}],25:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -12835,7 +12645,7 @@ function slack(graph, u, v, minLen) {
   return Math.abs(graph.node(u).rank - graph.node(v).rank) - minLen;
 }
 
-},{}],28:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 'use strict';
 
 var util = require('../util'),
@@ -13147,7 +12957,7 @@ function minimumLength(graph, u, v) {
   }
 }
 
-},{"../util":29,"./rankUtil":27}],29:[function(require,module,exports){
+},{"../util":27,"./rankUtil":25}],27:[function(require,module,exports){
 'use strict';
 
 /*
@@ -13268,15 +13078,15 @@ log.level = 0;
 
 exports.log = log;
 
-},{}],30:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 module.exports = '0.4.6';
 
-},{}],31:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 exports.Set = require('./lib/Set');
 exports.PriorityQueue = require('./lib/PriorityQueue');
 exports.version = require('./lib/version');
 
-},{"./lib/PriorityQueue":32,"./lib/Set":33,"./lib/version":35}],32:[function(require,module,exports){
+},{"./lib/PriorityQueue":30,"./lib/Set":31,"./lib/version":33}],30:[function(require,module,exports){
 module.exports = PriorityQueue;
 
 /**
@@ -13427,7 +13237,7 @@ PriorityQueue.prototype._swap = function(i, j) {
   keyIndices[origArrI.key] = j;
 };
 
-},{}],33:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 var util = require('./util');
 
 module.exports = Set;
@@ -13565,7 +13375,7 @@ function values(o) {
   return result;
 }
 
-},{"./util":34}],34:[function(require,module,exports){
+},{"./util":32}],32:[function(require,module,exports){
 /*
  * This polyfill comes from
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
@@ -13624,10 +13434,10 @@ if ('function' !== typeof Array.prototype.reduce) {
   };
 }
 
-},{}],35:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = '1.1.3';
 
-},{}],36:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 exports.Graph = require("./lib/Graph");
 exports.Digraph = require("./lib/Digraph");
 exports.CGraph = require("./lib/CGraph");
@@ -13660,7 +13470,7 @@ exports.filter = {
 
 exports.version = require("./lib/version");
 
-},{"./lib/CDigraph":38,"./lib/CGraph":39,"./lib/Digraph":40,"./lib/Graph":41,"./lib/alg/components":42,"./lib/alg/dijkstra":43,"./lib/alg/dijkstraAll":44,"./lib/alg/findCycles":45,"./lib/alg/floydWarshall":46,"./lib/alg/isAcyclic":47,"./lib/alg/postorder":48,"./lib/alg/preorder":49,"./lib/alg/prim":50,"./lib/alg/tarjan":51,"./lib/alg/topsort":52,"./lib/converter/json.js":54,"./lib/filter":55,"./lib/graph-converters":56,"./lib/version":58}],37:[function(require,module,exports){
+},{"./lib/CDigraph":36,"./lib/CGraph":37,"./lib/Digraph":38,"./lib/Graph":39,"./lib/alg/components":40,"./lib/alg/dijkstra":41,"./lib/alg/dijkstraAll":42,"./lib/alg/findCycles":43,"./lib/alg/floydWarshall":44,"./lib/alg/isAcyclic":45,"./lib/alg/postorder":46,"./lib/alg/preorder":47,"./lib/alg/prim":48,"./lib/alg/tarjan":49,"./lib/alg/topsort":50,"./lib/converter/json.js":52,"./lib/filter":53,"./lib/graph-converters":54,"./lib/version":56}],35:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -13857,7 +13667,7 @@ function delEdgeFromMap(map, v, e) {
 }
 
 
-},{"cp-data":31}],38:[function(require,module,exports){
+},{"cp-data":29}],36:[function(require,module,exports){
 var Digraph = require("./Digraph"),
     compoundify = require("./compoundify");
 
@@ -13894,7 +13704,7 @@ CDigraph.prototype.toString = function() {
   return "CDigraph " + JSON.stringify(this, null, 2);
 };
 
-},{"./Digraph":40,"./compoundify":53}],39:[function(require,module,exports){
+},{"./Digraph":38,"./compoundify":51}],37:[function(require,module,exports){
 var Graph = require("./Graph"),
     compoundify = require("./compoundify");
 
@@ -13931,7 +13741,7 @@ CGraph.prototype.toString = function() {
   return "CGraph " + JSON.stringify(this, null, 2);
 };
 
-},{"./Graph":41,"./compoundify":53}],40:[function(require,module,exports){
+},{"./Graph":39,"./compoundify":51}],38:[function(require,module,exports){
 /*
  * This file is organized with in the following order:
  *
@@ -14199,7 +14009,7 @@ Digraph.prototype._filterNodes = function(pred) {
 };
 
 
-},{"./BaseGraph":37,"./util":57,"cp-data":31}],41:[function(require,module,exports){
+},{"./BaseGraph":35,"./util":55,"cp-data":29}],39:[function(require,module,exports){
 /*
  * This file is organized with in the following order:
  *
@@ -14334,7 +14144,7 @@ Graph.prototype.delEdge = function(e) {
 };
 
 
-},{"./BaseGraph":37,"./util":57,"cp-data":31}],42:[function(require,module,exports){
+},{"./BaseGraph":35,"./util":55,"cp-data":29}],40:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14377,7 +14187,7 @@ function components(g) {
   return results;
 }
 
-},{"cp-data":31}],43:[function(require,module,exports){
+},{"cp-data":29}],41:[function(require,module,exports){
 var PriorityQueue = require("cp-data").PriorityQueue;
 
 module.exports = dijkstra;
@@ -14457,7 +14267,7 @@ function dijkstra(g, source, weightFunc, incidentFunc) {
   return results;
 }
 
-},{"cp-data":31}],44:[function(require,module,exports){
+},{"cp-data":29}],42:[function(require,module,exports){
 var dijkstra = require("./dijkstra");
 
 module.exports = dijkstraAll;
@@ -14494,7 +14304,7 @@ function dijkstraAll(g, weightFunc, incidentFunc) {
   return results;
 }
 
-},{"./dijkstra":43}],45:[function(require,module,exports){
+},{"./dijkstra":41}],43:[function(require,module,exports){
 var tarjan = require("./tarjan");
 
 module.exports = findCycles;
@@ -14516,7 +14326,7 @@ function findCycles(g) {
   return tarjan(g).filter(function(cmpt) { return cmpt.length > 1; });
 }
 
-},{"./tarjan":51}],46:[function(require,module,exports){
+},{"./tarjan":49}],44:[function(require,module,exports){
 module.exports = floydWarshall;
 
 /**
@@ -14595,7 +14405,7 @@ function floydWarshall(g, weightFunc, incidentFunc) {
   return results;
 }
 
-},{}],47:[function(require,module,exports){
+},{}],45:[function(require,module,exports){
 var topsort = require("./topsort");
 
 module.exports = isAcyclic;
@@ -14621,7 +14431,7 @@ function isAcyclic(g) {
   return true;
 }
 
-},{"./topsort":52}],48:[function(require,module,exports){
+},{"./topsort":50}],46:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14648,7 +14458,7 @@ function postorder(g, root, f) {
   dfs(root);
 }
 
-},{"cp-data":31}],49:[function(require,module,exports){
+},{"cp-data":29}],47:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14675,7 +14485,7 @@ function preorder(g, root, f) {
   dfs(root);
 }
 
-},{"cp-data":31}],50:[function(require,module,exports){
+},{"cp-data":29}],48:[function(require,module,exports){
 var Graph = require("../Graph"),
     PriorityQueue = require("cp-data").PriorityQueue;
 
@@ -14746,7 +14556,7 @@ function prim(g, weightFunc) {
   return result;
 }
 
-},{"../Graph":41,"cp-data":31}],51:[function(require,module,exports){
+},{"../Graph":39,"cp-data":29}],49:[function(require,module,exports){
 module.exports = tarjan;
 
 /**
@@ -14814,7 +14624,7 @@ function tarjan(g) {
   return results;
 }
 
-},{}],52:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 module.exports = topsort;
 topsort.CycleException = CycleException;
 
@@ -14872,7 +14682,7 @@ CycleException.prototype.toString = function() {
   return "Graph has at least one cycle";
 };
 
-},{}],53:[function(require,module,exports){
+},{}],51:[function(require,module,exports){
 // This file provides a helper function that mixes-in Dot behavior to an
 // existing graph prototype.
 
@@ -14980,7 +14790,7 @@ function compoundify(SuperConstructor) {
   return Constructor;
 }
 
-},{"cp-data":31}],54:[function(require,module,exports){
+},{"cp-data":29}],52:[function(require,module,exports){
 var Graph = require("../Graph"),
     Digraph = require("../Digraph"),
     CGraph = require("../CGraph"),
@@ -15070,7 +14880,7 @@ function typeOf(obj) {
   return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
-},{"../CDigraph":38,"../CGraph":39,"../Digraph":40,"../Graph":41}],55:[function(require,module,exports){
+},{"../CDigraph":36,"../CGraph":37,"../Digraph":38,"../Graph":39}],53:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -15086,7 +14896,7 @@ exports.nodesFromList = function(nodes) {
   };
 };
 
-},{"cp-data":31}],56:[function(require,module,exports){
+},{"cp-data":29}],54:[function(require,module,exports){
 var Graph = require("./Graph"),
     Digraph = require("./Digraph");
 
@@ -15125,7 +14935,7 @@ Digraph.prototype.asUndirected = function() {
   return g;
 };
 
-},{"./Digraph":40,"./Graph":41}],57:[function(require,module,exports){
+},{"./Digraph":38,"./Graph":39}],55:[function(require,module,exports){
 // Returns an array of all values for properties of **o**.
 exports.values = function(o) {
   var ks = Object.keys(o),
@@ -15138,10 +14948,10 @@ exports.values = function(o) {
   return result;
 };
 
-},{}],58:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 module.exports = '0.7.4';
 
-},{}],59:[function(require,module,exports){
+},{}],57:[function(require,module,exports){
 function DOMParser(options){
 	this.options = 
 			options != true && //To the version (0.1.12) compatible
@@ -15396,7 +15206,7 @@ if(typeof require == 'function'){
 	exports.DOMParser = DOMParser;
 }
 
-},{"./dom":60,"./sax":61}],60:[function(require,module,exports){
+},{"./dom":58,"./sax":59}],58:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -16536,7 +16346,7 @@ if(typeof require == 'function'){
 	exports.XMLSerializer = XMLSerializer;
 }
 
-},{}],61:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -17102,7 +16912,7 @@ if(typeof require == 'function'){
 exports.XMLReader=XMLReader;
 }
 
-},{}],62:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17110,10 +16920,27 @@ exports.XMLReader=XMLReader;
 var d3 = require("d3"),
     types = require("./process-node.js");
 
+var nextEdge = function(edge) {
+    var choices = edge.parent().edges(),
+	i = choices.indexOf(edge);
+    
+    return choices[(i+1) % choices.length];
+};
+
+var previousEdge = function(edge) {
+    var choices = edge.parent().edges(),
+	i = choices.indexOf(edge),
+	nextI = i == 0 ? choices.length - 1 : i - 1;
+
+    return choices[nextI];
+};
+
 module.exports = function() {
     var nodes, newNodes, root,
 	onCreate = [],
-	onRoot = [];
+	onRoot = [],
+	onDelete,
+	onNavigate;
 
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen, edge) {
@@ -17141,7 +16968,11 @@ module.exports = function() {
 
 	var unreached = d3.set(nodes.keys());
 	findUnreachableAccum(root, unreached);
-	unreached.forEach(function(n){
+	unreached.forEach(function(n) {
+	    onDelete("node", n);
+	    nodes.get(n).edges().forEach(function(e) {
+		onDelete("edge", e);
+	    });
 	    nodes.remove(n);
 	});
     };
@@ -17183,6 +17014,9 @@ module.exports = function() {
 	    newNodes = 1;
 	    root = null;
 	},
+	onNavigate: function(callback) {
+	    onNavigate = callback;
+	},
 	onRoot: function(callback) {
 	    onRoot.push(callback);
 	},
@@ -17197,6 +17031,9 @@ module.exports = function() {
 	    }
 	    return root;
 	},
+	onDelete: function(callback) {
+	    onDelete = callback;
+	},
 	onCreate: function(callback) {
 	    onCreate.push(callback);
 	},
@@ -17210,8 +17047,7 @@ module.exports = function() {
 	    }
 
 	    var edges = [],
-		url = "",
-		description = "",
+		description = "Write about this node here.",
 		name = startName;
 
 	    while (!name || nodes.has(name)) {
@@ -17236,6 +17072,7 @@ module.exports = function() {
 		    return edges;
 		},
 		removeEdge : function(edge) {
+		    onDelete("edge", edge);
 		    edges.splice(edges.indexOf(edge), 1);
 		    removeUnreachable();
 		},
@@ -17275,22 +17112,14 @@ module.exports = function() {
 		    }
 		    return name;
 		},
-		url: function(u) {
-		    if (u) {
-			url = u;
-			return this;
-		    }
-		    return url;
-		},
-		description: function(val) {
-		    if (val === undefined) {
+		description: function(c) {
+		    if (c === undefined) {
 			return description;
 		    } else {
-			description = val;
+			description = c;
 			return this;
 		    }
 		},
-		metadata:[],
 		countDescendents: function() {
 		    var seen = [],
 			stack = edges.slice(0);
@@ -17312,16 +17141,72 @@ module.exports = function() {
 		}
 	    };
 
+	    node.keys = [
+		{
+		    key: 'del',
+		    description: 'remove an incoming edge',
+		    action: function() {
+			var e = edgesToNode(node)[0];
+			e.parent().removeEdge(e);
+		    }
+		},
+		{
+		    key: "right",
+		    description: "navigate to first outgoing edge",
+		    action: function() {
+			onNavigate(node.edges()[0]);
+		    }
+		},
+		{
+		    key: "left",
+		    description: "navigate to first incoming edge",
+		    action: function() {
+			onNavigate(edgesToNode(node)[0]);
+		    }
+		},
+		{
+		    key: "up",
+		    description: "navigate to the previous node which comes from the same parent",
+		    action: function() {
+			onNavigate(
+			    previousEdge(edgesToNode(node)[0])
+				.node());
+		    }
+		},
+		{
+		    key: "down",
+		    description: "navigate to the next node which comes from the same parent",
+		    action: function() {
+			onNavigate(
+			    nextEdge(edgesToNode(node)[0])
+				.node());
+		    }
+		}
+
+	    ];
+		
+
 	    if (nodes.empty()) {
 		root = node;
 	    }
 	    nodes.set(node.name(), node);
 
-	    types.get(type)(node);
+	    types.get(type)(node, nodeContainer);
 
 	    onCreate.forEach(function(callback) {
 		callback(node);
 	    });
+
+	    if (!node.allowedChildren.empty()) {
+		node.allowedChildren.keys = [{
+		    key: 'enter',
+		    description: 'create a child node',
+		    action: function() {
+			var newNode = nodeContainer.create("undecided");
+			node.edgeTo(newNode);
+		    }
+		}];
+	    }
 
 	    return node;
 	},
@@ -17343,6 +17228,44 @@ module.exports = function() {
 		}
 	    };
 
+	    edge.keys = [
+		{
+		    key: "del",
+		    description: "disconnect this edge",
+		    action: function() {
+			edge.disconnect();
+		    }
+		},
+		{
+		    key: "left",
+		    description: "navigate to the parent node",
+		    action: function() {
+			onNavigate(edge.parent());
+		    }
+		},
+		{
+		    key: "right",
+		    description: "navigate to the child node",
+		    action: function() {
+			onNavigate(edge.node());
+		    }
+		},
+		{
+		    key: "up",
+		    description: "navigate to the previous edge which comes from the same parent",
+		    action: function() {
+			onNavigate(previousEdge(edge));
+		    }
+		},
+		{
+		    key: "down",
+		    description: "navigate to the next edge which comes from the same parent",
+		    action: function() {
+			onNavigate(nextEdge(edge));
+		    }
+		}
+	    ];
+
 	    to.extendIncomingEdge(edge);
 	    return edge;
 	}
@@ -17354,7 +17277,7 @@ module.exports = function() {
 
 
 
-},{"./process-node.js":66,"d3":12}],63:[function(require,module,exports){
+},{"./process-node.js":64,"d3":10}],61:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17404,7 +17327,7 @@ module.exports = function(nodes) {
     };
 };
 
-},{"d3":12}],64:[function(require,module,exports){
+},{"d3":10}],62:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17419,6 +17342,29 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	return nodeSelection.filter(function(d, i) {
 	    return d.type === type;
 	});
+    };
+
+    var drawURLLink = function(nodes, newNodes) {
+	var newG = newNodes.append("g")
+		.classed("node-link", true)
+		.attr("transform", "translate(0,15)");
+	
+	newG.append("a")
+	    .append("text")
+	    .attr("y", 15)
+	    .attr("x", 2)
+	    .text("⌖");
+	
+
+	var g = nodes.selectAll(".node-link")
+		.style("visibility", function(d, i) {
+		    return d.name().slice(0, 4).toLowerCase() === "http" ? "visible" : "hidden";
+		});
+	
+	g.selectAll("a")
+	    .attr("xlink:href", function(d, i) {
+		return d.name();
+	    });
     };
 
     var drawMoveHandle = function(nodes, newNodes) {
@@ -17507,30 +17453,11 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
     };
 
     var drawNodeName = function(nodes, newNodes) {
-	var foreignObjectSupported = document.implementation.hasFeature("w3.org/TR/SVG11/feature#Extensibility","1.1"),
-	    newNameGroups = newNodes.append("g")
+	var newNameGroups = newNodes.append("g")
 		.classed("name", true)
 		.attr("transform", "translate(20, 5)");
 
-	newNameGroups.append("a")
-	    .append("text")
-	    .attr("y", 10);
-
-	var nameGroups = nodes.selectAll("g.name")
-	    .attr("height", 21);
-
-	nodes.selectAll("g.name a")
-            .attr("xlink:href", function(d, i){
-		return d.url();
-	    })
-	    .attr("target", "_parent")
-	    .style("visibility", function(d, i){
-		return (d.url() || !foreignObjectSupported) ? "visible" : "hidden";
-	    })
-	    .selectAll("text")
-	    .text(function(d, i){ 
-		return d.name(); 
-	    });
+	var nameGroups = nodes.selectAll("g.name");
 
 	svgEditableText(
 	    nameGroups,
@@ -17540,23 +17467,53 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    function(d, i) {
 		return (d.size()[0] - 35);
 	    },
-	    21, 
+	    21,
 	    "node-name",
-	    function(d, i){
+	    function content(d, i) {
+		return d.name();
+	    },
+	    function onChange(d, i, val) {
 		try {
-		    d.name(this.value);
+		    d.name(val);
 		    d3.select(this).classed("name-error", false);
 		} catch (err) {
 		    d3.select(this).classed("name-error", true);
 		}
-	    });
+	    },
+	    function onLoseFocus(d, i) {
+		update();
+	    },
+	    // plaintext
+	    true);
+    };
 
-	nodes.selectAll(".node-name")
-	    .style("visibility", function(d, i){
-		return (d.url() && foreignObjectSupported) ? "hidden" : "visible";
-	    })
-	    .attr("value", function(d, i){
-		return d.name();
+    var drawNodeDescription = function(nodes, newNodes) {
+	var newDescriptionGroups = newNodes.append("g")
+		.classed("description", true)
+		.attr("transform", "translate(20, 26)");
+
+	var descriptionGroups = nodes.selectAll("g.description");
+
+	svgEditableText(
+	    descriptionGroups,
+	    newDescriptionGroups,
+	    0,
+	    0, 
+	    function(d, i) {
+		return (d.size()[0] - 35);
+	    },
+	    function(d, i) {
+		return (d.size()[1] - 40);
+	    },
+	    "node-description",
+	    function content(d, i) {
+		return d.description();
+	    },
+	    function onChange(d, i, val) {
+		d.description(val);
+	    },
+	    function onLoseFocus(d, i) {
+		update();
 	    });
     };
 
@@ -17641,13 +17598,16 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		.append("rect")
 		.classed("node-box", true)
 		.each(function(d, i) {
-			d3.select(this).classed("node-box-" + d.type, true);
-		    })
+		    d3.select(this).classed("node-box-" + d.type, true);
+		})
 		.on("click", function(d, i) {
 		    clickHandler(d);
 		});
 
 	    nodeDisplay
+		.classed("selected", function(d, i) {
+		    return d.selected;
+		})
 		.selectAll("rect.node-box")
 		.attr("width", function(d, i) {
 		    return d.size()[0] + "px";
@@ -17657,12 +17617,14 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		});
 
 	    drawNodeName(nodeDisplay, newNodes);
+	    drawNodeDescription(nodeDisplay, newNodes);
 
 	    transitions.maybeTransition(nodeDisplay).attr("transform", function(d, i){
 		return "translate(" + (d.x) + "," + d.y + ")";
 	    });
- 
+	    
 	    drawExpandContract(nodeDisplay);
+	    drawURLLink(nodeDisplay, newNodes);
 
 	    drawMoveHandle(nodeDisplay, newNodes);
 	    drawResizeHandle(nodeDisplay, newNodes);
@@ -17680,7 +17642,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
     
 };
 
-},{"../svg-editable-text.js":70,"d3":12}],65:[function(require,module,exports){
+},{"../svg-editable-text.js":68,"d3":10}],63:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17812,7 +17774,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 
 	var dependenceArc = junctions.selectAll("path")
 		.data(function(d, i){
-		    var dependence = d.collapsed() || d.isLeaf() ? 0 : d.dependence(),
+		    var dependence = d.collapsed() ? 0 : d.dependence(),
 			independence = 1 - dependence;
 		    
 		    return pie([
@@ -17858,7 +17820,8 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 	issueSettled.exit().remove();
 
 	issueSettled.enter().append("g")
-	    .classed(clazz, true);
+	    .classed(clazz, true)
+	    .classed("toggleable-text", true);
 
 	var issueSettledText = issueSettled
 		.selectAll("text")
@@ -17876,7 +17839,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 		return d.center()[0];
 	    })
 	    .attr("y", function(d, i) {
-		return d.center()[1] + 15;
+		return d.size()[1] - 10;
 	    })
 	    .attr("width", function(d, i) {
 		return d.innerWidth();
@@ -17916,15 +17879,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 		    d3.select(this).classed("node-choice-" + d.option, true);
 		})
 		.on("click", function(d, i) {
-		    var replacement = nodes.create(d.option),
-			name = d.node.name();
-		    
-		    d.node.incomingEdges().forEach(function(e) {
-			e.parent().edgeTo(replacement);
-			e.disconnect();
-		    });
-
-		    replacement.name(name);
+		    d.node.chooseType(d.option);
 		    update();
 		});
 
@@ -17942,7 +17897,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
-		return "translate(" + (5 + (i * 25)) + "," + d.node.center()[1] + ")";
+		return "translate(" + (5 + (i * 25)) + "," + (d.node.size()[1]- 24) + ")";
 	    });
     });
 
@@ -18055,7 +18010,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
     });
 };
 
-},{"../helpers.js":8,"d3":12}],66:[function(require,module,exports){
+},{"../helpers.js":6,"d3":10}],64:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -18064,14 +18019,38 @@ var d3 = require("d3"),
     combineEvidence = require("../combine-evidence.js"),
     clamp = require("../helpers.js").clamp;
 
+var spaceToToggle = function(prop) {
+    prop.keys = [{
+	key: " ",
+	description: "toggle",
+	value: function() {
+	    return !prop();
+	}
+    }];
+};
+
+var increaseDecreaseKey = function(prop, key, step) {
+    prop.keys = [
+	{
+	    key: key,
+	    description: "increase",
+	    value: function() {
+		return prop() + step;
+	    }
+	},
+	{
+	    key: key,
+	    shiftKey: true,
+	    description: "decrease",
+	    value: function() {
+		return prop() - step;
+	    }
+	}
+    ];
+};
+
 module.exports = d3.map({
-    "undecided" : function(node) {
-	node.help = "A choice between many possible kinds of nodes. Click on a letter to choose the type of this node.";
-
-	node.allowedChildren = d3.set();
-    },
-
-    "process" : function(node){
+    "process" : function(node, nodes){
 	node.help = "An activity that realizes a transformation.";
 
 	var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
@@ -18108,11 +18087,39 @@ module.exports = d3.map({
 	};
 	node.localEvidence.help = "Local evidence about this process represented as an interval probability [Sn, Sp] and displayed as an Italian flag. This value is only valid on leaf nodes, and must satisfy the constraint 0 <= Sn <= Sp <= 1. Change these values within these ranges by hovering over the appropriate section of the Italian flag and scrolling the mousewheel.";
 
-	node.dependence = function(dependence) {
-	    if (node.edges().length === 0) {
-		throw "Dependence is not used for leaf nodes.";
+	var changeEvidence = function(i, direction) {
+	    return function() {
+		var e = node.localEvidence().slice();
+		e[i] += direction * 0.05;
+		return e;
+	    };
+	};
+	node.localEvidence.keys = [
+	    {
+		key: 'p',
+		description: 'increase evidence of success',
+		value: changeEvidence(1, -1)
+	    },
+	    {
+		key: 'p',
+		shiftKey: true,
+		description: 'decrease evidence of success',
+		value: changeEvidence(1, 1)
+	    },
+	    {
+		key: 'n',
+		description: 'increase evidence of failure',
+		value: changeEvidence(0, 1)
+	    },
+	    {
+		key: 'n',
+		shiftKey: true,
+		description: 'decrease evidence of failure',
+		value: changeEvidence(0, -1)
 	    }
-	    
+	];
+
+	node.dependence = function(dependence) {
 	    if (dependence !== undefined) {
 		localDep = clamp(0, dependence, 1);
 	    }
@@ -18120,6 +18127,7 @@ module.exports = d3.map({
 	    return localDep;
 	};
 	node.dependence.help = "The relatedness of evidence propagated up from children of this process. This varies from 0 to 1, and is represented as the proportion of the junction circle which is coloured black. 0 is entirely white, and represents completely independent evidence. 1 is entirely black, and represents equivalent evidence. This value only makes sense on process which have children with evidence. It may be changed by hovering over the junction circle and scrolling the mousehweel.";
+	increaseDecreaseKey(node.dependence, "d", 0.05);
 
 	node.p = function() {
 	    if (node.edges().length === 0) {
@@ -18151,6 +18159,9 @@ module.exports = d3.map({
 		}
 		return necessity;
 	    };
+	    edge.necessity.help = "Necessity weights the importance of a child process' evidence to the parent, and may be thought of as P(¬H|¬E). It may range from 0 to 1 inclusive. It is represented as a red semi-circle. Hover over it and scroll the mouse whell to modify it.";
+	    increaseDecreaseKey(edge.necessity, "n", 0.05);
+
 	    edge.sufficiency = function(s) {
 		if (s !== undefined) {
 		    sufficiency = clamp(0, s, 1);
@@ -18158,12 +18169,13 @@ module.exports = d3.map({
 		}
 		return sufficiency;
 	    };
+	    increaseDecreaseKey(edge.sufficiency, "s", 0.05);
+	    edge.sufficiency.help = "Sufficiency weights the importance of a child process' evidence to the parent, and may be thought of as P(H|E). It may range from 0 to 1 inclusive. It is represented as a green semi-circle. Hover over it and scroll the mouse whell to modify it.";
 	    return edge;
 	};
-	node.extendIncomingEdge.help = "Necessity and Sufficiency weight the child node's importance to the parent. The may range from 0 to 1 inclusive, and are represented on an edge as red and green semi-circles respectively. Hover over the appropriate semi-circle and scroll the mouse wheel to modify it.";
     },
 
-    "issue" : function(node){
+    "issue" : function(node, nodes) {
 	node.help = "A concern or question about the Process, subjected to debate and discussion.";
 
 	var settled = false;
@@ -18178,15 +18190,16 @@ module.exports = d3.map({
 	    }
 	};
 	node.settled.help = "Whether the issue is settled or open. Click on the text to toggle its value.";
+	spaceToToggle(node.settled);
     },
 
-    "option" : function(node){
+    "option" : function(node, nodes) {
 	node.help = "Possible answers, alternatives or courses of action in reply to the Issue.";
 
 	node.allowedChildren = d3.set(["argument", "option"]);
     },
 
-    "argument" : function(node){
+    "argument" : function(node, nodes) {
 	node.help = "Evidence, reason or opinions in favor or against an Option.";
 
 	var support = false;
@@ -18201,13 +18214,38 @@ module.exports = d3.map({
 	    }
 	};
 	node.support.help = "Whether the argument supports or refutes the option. Click on the text to toggle its value.";
+	spaceToToggle(node.support);
     }
 });
 
+module.exports.set("undecided", function(node, nodes) {
+    node.help = "A choice between many possible kinds of nodes.";
 
+    node.allowedChildren = d3.set();
 
+    node.chooseType = function(option) {
+	var replacement = nodes.create(option),
+	    name = node.name();
+	
+	node.incomingEdges().forEach(function(e) {
+	    e.parent().edgeTo(replacement);
+	    e.disconnect();
+	});
 
-},{"../combine-evidence.js":2,"../helpers.js":8,"d3":12}],67:[function(require,module,exports){
+	replacement.name(name);
+    };
+    node.chooseType.help = "Click on a letter to choose the type of this node.";
+    node.chooseType.keys = module.exports.keys()
+	.map(function(k) {
+	    return {
+		key: k[0],
+		description: "choose " + k,
+		value: k
+	    };
+	});
+});
+
+},{"../combine-evidence.js":1,"../helpers.js":6,"d3":10}],65:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -18381,7 +18419,7 @@ module.exports = function(nodes) {
     };
 };
 
-},{"d3":12,"xmldom":59}],68:[function(require,module,exports){
+},{"d3":10,"xmldom":57}],66:[function(require,module,exports){
 "use strict";
 
 /*global parent, require*/
@@ -18395,14 +18433,8 @@ var d3 = require("d3"),
     transitions = require("./transition-switch.js")(),
     dataConstructor = require("./data.js"),
     perimetaConstructor = require("./perimeta-xml.js"),
-    htmlScrapeConstructor = require("./html-scrape.js");
-
-
-require("./columns.js")(
-    d3.selectAll("#model, #metadata"), 
-    [0.7, 0.3]);
-
-require("./help.js")(d3.select("#help"));
+    htmlScrapeConstructor = require("./html-scrape.js"),
+    helpLink = d3.select("#help");
 
 var update = function() {
     trackAllowedTypes.update();
@@ -18415,12 +18447,7 @@ var update = function() {
     };
 };
 
-var drawMetadata = require("./draw-metadata.js")(
-    d3.select("#metadata"), 
-    selection.select, 
-    update),
-
-    layout = require("./layout.js")(nodes, 200, 50, 10),
+var layout = require("./layout.js")(nodes, 240, 70, 10),
 
     drawNodes = require("./nodes/draw-node.js")(g, transitions, layout,
 						withUpdate(selection.selected),
@@ -18433,6 +18460,18 @@ var drawMetadata = require("./draw-metadata.js")(
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	});
 
+zoom.in = function() {
+    zoom.scale(zoom.scale() * 1.1);
+    zoom.event(g);
+};
+zoom.out = function() {
+    zoom.scale(zoom.scale() / 1.1);
+    zoom.event(g);
+};
+
+var shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
+
+require("./help.js")(helpLink, shortcutKeys.universalKeys());
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);
 
@@ -18442,8 +18481,6 @@ var draw = function() {
     drawNodes.draw(display.nodes);
  
     drawEdges.draw(display.edges);
-
-    drawMetadata.draw(selection.selected());
 };
 
 var updateDownloadLink = function(){
@@ -18483,7 +18520,7 @@ if (nodes.root() === null) {
     htmlScrapeConstructor.Scrape(nodes).scrape("table-test.html", update);
 }
 
-},{"./columns.js":1,"./data.js":3,"./draw-edge.js":4,"./draw-metadata.js":5,"./files.js":6,"./help.js":7,"./html-scrape.js":9,"./layout.js":10,"./nodes/abstract-node.js":62,"./nodes/allowed-types.js":63,"./nodes/draw-node.js":64,"./nodes/draw-process-node.js":65,"./perimeta-xml.js":67,"./selection.js":69,"./transition-switch.js":71,"d3":12}],69:[function(require,module,exports){
+},{"./data.js":2,"./draw-edge.js":3,"./files.js":4,"./help.js":5,"./html-scrape.js":7,"./keys.js":8,"./layout.js":9,"./nodes/abstract-node.js":60,"./nodes/allowed-types.js":61,"./nodes/draw-node.js":62,"./nodes/draw-process-node.js":63,"./perimeta-xml.js":65,"./selection.js":67,"./transition-switch.js":69,"d3":10}],67:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -18496,30 +18533,38 @@ module.exports = function(nodes) {
 	    if (val === undefined) {
 		return selected;
 	    } else {
+		if (selected) {
+		    selected.selected = false;
+		}
+
 		selected = val;
+		val.selected = true;
 		return this;
 	    }
 	}
     };
 
     nodes.onCreate(m.selected);
+    nodes.onDelete(function(type, deleted) {
+	if (type === "node" && selected.name() === deleted) {
+	    m.selected(nodes.root());
+	} else if (type === "edge" && selected === deleted) {
+	    m.selected(nodes.root());
+	}
+    });
     nodes.onRoot(m.selected);
+    nodes.onNavigate(m.selected);
 
     return m;
 };
-},{}],70:[function(require,module,exports){
+},{}],68:[function(require,module,exports){
 "use strict";
 
 /*global require, module */
 
 var d3 = require("d3");
 
-module.exports = function(selection, newSelection, x, y, width, height, name, inputFunction) {
-    var preventDrag = d3.behavior.drag()
-	    .on("dragstart", function(d){
-		d3.event.sourceEvent.stopPropagation();
-	    });
-
+module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onLoseFocus, plaintext) {
     var newForeign = newSelection
 	    .append("foreignObject")
 	    .classed("svg-editable-text", true)
@@ -18531,21 +18576,34 @@ module.exports = function(selection, newSelection, x, y, width, height, name, in
 	    .attr("height", height);
 
     var newInput = newForeign
-	    .append("xhtml:input")
-	    .attr("type", "text")
+	    .append("xhtml:div")
+	    .attr("contenteditable", "true")
+	    .attr("tabindex", 0)
 	    .classed(name, "true")
-	    .on("input", inputFunction)
-	    .call(preventDrag);
+	    .on("input", function(d, i) {
+		onChange(d, i, d3.select(this).html());
+	    })
+	    .on("mousedown", function(d, i) {
+		// If this event bubbles up, the d3 drag behaviours will get hold of it and make trouble.
+		d3.event.stopPropagation();
+	    })
+	    .on("blur", onLoseFocus);
 
     foreign.selectAll("." + name)
-	    .attr("name", name)
-	    .style("width", function(d, i) {
-		var w = width instanceof Function ? width(d, i) : width;
-		return (w - 5) + "px";
-	    });
+	.attr("name", name)
+	.style("width", function(d, i) {
+	    var w = width instanceof Function ? width(d, i) : width;
+	    return (w - 5) + "px";
+	})
+	.html(contentFunction);
+
+    if (plaintext) {
+	newInput
+	    .classed("plaintext", true);
+    }
 };
 
-},{"d3":12}],71:[function(require,module,exports){
+},{"d3":10}],69:[function(require,module,exports){
 "use strict";
 
 /*global module*/
@@ -18581,4 +18639,4 @@ module.exports = function(){
     return module;
 };
 
-},{}]},{},[68]);
+},{}]},{},[66]);
