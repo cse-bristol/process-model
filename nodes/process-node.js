@@ -6,7 +6,7 @@ var d3 = require("d3"),
     combineEvidence = require("../combine-evidence.js"),
     clamp = require("../helpers.js").clamp;
 
-var enterToToggle = function(prop) {
+var spaceToToggle = function(prop) {
     prop.keys = [{
 	key: " ",
 	description: "to toggle",
@@ -84,24 +84,24 @@ module.exports = d3.map({
 	node.localEvidence.keys = [
 	    {
 		key: 'p',
-		description: 'increase evidence of success.',
+		description: 'increase evidence of success',
 		value: changeEvidence(1, -1)
 	    },
 	    {
 		key: 'p',
 		shiftKey: true,
-		description: 'decrease evidence of success.',
+		description: 'decrease evidence of success',
 		value: changeEvidence(1, 1)
 	    },
 	    {
 		key: 'n',
-		description: 'increase evidence of failure.',
+		description: 'increase evidence of failure',
 		value: changeEvidence(0, 1)
 	    },
 	    {
 		key: 'n',
 		shiftKey: true,
-		description: 'decrease evidence of failure.',
+		description: 'decrease evidence of failure',
 		value: changeEvidence(0, -1)
 	    }
 	];
@@ -177,7 +177,7 @@ module.exports = d3.map({
 	    }
 	};
 	node.settled.help = "Whether the issue is settled or open. Click on the text to toggle its value.";
-	enterToToggle(node.settled);
+	spaceToToggle(node.settled);
     },
 
     "option" : function(node, nodes) {
@@ -201,7 +201,7 @@ module.exports = d3.map({
 	    }
 	};
 	node.support.help = "Whether the argument supports or refutes the option. Click on the text to toggle its value.";
-	enterToToggle(node.support);
+	spaceToToggle(node.support);
     }
 });
 

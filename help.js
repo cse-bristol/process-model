@@ -23,10 +23,33 @@ var p = function(contents) {
     return tag("p", contents);
 };
 
+var altKeyNames = d3.map({
+    " ": "space"
+});
+
 var nodeTypeHelp = function() {
     var result = [
 	h(3, "Types of Node")
     ];
+
+    var keypress = function(shortcut) {
+	return (altKeyNames.has(shortcut.key) ? altKeyNames.get(shortcut.key) : shortcut.key)
+	    + (shortcut.shiftKey ? " + shift" : "")
+	    + (shortcut.altKey ? " + alt" : "")
+	    + (shortcut.ctrlKey ? " + ctrl" : "")
+	    + (shortcut.metaKey ? " + meta" : "");
+    };
+
+    var shortcutHelp = function(property) {
+	if (property.keys) {
+	    var shortcuts = property.keys.map(function(shortcut) {
+		return keypress(shortcut) + ": " + shortcut.description;
+	    });
+	    return p("(" + shortcuts.join(", ")  + ")");
+	} else {
+	    return "";
+	}
+    };
 
     var propertyHelp = function(example) {
 	var properties = Object.keys(example)
@@ -34,8 +57,9 @@ var nodeTypeHelp = function() {
 		return example[key].help !== undefined;
 	    })
 	    .map(function(key) {
-		return tag("dt", propertyNames.has(key) ? propertyNames.get(key) : key) 
-		    + tag("dd", example[key].help);
+		return h(5, propertyNames.has(key) ? propertyNames.get(key) : key) 
+		    + p(example[key].help)
+		    + shortcutHelp(example[key]);
 	    });
 
 	if (properties.length === 0) {
@@ -49,7 +73,7 @@ var nodeTypeHelp = function() {
 	var example = nodes.create(type),
 	    children = example.allowedChildren.empty() > 0 ?
 		"Cannot have children" :
-		"Children: " + example.allowedChildren.values().join("; ");
+		"Possible children: " + example.allowedChildren.values().join("; ");
 	
 	return [
 	    h(4, type),

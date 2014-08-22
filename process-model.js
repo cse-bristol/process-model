@@ -11,13 +11,14 @@ var d3 = require("d3"),
     transitions = require("./transition-switch.js")(),
     dataConstructor = require("./data.js"),
     perimetaConstructor = require("./perimeta-xml.js"),
-    htmlScrapeConstructor = require("./html-scrape.js");
+    htmlScrapeConstructor = require("./html-scrape.js"),
+    helpLink = d3.select("#help");
 
 require("./columns.js")(
     d3.selectAll("#model, #metadata"), 
     [0.7, 0.3]);
 
-require("./help.js")(d3.select("#help"));
+require("./help.js")(helpLink);
 
 var update = function() {
     trackAllowedTypes.update();
@@ -57,7 +58,7 @@ zoom.out = function() {
     zoom.event(g);
 };
 
-require("./keys.js")(selection, zoom, update);
+require("./keys.js")(selection, helpLink, zoom, update);
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);
 

@@ -24,6 +24,7 @@ var lookup = d3.map({
     "Right": "right",
     "Up": "up",
     "Down": "down",
+    "F1": "f1",
     "U+001B": "esc",
     "U+00BB": "+",
     "U+00BD": "-"
@@ -79,7 +80,7 @@ var tryKeys = function(key, event, keyHandlers, update, property) {
 };
 
 
-module.exports = function(selection, zoom, update) {
+module.exports = function(selection, helpLink, zoom, update) {
     var universalKeys = [
 	{
 	    key: "+",
@@ -98,6 +99,13 @@ module.exports = function(selection, zoom, update) {
 	    textEdit: true,
 	    action: function(event) {
 		event.target.blur();
+	    }
+	},
+	{
+	    key: "f1",
+	    description: "help",
+	    action: function() {
+		window.location = helpLink.attr("href");
 	    }
 	}
     ];
