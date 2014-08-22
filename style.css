@@ -238,6 +238,13 @@ g.weight-half:hover {
     cursor: text;
 }
 
+.plaintext {
+    -moz-user-modify: read-write-plaintext-only;
+    -webkit-user-modify: read-write-plaintext-only;
+    -ms-user-modify: read-write-plaintext-only;
+    user-modify: read-write-plaintext-only;
+}
+
 [contenteditable="true"]:active,
 [contenteditable="true"]:focus{
     border:none;

@@ -4,7 +4,7 @@
 
 var d3 = require("d3");
 
-module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onLoseFocus) {
+module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onLoseFocus, plaintext) {
     var newForeign = newSelection
 	    .append("foreignObject")
 	    .classed("svg-editable-text", true)
@@ -35,4 +35,9 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 	    return (w - 5) + "px";
 	})
 	.html(contentFunction);
+
+    if (plaintext) {
+	newInput
+	    .classed("plaintext", true);
+    }
 };

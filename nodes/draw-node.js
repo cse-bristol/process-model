@@ -117,7 +117,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    21,
 	    "node-name",
 	    function content(d, i) {
-		return '<div style="float:right;">' + d.name() + "</div>";
+		return d.name();
 	    },
 	    function onChange(d, i, val) {
 		try {
@@ -129,7 +129,9 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    },
 	    function onLoseFocus(d, i) {
 		update();
-	    });
+	    },
+	    // plaintext
+	    true);
     };
 
     var drawNodeDescription = function(nodes, newNodes) {
