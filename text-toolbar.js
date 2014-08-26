@@ -2,41 +2,97 @@
 
 /*global require, module*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+    svgEditableText = require("./svg-editable-text.js");
 
-var link = function(args) {
-    // createLink(url)
-    throw new Error("Not implemented");
+var command = function(c) {
+    return function() {
+	if (!document.execCommand(c)) {
+	    throw new Error("Could not exec browser command " + c);
+	}
+    };
 };
 
-var image = function(args) {
-    // insertImage(srcUrl)
-    throw new Error("Not implemented");
-};
-
-module.exports = function(container, transitions) {
+module.exports = function(dialogueContainer, toolbarContainer, transitions) {
     var target,
 	charWidth = 15,
+	dialogueThenCommand = function(fieldName, c) {
+	    var selectionRange;
+
+	    var form = dialogueContainer.append("form")
+		    .classed("dialogue", true)
+		    .style("visibility", "hidden")
+	    .on("submit", function() {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+
+		form.style("visibility", "hidden");
+		
+		if (target) {
+		    target.focus();
+		    document.getSelection().removeAllRanges();
+		    document.getSelection().addRange(selectionRange);
+		    if (!document.execCommand(c, false, field[0][0].value)) {
+			throw new Error("Could not exec browser command " + c + " with " + field.text());
+		    }
+
+		    d3.select(target)
+			.selectAll("a")
+			.attr("contenteditable", false);
+		}
+	    });
+
+	    var field = form
+		    .append("input")
+		    .attr("type", "text")
+		    .on("blur", function(d, i) {
+			form.style("visibility", "hidden");
+		    });
+
+	    form.append("input")
+		.attr("type", "submit");
+
+	    return function() {
+		if (target) {
+		    var rect = target.getBoundingClientRect();
+
+		    field.attr("placeholder", fieldName);
+
+		    form
+			.style("visibility", "visible")
+			.style("top", (rect.top - 25) + "px")
+			.style("left", (rect.left) + "px");
+
+		    selectionRange = document.getSelection().getRangeAt(0);
+
+		    field[0][0].value = "";
+		    field[0][0].focus();
+		}
+	    };
+	},
+
 	commands = [
-	{icon: "B", styles: {"font-weight": "bold"}, command: "bold"},
-	{icon: "I", styles: {"font-style": "italic"}, command: "italic"},
-	{icon: "U", styles: {"text-decoration": "underline"}, command: "underline"},
-	{icon: "•", command: "insertUnorderedList"},
-	{icon: "1.", command: "insertOrderedList"},
-	{icon: "⇐", command: "outdent"},
-	{icon: "⇒", command: "indent"},
-	{icon: "link", command: "createLink"}, 
-	{icon: "img", command: "insertImage"} 
+	{icon: "B", styles: {"font-weight": "bold"}, f: command("bold")},
+	{icon: "I", styles: {"font-style": "italic"}, f: command("italic")},
+	{icon: "U", styles: {"text-decoration": "underline"}, f: command("underline")},
+	{icon: "•", f: command("insertUnorderedList")},
+	{icon: "1.", f: command("insertOrderedList")},
+	{icon: "⇐", f: command("outdent")},
+	{icon: "⇒", f: command("indent")},
+	{icon: "link", command: "createLink", f: dialogueThenCommand("Link-URL", "createLink")}, 
+	{icon: "img", command: "insertImage", f: dialogueThenCommand("Image-URL", "insertImage")} 
     ];
 
-    var bar = container.append("g")
+    var bar = toolbarContainer.append("g")
 	    .attr("id", "text-toolbar")
 	    .attr("visibility", "hidden");
 
     var positionOnTarget = function() {
-	var rect = target.getBoundingClientRect();
-	transitions.maybeTransition(bar)
-	    .attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+	if (target) {
+	    var rect = target.getBoundingClientRect();
+	    bar
+		.attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+	}
     };
 
     var len = 0;
@@ -66,8 +122,7 @@ module.exports = function(container, transitions) {
 	.on("mousedown", function(d, i) {
 	    d3.event.stopPropagation();
 	    d3.event.preventDefault();
-	    var args = d.args ? d.args : [];
-	    document.execCommand(d.command);
+	    d.f();
 	})
 	.attr("x", 3)
 	.attr("y", 16)
@@ -82,7 +137,6 @@ module.exports = function(container, transitions) {
 
     return {
 	blur: function(d, i) {
-	    target = null;
 	    bar.attr("visibility", "hidden");
 	},
 	focus: function(d, i) {

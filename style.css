@@ -207,3 +207,7 @@ g.weight-half:hover {
     fill: black;
     font-size: x-large;
 }
+
+.dialogue {
+    position: fixed;
+}

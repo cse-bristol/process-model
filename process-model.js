@@ -13,7 +13,7 @@ var d3 = require("d3"),
     perimetaConstructor = require("./perimeta-xml.js"),
     htmlScrapeConstructor = require("./html-scrape.js"),
     helpLink = d3.select("#help"),
-    toolbar = require("./text-toolbar.js")(svg, transitions);
+    toolbar = require("./text-toolbar.js")(d3.select("body"), svg, transitions);
 
 var update = function() {
     trackAllowedTypes.update();
