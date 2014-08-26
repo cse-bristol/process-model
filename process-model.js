@@ -12,12 +12,15 @@ var d3 = require("d3"),
     dataConstructor = require("./data.js"),
     perimetaConstructor = require("./perimeta-xml.js"),
     htmlScrapeConstructor = require("./html-scrape.js"),
-    helpLink = d3.select("#help");
+    helpLink = d3.select("#help"),
+    toolbar = require("./text-toolbar.js")(svg, transitions);
 
 var update = function() {
     trackAllowedTypes.update();
     draw();
     updateDownloadLink();
+    toolbar.update();
+
 }, withUpdate = function(f) {
     return function(args) {
 	f(args);
@@ -26,8 +29,7 @@ var update = function() {
 };
 
 var layout = require("./layout.js")(nodes, 240, 70, 10),
-
-    drawNodes = require("./nodes/draw-node.js")(g, transitions, layout,
+    drawNodes = require("./nodes/draw-node.js")(g, transitions, layout, toolbar,
 						withUpdate(selection.selected),
 						update),
 
@@ -36,6 +38,7 @@ var layout = require("./layout.js")(nodes, 240, 70, 10),
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+	    toolbar.update();
 	});
 
 zoom.in = function() {

@@ -192,3 +192,18 @@ g.weight-half:hover {
     border:none;
     outline:none;
 }
+
+.text-button {
+    fill: #F0F0F0;
+}
+
+.text-button:hover {
+    fill: #D3D3D3;
+}
+
+.text-button-icon {
+    font-family: monospace;
+    cursor: pointer;
+    fill: black;
+    font-size: x-large;
+}

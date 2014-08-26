@@ -4,7 +4,7 @@
 
 var d3 = require("d3");
 
-module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onLoseFocus, plaintext) {
+module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onFocus, onLoseFocus, plaintext) {
     var newForeign = newSelection
 	    .append("foreignObject")
 	    .classed("svg-editable-text", true)
@@ -27,9 +27,10 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 		// If this event bubbles up, the d3 drag behaviours will get hold of it and make trouble.
 		d3.event.stopPropagation();
 	    })
+	    .on("focus", onFocus)
 	    .on("blur", onLoseFocus);
 
-    foreign.selectAll("." + name)
+    var input = foreign.selectAll("." + name)
 	.attr("name", name)
 	.style("width", function(d, i) {
 	    var w = width instanceof Function ? width(d, i) : width;

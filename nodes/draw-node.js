@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js");
 
-module.exports = function(container, transitions, layout, clickHandler, update) {
+module.exports = function(container, transitions, layout, toolbar, clickHandler, update) {
     var types = d3.map();
 
     var filterByType = function(nodeSelection, type) {
@@ -150,6 +150,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		    d3.select(this).classed("name-error", true);
 		}
 	    },
+	    function() {},
 	    function onLoseFocus(d, i) {
 		update();
 	    },
@@ -182,7 +183,9 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    function onChange(d, i, val) {
 		d.description(val);
 	    },
+	    toolbar.focus,
 	    function onLoseFocus(d, i) {
+		toolbar.blur.call(this, d, i);
 		update();
 	    });
     };
