@@ -105,8 +105,13 @@ module.exports = function(selection, helpLink, zoom, update) {
     document.addEventListener(
 	"keydown", 
 	function(e) {
-	    var current = selection.selected(),
-		props = Object.keys(current),
+	    var current = selection.selected();
+
+	    if (!current) {
+		return;
+	    }
+
+	    var props = Object.keys(current),
 		key = lookupKey(e);
 
 	    if (tryKeys(key, e, universalKeys, update, null)) {

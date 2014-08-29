@@ -5,7 +5,8 @@
 var d3 = require("d3");
 
 module.exports = function(nodes) {
-    var allowedTypes = d3.map();
+    var allowedTypes = d3.map(),
+	allTypes = d3.set(nodes.types());
     var intersection = function(a, b) {
 	return d3.set(a.values().filter(function(o) {
 	    return b.has(o);
@@ -15,7 +16,11 @@ module.exports = function(nodes) {
     return {
 	allowedTypesForNode: function(name) {
 	    if (!allowedTypes.has(name)) {
-		throw new Error("Don't know about node " + name);
+		if (nodes.get(name).incomingEdges().length === 0) {
+		    return allTypes;
+		} else {
+		    throw new Error("Don't know about node " + name);
+		}
 	    }
 	    
 	    return allowedTypes.get(name);
@@ -40,7 +45,6 @@ module.exports = function(nodes) {
 	    };
 
 	    allowedTypes = d3.map();
-	    allowedTypes.set(nodes.root().name(), nodes.root().type);
 
 	    update(nodes.root());
 	}

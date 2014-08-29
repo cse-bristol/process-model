@@ -1,6 +1,12 @@
 #download {
     position: fixed;
-    top: 2vh;
+    top: 1.5vh;
+    left: 30vw;
+}
+
+#wiki-controls {
+    position: fixed;
+    top: 1vh;
     left: 1vw;
 }
 
@@ -210,4 +216,26 @@ g.weight-half:hover {
 
 .dialogue {
     position: fixed;
+}
+
+.message-panel {
+    position: fixed;
+    top: 1vh;
+    right: 2vw;
+    width: 50vw;
+    height: 99vh;
+    pointer-events: none;
+}
+
+.message-panel div {
+    float: right;
+    clear: both;
+    border: 1px dashed grey;
+    padding: 0.2em;
+}
+
+.error {
+    font-size: x-large;
+    color: red;
+    border-color: red;
 }

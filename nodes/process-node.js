@@ -213,6 +213,10 @@ module.exports.set("undecided", function(node, nodes) {
     node.chooseType = function(option) {
 	var replacement = nodes.create(option),
 	    name = node.name();
+
+	if (nodes.root() === node) {
+	    nodes.root(replacement);
+	}	
 	
 	node.incomingEdges().forEach(function(e) {
 	    e.parent().edgeTo(replacement);
@@ -220,6 +224,8 @@ module.exports.set("undecided", function(node, nodes) {
 	});
 
 	replacement.name(name);
+
+	return replacement;
     };
     node.chooseType.help = "Click on a letter to choose the type of this node.";
     node.chooseType.keys = module.exports.keys()

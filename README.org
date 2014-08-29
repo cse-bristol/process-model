@@ -12,12 +12,11 @@ We implement a process model as a directed acyclic graph.
  + Nodes may be arranged automatically or manually.
  + Nodes may be resized.
  + Save and load in a custom json format.
- + Load from linked HTML pages.
+ + Load from and save to linked [[https://github.com/jgm/gitit][Gitit]] wiki pages.
  + Import from PeriMeta XML files.
 
 ** Future Plans
  + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
- + Export to wiki.
 
 ** Source code
 [[https://github.com/cse-bristol/process-model][Get the source code]]

@@ -2,24 +2,12 @@
 
 /*global parent, require*/
 
-var d3 = require("d3"),
-    svg = d3.select("svg#model"),
-    g = svg.append("g"),
-    nodes = require("./nodes/abstract-node.js")(),
-    selection = require("./selection.js")(nodes),
-    trackAllowedTypes = require("./nodes/allowed-types.js")(nodes),
-    transitions = require("./transition-switch.js")(),
-    dataConstructor = require("./data.js"),
-    perimetaConstructor = require("./perimeta-xml.js"),
-    htmlScrapeConstructor = require("./html-scrape.js"),
-    helpLink = d3.select("#help"),
-    toolbar = require("./text-toolbar.js")(d3.select("body"), svg, transitions);
-
 var update = function() {
     trackAllowedTypes.update();
     draw();
     updateDownloadLink();
     toolbar.update();
+    drawWiki.update();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -28,18 +16,33 @@ var update = function() {
     };
 };
 
-var layout = require("./layout.js")(nodes, 240, 70, 10),
+var d3 = require("d3"),
+    body = d3.select("body"),
+    svg = d3.select("svg#model"),
+    g = svg.append("g"),
+    nodes = require("./nodes/abstract-node.js")(),
+    selection = require("./selection.js")(nodes),
+    trackAllowedTypes = require("./nodes/allowed-types.js")(nodes),
+    transitions = require("./transition-switch.js")(),
+    dataConstructor = require("./data.js"),
+    perimetaConstructor = require("./perimeta-xml.js"),
+    helpLink = d3.select("#help"),
+    toolbar = require("./text-toolbar.js")(body, svg, transitions),
+    messages = require("./messages.js")(body, update),
+    layout = require("./layout.js")(nodes, 240, 70, 10),
     drawNodes = require("./nodes/draw-node.js")(g, transitions, layout, toolbar,
 						withUpdate(selection.selected),
 						update),
-
     drawEdges = require("./draw-edge.js")(g, transitions, update),
-
+    wikiStore = require("./wiki-store.js")(nodes, update, messages.error, messages.info),
+    drawWiki = require("./wiki-draw.js")(wikiStore, body),
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	    toolbar.update();
-	});
+	}),
+    files = require("./files.js"),
+    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
 
 zoom.in = function() {
     zoom.scale(zoom.scale() * 1.1);
@@ -49,8 +52,6 @@ zoom.out = function() {
     zoom.scale(zoom.scale() / 1.1);
     zoom.event(g);
 };
-
-var shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
 
 require("./help.js")(helpLink, shortcutKeys.universalKeys());
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
@@ -88,15 +89,7 @@ var fromXML = function(fileName, content) {
 };
 fromXML.extensions = ["xml"];
 
-require("./files.js").drop(svg, [fromJson, fromXML]);
+files.drop(svg, [fromJson, fromXML]);
 
-if (parent !== window) {
-    /* If we're in an iframe, assume our parent is what we want to scrape. */
-    htmlScrapeConstructor(nodes).scrape(document.referrer, update);
-} 
-if (nodes.root() === null) {
-    htmlScrapeConstructor(nodes).scrapeCurrent(update);
-}
-if (nodes.root() === null) {
-    htmlScrapeConstructor.Scrape(nodes).scrape("table-test.html", update);
-}
+nodes.create("process");
+update();

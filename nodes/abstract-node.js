@@ -99,6 +99,9 @@ module.exports = function() {
 	    newNodes = 1;
 	    root = null;
 	},
+	types: function() {
+	    return types.keys();
+	},
 	onNavigate: function(callback) {
 	    onNavigate = callback;
 	},
@@ -108,11 +111,14 @@ module.exports = function() {
 	root: function(newRoot) {
 	    if (newRoot !== undefined) {
 		root = newRoot;
-		return this;
 
 		onRoot.forEach(function(callback) {
 		    callback(root);
 		});
+		
+		removeUnreachable();
+
+		return this;
 	    }
 	    return root;
 	},

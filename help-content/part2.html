@@ -3,14 +3,14 @@
 
 <p>The model has support for importing xml files exported from PeriMeta. Again, drag and drop the file onto the page.</p>
 
-<h3>Html Import</h3>
-<p>The model may also be loaded from a set of linked html pages. Embed process-model/index.html as an iframe inside the page which is to act as the root node. The following properties will be scraped:</p>
+<h3>Wiki Integration</h3>
+<p>The model may also be loaded from and saved to a set of linked <a href="https://github.com/jgm/gitit">Gitit</a> wiki pages. Each node will get its own page.</p>
 
 <ul>
-  <li>The URL of the page becomes the name of the node.</li>
-  <li>A table containing columns named 'evidence', 'necessity' and 'sufficiency' is a list of edges. The evidence column should contain an HTML link.</li>
-  <li>A table containing the column 'dependence' will be used to set the dependence value for a node which is not a leaf node (has no children).</li>
-  <li>A table containing the columns 'success' and 'failure' will be used to set the local evidence for a leaf node.</li>
+  <li>The URL of the page (made relative to the base URL of the wiki) becomes the name of the node.</li>
+  <li>A table containing a column named 'child', and optionally columns 'necessity' and 'sufficiency', is a list of edges. The 'child' column should contain an HTML link.</li>
+  <li>The properties for each type of node belong in another table, which has a column for each property and a single row containing the values.</li>
+  <li>Other content present on the page will be used to populate the node's description.</li>
 </ul>
 
 <p>Note that you will either need to serve all pages from the same origin, or add the Access-Control-Allow-Origin header to the parent page.</p>
