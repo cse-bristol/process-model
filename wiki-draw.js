@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+    URL = require("url");
 
 module.exports = function(wikiStore, container) {
     var bar = container.append("div")
@@ -46,6 +47,10 @@ module.exports = function(wikiStore, container) {
 	    .attr("placeholder", "url of root node")
 	    .on("input", function(d, i) {
 		wikiStore.loadUrl(this.value);
+		var url = URL.parse(window.location.href, true);
+		url.search = null; // url.search is unhelpful to work with, but overrides query
+		url.query["load"] = wikiStore.loadUrl();
+		window.history.replaceState(null, "url load change", URL.format(url));
 	    });
 
     return {

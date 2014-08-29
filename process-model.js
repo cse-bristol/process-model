@@ -17,6 +17,7 @@ var update = function() {
 };
 
 var d3 = require("d3"),
+    URL = require("url"),
     body = d3.select("body"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
@@ -91,5 +92,11 @@ fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-nodes.create("process");
+var load = URL.parse(window.location.href, true).query["load"];
+if (load) {
+    wikiStore.loadUrl(load);
+    wikiStore.load();
+} else {
+    nodes.create("process");
+}
 update();
