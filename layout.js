@@ -294,8 +294,8 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 	    rootSize = root.size(),
 	    /* If the root node isn't manually positioned, we'll offset it a little bit.
 	     We also account for Dagre using the middle of the node, while we use the top-left corner. */
- 	    xOffset = (root.x ? root.x : 50) + (rootSize[0] / 2),
-	    yOffset = (root.y ? root.y : 50) + (rootSize[1] / 2);
+ 	    xOffset = (root.x ? root.x : 10) + (rootSize[0] / 2),
+	    yOffset = (root.y ? root.y : (window.innerHeight / 3)) + (rootSize[1] / 2);
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
