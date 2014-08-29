@@ -29,7 +29,8 @@ var d3 = require("d3"),
  */
 module.exports = function(nodes, update, errors, messages) {
     var revisions = d3.map(),
-	loaded,
+	toLoad,
+	edgeData = [],
 	/* 
 	 loadUrl points to the root node which we will load from.
 	 saveUrl points to the base url of the wiki. We will append the name of each node to it when we save.
@@ -219,29 +220,67 @@ module.exports = function(nodes, update, errors, messages) {
 	return foundProp;
     };
 
-    var maybeFinished = function() {
-	loaded++;
-	if (loaded === revisions.keys().length) {
+    var maybeLoadFinished = function() {
+	toLoad--;
+
+	if (toLoad === 0) {
+	    
+	    edgeData.forEach(function(e) {
+		// Now that we have loaded all the nodes and know their types, we can put properties on their edges.
+		try {
+		    var edge = nodes.get(e.parent)
+			    .edgeTo(nodes.get(e.child));
+		} catch (err) {
+		    errors(
+			"Error getting connection from " + e.parent 
+			    + " to its child " + e.child 
+			    + ": " + err
+		    );
+		}
+
+		e.props.entries().forEach(function(edgeProp) {
+		    if (edgeProp.value !== "") {
+			try {
+			    edge[edgeProp.key](edgeProp.value);
+			} catch (err) {
+			    errors(
+				"Error setting edge property " + edgeProp.key
+				    + " to value " + edgeProp.value
+				    + " on edge from node " + e.parent
+				    + " to child node " + e.child
+				    + ": " + err
+			    );
+			}
+		    }
+		});
+	    });
+
 	    update();
 	}
     };
 
-    var loadEdges = function(data, columns, rows) {
+    var loadEdges = function(parentName, columns, rows) {
 	var childI = columns.indexOf("child");
 	if (childI >= 0 && rows.length > 0) {
 	    rows.forEach(function(r) {
-		var name = decodeURIComponent(r[childI].querySelector("a").getAttribute("href")),
+		var childName = decodeURIComponent(r[childI].querySelector("a").getAttribute("href")),
 		    rowData = d3.map();
 		
 		columns.forEach(function(c, i) {
 		    if (edgeProps.has(c)) {
 			rowData.set(
-			    c, 
+			    c,
 			    loadCell(r[i]));
 		    }
 		});
 
-		data.set(name, rowData);
+		loadNode(childName);
+
+		edgeData.push({
+		    parent: parentName,
+		    child: childName,
+		    props: rowData
+		});
 	    });
 
 	    return true;
@@ -334,7 +373,9 @@ module.exports = function(nodes, update, errors, messages) {
     var loadNode = function(name) {
 	if (nodes.has(name)) {
 	    return;
-	} 
+	}
+
+	toLoad++;
 
 	nodes.create("undecided", name);
 
@@ -375,7 +416,6 @@ module.exports = function(nodes, update, errors, messages) {
 			}
 
 			var propData = d3.map(),
-			    edgeData = d3.map(),
 			    wikiContent = secure(html.querySelector("#content")
 						 .querySelector("#wikipage"));
 
@@ -389,7 +429,7 @@ module.exports = function(nodes, update, errors, messages) {
 				});
 
 			    
-			    if (loadProps(propData, columns, rows) || loadEdges(edgeData, columns, rows)) {
+			    if (loadProps(propData, columns, rows) || loadEdges(name, columns, rows)) {
 				table.parentNode.removeChild(table);
 			    }
 
@@ -415,41 +455,9 @@ module.exports = function(nodes, update, errors, messages) {
 
 			var node = nodes.get(name);
 
-			node.description(wikiContent.innerHTML);
-
-			edgeData.entries().forEach(function(e) {
-			    loadNode(e.key);
-			    
-			    try {
-				var edge = node.edgeTo(
-				    nodes.get(e.key));
-			    } catch (err) {
-				errors(
-				    "Error connecting node " + name 
-					+ " to its child " + e.key 
-					+ ": " + err
-				);
-			    }
-
-			    e.value.entries().forEach(function(edgeProp) {
-				if (edgeProp.value !== "") {
-				    try {
-					edge[edgeProp.key](edgeProp.value);
-				    } catch (err) {
-					errors(
-					    "Error setting edge property " + edgeProp.key
-						+ " to value " + edgeProp.value
-						+ " on edge from node " + name
-						+ " to child node " + e.key
-						+ ": " + err
-					);
-				    }
-				}
-			    });
-			    
-			});
+			node.description(wikiContent.innerHTML);	
 			
-			maybeFinished();
+			maybeLoadFinished();
 		    });
 	    });
     };
@@ -492,7 +500,7 @@ module.exports = function(nodes, update, errors, messages) {
 		/* Loading is going to happen, so clear out all the old stuff.  */
 		nodes.reset();
 		revisions = d3.map();
-		loaded = 0;
+		toLoad = 0;
 
 		loadNode(
 		    decodeURIComponent(
@@ -501,6 +509,7 @@ module.exports = function(nodes, update, errors, messages) {
 	},
 	save: function() {
 	    var saves = 0;
+	    edgeData = [];
 
 	    nodes.all().forEach(function(n) {
 		saves++;

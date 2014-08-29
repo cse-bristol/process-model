@@ -13,7 +13,7 @@ module.exports = function(container, update) {
 	    .classed(clazz, true)
 	    .text(text)
 	    .transition()
-	    .delay(5000)
+	    .delay(15000)
 	    .remove();
     };
 
@@ -23,7 +23,6 @@ module.exports = function(container, update) {
 	},
 	error: function(text) {
 	    message(text, "error");
-	    update();
 	    throw new Error(text);
 	}
     };

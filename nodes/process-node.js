@@ -211,8 +211,11 @@ module.exports.set("undecided", function(node, nodes) {
     node.allowedChildren = d3.set();
 
     node.chooseType = function(option) {
-	var replacement = nodes.create(option),
-	    name = node.name();
+	var name = node.name();
+
+	node.name(Math.random());
+	
+	var replacement = nodes.create(option, name);
 
 	if (nodes.root() === node) {
 	    nodes.root(replacement);
@@ -222,8 +225,6 @@ module.exports.set("undecided", function(node, nodes) {
 	    e.parent().edgeTo(replacement);
 	    e.disconnect();
 	});
-
-	replacement.name(name);
 
 	return replacement;
     };

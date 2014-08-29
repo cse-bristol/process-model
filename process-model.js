@@ -98,5 +98,5 @@ if (load) {
     wikiStore.load();
 } else {
     nodes.create("process");
+    update();
 }
-update();

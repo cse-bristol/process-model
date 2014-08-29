@@ -108,15 +108,15 @@ module.exports = function() {
 	onRoot: function(callback) {
 	    onRoot.push(callback);
 	},
-	root: function(newRoot) {
+	root: function(newRoot, isSame) {
 	    if (newRoot !== undefined) {
 		root = newRoot;
 
-		onRoot.forEach(function(callback) {
-		    callback(root);
-		});
-		
-		removeUnreachable();
+		if (!isSame) {
+		    onRoot.forEach(function(callback) {
+			callback(root);
+		    });
+		}
 
 		return this;
 	    }
