@@ -149,28 +149,18 @@ module.exports = function(nodes, update, errors, messages) {
 	"settled",
 	"supports",
 	[
-	    "positive", 
+	    "evidence", 
 	    function load(node) {
-		return node.localEvidence()[1];
+		return "[" + node.localEvidence()[0] + "," + node.localEvidence()[1] + "]";
 	    },
 	    function save(val, node) {
+		var parts = val.replace(/\[|\]/g, "").split(",");
+		
 		return node.localEvidence([
-		    node.localEvidence()[0],
-		    val
+		    maybeNum(parts[0]),
+		    maybeNum(parts[1])
 		]);
 	    }	
-	],
-	[
-	    "negative", 
-	    function load(node) {
-		return node.localEvidence()[0];
-	    },
-	    function save(val, node) {
-		return node.localEvidence([
-		    val,
-		    node.localEvidence()[1]
-		]);
-	    }
 	]
     ].forEach(function(p) {
 	if (typeof p === "string") {
