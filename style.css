@@ -232,6 +232,7 @@ g.weight-half:hover {
     clear: both;
     border: 1px dashed grey;
     padding: 0.2em;
+    pointer-events: all;
 }
 
 .error {
