@@ -16,12 +16,28 @@ module.exports = function(wikiStore, container) {
 		wikiStore.load();
 	    });
 
+    load.append("input")
+	.attr("type", "submit")
+	.attr("value", "Load from Wiki");
+
+    var loadUrl = load.append("input")
+	    .attr("type", "text")
+	    .attr("placeholder", "url of root node")
+	    .on("input", function(d, i) {
+		wikiStore.loadUrl(this.value);
+		var url = URL.parse(window.location.href, true);
+		url.search = null; // url.search is unhelpful to work with, but overrides query
+		url.query["load"] = wikiStore.loadUrl();
+		window.history.replaceState(null, "url load change", URL.format(url));
+	    });
 
     var save = bar.append("form")
 	.attr("id", "wiki-save")
 	.on("submit", function(d, i) {
 	    d3.event.preventDefault();
-	    wikiStore.save();
+	    commit.style("visibility", "visible");
+	    commitText[0][0].value = "";
+	    commitText[0][0].focus();
 	});
 
     save.append("input")
@@ -38,20 +54,26 @@ module.exports = function(wikiStore, container) {
     save.append("span")
 	.text("/<name of root node>");
 
-    load.append("input")
-	.attr("type", "submit")
-	.attr("value", "Load from Wiki");
-
-    var loadUrl = load.append("input")
-	    .attr("type", "text")
-	    .attr("placeholder", "url of root node")
-	    .on("input", function(d, i) {
-		wikiStore.loadUrl(this.value);
-		var url = URL.parse(window.location.href, true);
-		url.search = null; // url.search is unhelpful to work with, but overrides query
-		url.query["load"] = wikiStore.loadUrl();
-		window.history.replaceState(null, "url load change", URL.format(url));
+    var commit = bar.append("form")
+	    .style("visibility", "hidden")
+	    .on("submit", function(d, i) {
+		d3.event.preventDefault();
+		wikiStore.save(commitText[0][0].value);
+		commit.style("visibility", "hidden");
 	    });
+
+    var commitText = commit.append("input")
+	    .attr("type", "text")
+	    .attr("placeholder", "Description of changes.")
+	    .on("blur", function(d, i) {
+		commit.style("visibility", "hidden");
+	    });
+
+    commit.append("input")
+    // Having a submit input makes the enter key work for submitting, but we probably don't actually want to see it.
+	.attr("type", "submit")
+	.attr("value", "Save")
+	.style("visibility", "hidden");
 
     return {
 	update: function() {

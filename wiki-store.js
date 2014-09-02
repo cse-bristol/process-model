@@ -356,10 +356,10 @@ module.exports = function(nodes, update, errors, messages) {
 	].join("\n");
     };
 
-    var postData = function(node) {
+    var postData = function(node, commitMessage) {
 	var data = [
 	    "editedText=" + markdownContent(node),
-	    "logMsg=Process Model Change",
+	    "logMsg=" + commitMessage,
 	    "update=Save"
 	];
 
@@ -507,7 +507,7 @@ module.exports = function(nodes, update, errors, messages) {
 			relativizeURL(loadUrl, saveUrl)));
 	    });
 	},
-	save: function() {
+	save: function(commitMessage) {
 	    var saves = 0;
 	    edgeData = [];
 
@@ -519,7 +519,7 @@ module.exports = function(nodes, update, errors, messages) {
 			saveUrl, n.name()
 		    ]))
 		    .header("Content-Type", "application/x-www-form-urlencoded")
-		    .post(postData(n), function onSaveComplete(error, response) {
+		    .post(postData(n, commitMessage), function onSaveComplete(error, response) {
 			if (error) {
 			    if (error.response === "Server error: ResourceExists") {
 				errors("Attempted to save page " + n.name()
@@ -535,6 +535,10 @@ module.exports = function(nodes, update, errors, messages) {
 
 			if (saves === 0) {
 			    messages("Finished saving process diagram to wiki at " + saveUrl + "/" + nodes.root().name());
+			    loadUrl = makeUrl([
+				saveUrl, 
+				nodes.root().name()
+			    ]);
 			    module.load();
 			}
 		    });
