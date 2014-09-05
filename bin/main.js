@@ -1,4 +1,1403 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+(function (global){
+/*! http://mths.be/punycode v1.2.4 by @mathias */
+;(function(root) {
+
+	/** Detect free variables */
+	var freeExports = typeof exports == 'object' && exports;
+	var freeModule = typeof module == 'object' && module &&
+		module.exports == freeExports && module;
+	var freeGlobal = typeof global == 'object' && global;
+	if (freeGlobal.global === freeGlobal || freeGlobal.window === freeGlobal) {
+		root = freeGlobal;
+	}
+
+	/**
+	 * The `punycode` object.
+	 * @name punycode
+	 * @type Object
+	 */
+	var punycode,
+
+	/** Highest positive signed 32-bit float value */
+	maxInt = 2147483647, // aka. 0x7FFFFFFF or 2^31-1
+
+	/** Bootstring parameters */
+	base = 36,
+	tMin = 1,
+	tMax = 26,
+	skew = 38,
+	damp = 700,
+	initialBias = 72,
+	initialN = 128, // 0x80
+	delimiter = '-', // '\x2D'
+
+	/** Regular expressions */
+	regexPunycode = /^xn--/,
+	regexNonASCII = /[^ -~]/, // unprintable ASCII chars + non-ASCII chars
+	regexSeparators = /\x2E|\u3002|\uFF0E|\uFF61/g, // RFC 3490 separators
+
+	/** Error messages */
+	errors = {
+		'overflow': 'Overflow: input needs wider integers to process',
+		'not-basic': 'Illegal input >= 0x80 (not a basic code point)',
+		'invalid-input': 'Invalid input'
+	},
+
+	/** Convenience shortcuts */
+	baseMinusTMin = base - tMin,
+	floor = Math.floor,
+	stringFromCharCode = String.fromCharCode,
+
+	/** Temporary variable */
+	key;
+
+	/*--------------------------------------------------------------------------*/
+
+	/**
+	 * A generic error utility function.
+	 * @private
+	 * @param {String} type The error type.
+	 * @returns {Error} Throws a `RangeError` with the applicable error message.
+	 */
+	function error(type) {
+		throw RangeError(errors[type]);
+	}
+
+	/**
+	 * A generic `Array#map` utility function.
+	 * @private
+	 * @param {Array} array The array to iterate over.
+	 * @param {Function} callback The function that gets called for every array
+	 * item.
+	 * @returns {Array} A new array of values returned by the callback function.
+	 */
+	function map(array, fn) {
+		var length = array.length;
+		while (length--) {
+			array[length] = fn(array[length]);
+		}
+		return array;
+	}
+
+	/**
+	 * A simple `Array#map`-like wrapper to work with domain name strings.
+	 * @private
+	 * @param {String} domain The domain name.
+	 * @param {Function} callback The function that gets called for every
+	 * character.
+	 * @returns {Array} A new string of characters returned by the callback
+	 * function.
+	 */
+	function mapDomain(string, fn) {
+		return map(string.split(regexSeparators), fn).join('.');
+	}
+
+	/**
+	 * Creates an array containing the numeric code points of each Unicode
+	 * character in the string. While JavaScript uses UCS-2 internally,
+	 * this function will convert a pair of surrogate halves (each of which
+	 * UCS-2 exposes as separate characters) into a single code point,
+	 * matching UTF-16.
+	 * @see `punycode.ucs2.encode`
+	 * @see <http://mathiasbynens.be/notes/javascript-encoding>
+	 * @memberOf punycode.ucs2
+	 * @name decode
+	 * @param {String} string The Unicode input string (UCS-2).
+	 * @returns {Array} The new array of code points.
+	 */
+	function ucs2decode(string) {
+		var output = [],
+		    counter = 0,
+		    length = string.length,
+		    value,
+		    extra;
+		while (counter < length) {
+			value = string.charCodeAt(counter++);
+			if (value >= 0xD800 && value <= 0xDBFF && counter < length) {
+				// high surrogate, and there is a next character
+				extra = string.charCodeAt(counter++);
+				if ((extra & 0xFC00) == 0xDC00) { // low surrogate
+					output.push(((value & 0x3FF) << 10) + (extra & 0x3FF) + 0x10000);
+				} else {
+					// unmatched surrogate; only append this code unit, in case the next
+					// code unit is the high surrogate of a surrogate pair
+					output.push(value);
+					counter--;
+				}
+			} else {
+				output.push(value);
+			}
+		}
+		return output;
+	}
+
+	/**
+	 * Creates a string based on an array of numeric code points.
+	 * @see `punycode.ucs2.decode`
+	 * @memberOf punycode.ucs2
+	 * @name encode
+	 * @param {Array} codePoints The array of numeric code points.
+	 * @returns {String} The new Unicode string (UCS-2).
+	 */
+	function ucs2encode(array) {
+		return map(array, function(value) {
+			var output = '';
+			if (value > 0xFFFF) {
+				value -= 0x10000;
+				output += stringFromCharCode(value >>> 10 & 0x3FF | 0xD800);
+				value = 0xDC00 | value & 0x3FF;
+			}
+			output += stringFromCharCode(value);
+			return output;
+		}).join('');
+	}
+
+	/**
+	 * Converts a basic code point into a digit/integer.
+	 * @see `digitToBasic()`
+	 * @private
+	 * @param {Number} codePoint The basic numeric code point value.
+	 * @returns {Number} The numeric value of a basic code point (for use in
+	 * representing integers) in the range `0` to `base - 1`, or `base` if
+	 * the code point does not represent a value.
+	 */
+	function basicToDigit(codePoint) {
+		if (codePoint - 48 < 10) {
+			return codePoint - 22;
+		}
+		if (codePoint - 65 < 26) {
+			return codePoint - 65;
+		}
+		if (codePoint - 97 < 26) {
+			return codePoint - 97;
+		}
+		return base;
+	}
+
+	/**
+	 * Converts a digit/integer into a basic code point.
+	 * @see `basicToDigit()`
+	 * @private
+	 * @param {Number} digit The numeric value of a basic code point.
+	 * @returns {Number} The basic code point whose value (when used for
+	 * representing integers) is `digit`, which needs to be in the range
+	 * `0` to `base - 1`. If `flag` is non-zero, the uppercase form is
+	 * used; else, the lowercase form is used. The behavior is undefined
+	 * if `flag` is non-zero and `digit` has no uppercase form.
+	 */
+	function digitToBasic(digit, flag) {
+		//  0..25 map to ASCII a..z or A..Z
+		// 26..35 map to ASCII 0..9
+		return digit + 22 + 75 * (digit < 26) - ((flag != 0) << 5);
+	}
+
+	/**
+	 * Bias adaptation function as per section 3.4 of RFC 3492.
+	 * http://tools.ietf.org/html/rfc3492#section-3.4
+	 * @private
+	 */
+	function adapt(delta, numPoints, firstTime) {
+		var k = 0;
+		delta = firstTime ? floor(delta / damp) : delta >> 1;
+		delta += floor(delta / numPoints);
+		for (/* no initialization */; delta > baseMinusTMin * tMax >> 1; k += base) {
+			delta = floor(delta / baseMinusTMin);
+		}
+		return floor(k + (baseMinusTMin + 1) * delta / (delta + skew));
+	}
+
+	/**
+	 * Converts a Punycode string of ASCII-only symbols to a string of Unicode
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The Punycode string of ASCII-only symbols.
+	 * @returns {String} The resulting string of Unicode symbols.
+	 */
+	function decode(input) {
+		// Don't use UCS-2
+		var output = [],
+		    inputLength = input.length,
+		    out,
+		    i = 0,
+		    n = initialN,
+		    bias = initialBias,
+		    basic,
+		    j,
+		    index,
+		    oldi,
+		    w,
+		    k,
+		    digit,
+		    t,
+		    /** Cached calculation results */
+		    baseMinusT;
+
+		// Handle the basic code points: let `basic` be the number of input code
+		// points before the last delimiter, or `0` if there is none, then copy
+		// the first basic code points to the output.
+
+		basic = input.lastIndexOf(delimiter);
+		if (basic < 0) {
+			basic = 0;
+		}
+
+		for (j = 0; j < basic; ++j) {
+			// if it's not a basic code point
+			if (input.charCodeAt(j) >= 0x80) {
+				error('not-basic');
+			}
+			output.push(input.charCodeAt(j));
+		}
+
+		// Main decoding loop: start just after the last delimiter if any basic code
+		// points were copied; start at the beginning otherwise.
+
+		for (index = basic > 0 ? basic + 1 : 0; index < inputLength; /* no final expression */) {
+
+			// `index` is the index of the next character to be consumed.
+			// Decode a generalized variable-length integer into `delta`,
+			// which gets added to `i`. The overflow checking is easier
+			// if we increase `i` as we go, then subtract off its starting
+			// value at the end to obtain `delta`.
+			for (oldi = i, w = 1, k = base; /* no condition */; k += base) {
+
+				if (index >= inputLength) {
+					error('invalid-input');
+				}
+
+				digit = basicToDigit(input.charCodeAt(index++));
+
+				if (digit >= base || digit > floor((maxInt - i) / w)) {
+					error('overflow');
+				}
+
+				i += digit * w;
+				t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+
+				if (digit < t) {
+					break;
+				}
+
+				baseMinusT = base - t;
+				if (w > floor(maxInt / baseMinusT)) {
+					error('overflow');
+				}
+
+				w *= baseMinusT;
+
+			}
+
+			out = output.length + 1;
+			bias = adapt(i - oldi, out, oldi == 0);
+
+			// `i` was supposed to wrap around from `out` to `0`,
+			// incrementing `n` each time, so we'll fix that now:
+			if (floor(i / out) > maxInt - n) {
+				error('overflow');
+			}
+
+			n += floor(i / out);
+			i %= out;
+
+			// Insert `n` at position `i` of the output
+			output.splice(i++, 0, n);
+
+		}
+
+		return ucs2encode(output);
+	}
+
+	/**
+	 * Converts a string of Unicode symbols to a Punycode string of ASCII-only
+	 * symbols.
+	 * @memberOf punycode
+	 * @param {String} input The string of Unicode symbols.
+	 * @returns {String} The resulting Punycode string of ASCII-only symbols.
+	 */
+	function encode(input) {
+		var n,
+		    delta,
+		    handledCPCount,
+		    basicLength,
+		    bias,
+		    j,
+		    m,
+		    q,
+		    k,
+		    t,
+		    currentValue,
+		    output = [],
+		    /** `inputLength` will hold the number of code points in `input`. */
+		    inputLength,
+		    /** Cached calculation results */
+		    handledCPCountPlusOne,
+		    baseMinusT,
+		    qMinusT;
+
+		// Convert the input in UCS-2 to Unicode
+		input = ucs2decode(input);
+
+		// Cache the length
+		inputLength = input.length;
+
+		// Initialize the state
+		n = initialN;
+		delta = 0;
+		bias = initialBias;
+
+		// Handle the basic code points
+		for (j = 0; j < inputLength; ++j) {
+			currentValue = input[j];
+			if (currentValue < 0x80) {
+				output.push(stringFromCharCode(currentValue));
+			}
+		}
+
+		handledCPCount = basicLength = output.length;
+
+		// `handledCPCount` is the number of code points that have been handled;
+		// `basicLength` is the number of basic code points.
+
+		// Finish the basic string - if it is not empty - with a delimiter
+		if (basicLength) {
+			output.push(delimiter);
+		}
+
+		// Main encoding loop:
+		while (handledCPCount < inputLength) {
+
+			// All non-basic code points < n have been handled already. Find the next
+			// larger one:
+			for (m = maxInt, j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+				if (currentValue >= n && currentValue < m) {
+					m = currentValue;
+				}
+			}
+
+			// Increase `delta` enough to advance the decoder's <n,i> state to <m,0>,
+			// but guard against overflow
+			handledCPCountPlusOne = handledCPCount + 1;
+			if (m - n > floor((maxInt - delta) / handledCPCountPlusOne)) {
+				error('overflow');
+			}
+
+			delta += (m - n) * handledCPCountPlusOne;
+			n = m;
+
+			for (j = 0; j < inputLength; ++j) {
+				currentValue = input[j];
+
+				if (currentValue < n && ++delta > maxInt) {
+					error('overflow');
+				}
+
+				if (currentValue == n) {
+					// Represent delta as a generalized variable-length integer
+					for (q = delta, k = base; /* no condition */; k += base) {
+						t = k <= bias ? tMin : (k >= bias + tMax ? tMax : k - bias);
+						if (q < t) {
+							break;
+						}
+						qMinusT = q - t;
+						baseMinusT = base - t;
+						output.push(
+							stringFromCharCode(digitToBasic(t + qMinusT % baseMinusT, 0))
+						);
+						q = floor(qMinusT / baseMinusT);
+					}
+
+					output.push(stringFromCharCode(digitToBasic(q, 0)));
+					bias = adapt(delta, handledCPCountPlusOne, handledCPCount == basicLength);
+					delta = 0;
+					++handledCPCount;
+				}
+			}
+
+			++delta;
+			++n;
+
+		}
+		return output.join('');
+	}
+
+	/**
+	 * Converts a Punycode string representing a domain name to Unicode. Only the
+	 * Punycoded parts of the domain name will be converted, i.e. it doesn't
+	 * matter if you call it on a string that has already been converted to
+	 * Unicode.
+	 * @memberOf punycode
+	 * @param {String} domain The Punycode domain name to convert to Unicode.
+	 * @returns {String} The Unicode representation of the given Punycode
+	 * string.
+	 */
+	function toUnicode(domain) {
+		return mapDomain(domain, function(string) {
+			return regexPunycode.test(string)
+				? decode(string.slice(4).toLowerCase())
+				: string;
+		});
+	}
+
+	/**
+	 * Converts a Unicode string representing a domain name to Punycode. Only the
+	 * non-ASCII parts of the domain name will be converted, i.e. it doesn't
+	 * matter if you call it with a domain that's already in ASCII.
+	 * @memberOf punycode
+	 * @param {String} domain The domain name to convert, as a Unicode string.
+	 * @returns {String} The Punycode representation of the given domain name.
+	 */
+	function toASCII(domain) {
+		return mapDomain(domain, function(string) {
+			return regexNonASCII.test(string)
+				? 'xn--' + encode(string)
+				: string;
+		});
+	}
+
+	/*--------------------------------------------------------------------------*/
+
+	/** Define the public API */
+	punycode = {
+		/**
+		 * A string representing the current Punycode.js version number.
+		 * @memberOf punycode
+		 * @type String
+		 */
+		'version': '1.2.4',
+		/**
+		 * An object of methods to convert from JavaScript's internal character
+		 * representation (UCS-2) to Unicode code points, and back.
+		 * @see <http://mathiasbynens.be/notes/javascript-encoding>
+		 * @memberOf punycode
+		 * @type Object
+		 */
+		'ucs2': {
+			'decode': ucs2decode,
+			'encode': ucs2encode
+		},
+		'decode': decode,
+		'encode': encode,
+		'toASCII': toASCII,
+		'toUnicode': toUnicode
+	};
+
+	/** Expose `punycode` */
+	// Some AMD build optimizers, like r.js, check for specific condition patterns
+	// like the following:
+	if (
+		typeof define == 'function' &&
+		typeof define.amd == 'object' &&
+		define.amd
+	) {
+		define('punycode', function() {
+			return punycode;
+		});
+	} else if (freeExports && !freeExports.nodeType) {
+		if (freeModule) { // in Node.js or RingoJS v0.8.0+
+			freeModule.exports = punycode;
+		} else { // in Narwhal or RingoJS v0.7.0-
+			for (key in punycode) {
+				punycode.hasOwnProperty(key) && (freeExports[key] = punycode[key]);
+			}
+		}
+	} else { // in Rhino or a web browser
+		root.punycode = punycode;
+	}
+
+}(this));
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],2:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+// If obj.hasOwnProperty has been overridden, then calling
+// obj.hasOwnProperty(prop) will break.
+// See: https://github.com/joyent/node/issues/1707
+function hasOwnProperty(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+}
+
+module.exports = function(qs, sep, eq, options) {
+  sep = sep || '&';
+  eq = eq || '=';
+  var obj = {};
+
+  if (typeof qs !== 'string' || qs.length === 0) {
+    return obj;
+  }
+
+  var regexp = /\+/g;
+  qs = qs.split(sep);
+
+  var maxKeys = 1000;
+  if (options && typeof options.maxKeys === 'number') {
+    maxKeys = options.maxKeys;
+  }
+
+  var len = qs.length;
+  // maxKeys <= 0 means that we should not limit keys count
+  if (maxKeys > 0 && len > maxKeys) {
+    len = maxKeys;
+  }
+
+  for (var i = 0; i < len; ++i) {
+    var x = qs[i].replace(regexp, '%20'),
+        idx = x.indexOf(eq),
+        kstr, vstr, k, v;
+
+    if (idx >= 0) {
+      kstr = x.substr(0, idx);
+      vstr = x.substr(idx + 1);
+    } else {
+      kstr = x;
+      vstr = '';
+    }
+
+    k = decodeURIComponent(kstr);
+    v = decodeURIComponent(vstr);
+
+    if (!hasOwnProperty(obj, k)) {
+      obj[k] = v;
+    } else if (isArray(obj[k])) {
+      obj[k].push(v);
+    } else {
+      obj[k] = [obj[k], v];
+    }
+  }
+
+  return obj;
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+},{}],3:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+'use strict';
+
+var stringifyPrimitive = function(v) {
+  switch (typeof v) {
+    case 'string':
+      return v;
+
+    case 'boolean':
+      return v ? 'true' : 'false';
+
+    case 'number':
+      return isFinite(v) ? v : '';
+
+    default:
+      return '';
+  }
+};
+
+module.exports = function(obj, sep, eq, name) {
+  sep = sep || '&';
+  eq = eq || '=';
+  if (obj === null) {
+    obj = undefined;
+  }
+
+  if (typeof obj === 'object') {
+    return map(objectKeys(obj), function(k) {
+      var ks = encodeURIComponent(stringifyPrimitive(k)) + eq;
+      if (isArray(obj[k])) {
+        return map(obj[k], function(v) {
+          return ks + encodeURIComponent(stringifyPrimitive(v));
+        }).join(sep);
+      } else {
+        return ks + encodeURIComponent(stringifyPrimitive(obj[k]));
+      }
+    }).join(sep);
+
+  }
+
+  if (!name) return '';
+  return encodeURIComponent(stringifyPrimitive(name)) + eq +
+         encodeURIComponent(stringifyPrimitive(obj));
+};
+
+var isArray = Array.isArray || function (xs) {
+  return Object.prototype.toString.call(xs) === '[object Array]';
+};
+
+function map (xs, f) {
+  if (xs.map) return xs.map(f);
+  var res = [];
+  for (var i = 0; i < xs.length; i++) {
+    res.push(f(xs[i], i));
+  }
+  return res;
+}
+
+var objectKeys = Object.keys || function (obj) {
+  var res = [];
+  for (var key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) res.push(key);
+  }
+  return res;
+};
+
+},{}],4:[function(require,module,exports){
+'use strict';
+
+exports.decode = exports.parse = require('./decode');
+exports.encode = exports.stringify = require('./encode');
+
+},{"./decode":2,"./encode":3}],5:[function(require,module,exports){
+// Copyright Joyent, Inc. and other Node contributors.
+//
+// Permission is hereby granted, free of charge, to any person obtaining a
+// copy of this software and associated documentation files (the
+// "Software"), to deal in the Software without restriction, including
+// without limitation the rights to use, copy, modify, merge, publish,
+// distribute, sublicense, and/or sell copies of the Software, and to permit
+// persons to whom the Software is furnished to do so, subject to the
+// following conditions:
+//
+// The above copyright notice and this permission notice shall be included
+// in all copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+// OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+// MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+// NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+// DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+// OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+// USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+var punycode = require('punycode');
+
+exports.parse = urlParse;
+exports.resolve = urlResolve;
+exports.resolveObject = urlResolveObject;
+exports.format = urlFormat;
+
+exports.Url = Url;
+
+function Url() {
+  this.protocol = null;
+  this.slashes = null;
+  this.auth = null;
+  this.host = null;
+  this.port = null;
+  this.hostname = null;
+  this.hash = null;
+  this.search = null;
+  this.query = null;
+  this.pathname = null;
+  this.path = null;
+  this.href = null;
+}
+
+// Reference: RFC 3986, RFC 1808, RFC 2396
+
+// define these here so at least they only have to be
+// compiled once on the first module load.
+var protocolPattern = /^([a-z0-9.+-]+:)/i,
+    portPattern = /:[0-9]*$/,
+
+    // RFC 2396: characters reserved for delimiting URLs.
+    // We actually just auto-escape these.
+    delims = ['<', '>', '"', '`', ' ', '\r', '\n', '\t'],
+
+    // RFC 2396: characters not allowed for various reasons.
+    unwise = ['{', '}', '|', '\\', '^', '`'].concat(delims),
+
+    // Allowed by RFCs, but cause of XSS attacks.  Always escape these.
+    autoEscape = ['\''].concat(unwise),
+    // Characters that are never ever allowed in a hostname.
+    // Note that any invalid chars are also handled, but these
+    // are the ones that are *expected* to be seen, so we fast-path
+    // them.
+    nonHostChars = ['%', '/', '?', ';', '#'].concat(autoEscape),
+    hostEndingChars = ['/', '?', '#'],
+    hostnameMaxLen = 255,
+    hostnamePartPattern = /^[a-z0-9A-Z_-]{0,63}$/,
+    hostnamePartStart = /^([a-z0-9A-Z_-]{0,63})(.*)$/,
+    // protocols that can allow "unsafe" and "unwise" chars.
+    unsafeProtocol = {
+      'javascript': true,
+      'javascript:': true
+    },
+    // protocols that never have a hostname.
+    hostlessProtocol = {
+      'javascript': true,
+      'javascript:': true
+    },
+    // protocols that always contain a // bit.
+    slashedProtocol = {
+      'http': true,
+      'https': true,
+      'ftp': true,
+      'gopher': true,
+      'file': true,
+      'http:': true,
+      'https:': true,
+      'ftp:': true,
+      'gopher:': true,
+      'file:': true
+    },
+    querystring = require('querystring');
+
+function urlParse(url, parseQueryString, slashesDenoteHost) {
+  if (url && isObject(url) && url instanceof Url) return url;
+
+  var u = new Url;
+  u.parse(url, parseQueryString, slashesDenoteHost);
+  return u;
+}
+
+Url.prototype.parse = function(url, parseQueryString, slashesDenoteHost) {
+  if (!isString(url)) {
+    throw new TypeError("Parameter 'url' must be a string, not " + typeof url);
+  }
+
+  var rest = url;
+
+  // trim before proceeding.
+  // This is to support parse stuff like "  http://foo.com  \n"
+  rest = rest.trim();
+
+  var proto = protocolPattern.exec(rest);
+  if (proto) {
+    proto = proto[0];
+    var lowerProto = proto.toLowerCase();
+    this.protocol = lowerProto;
+    rest = rest.substr(proto.length);
+  }
+
+  // figure out if it's got a host
+  // user@server is *always* interpreted as a hostname, and url
+  // resolution will treat //foo/bar as host=foo,path=bar because that's
+  // how the browser resolves relative URLs.
+  if (slashesDenoteHost || proto || rest.match(/^\/\/[^@\/]+@[^@\/]+/)) {
+    var slashes = rest.substr(0, 2) === '//';
+    if (slashes && !(proto && hostlessProtocol[proto])) {
+      rest = rest.substr(2);
+      this.slashes = true;
+    }
+  }
+
+  if (!hostlessProtocol[proto] &&
+      (slashes || (proto && !slashedProtocol[proto]))) {
+
+    // there's a hostname.
+    // the first instance of /, ?, ;, or # ends the host.
+    //
+    // If there is an @ in the hostname, then non-host chars *are* allowed
+    // to the left of the last @ sign, unless some host-ending character
+    // comes *before* the @-sign.
+    // URLs are obnoxious.
+    //
+    // ex:
+    // http://a@b@c/ => user:a@b host:c
+    // http://a@b?@c => user:a host:c path:/?@c
+
+    // v0.12 TODO(isaacs): This is not quite how Chrome does things.
+    // Review our test case against browsers more comprehensively.
+
+    // find the first instance of any hostEndingChars
+    var hostEnd = -1;
+    for (var i = 0; i < hostEndingChars.length; i++) {
+      var hec = rest.indexOf(hostEndingChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+
+    // at this point, either we have an explicit point where the
+    // auth portion cannot go past, or the last @ char is the decider.
+    var auth, atSign;
+    if (hostEnd === -1) {
+      // atSign can be anywhere.
+      atSign = rest.lastIndexOf('@');
+    } else {
+      // atSign must be in auth portion.
+      // http://a@b/c@d => host:b auth:a path:/c@d
+      atSign = rest.lastIndexOf('@', hostEnd);
+    }
+
+    // Now we have a portion which is definitely the auth.
+    // Pull that off.
+    if (atSign !== -1) {
+      auth = rest.slice(0, atSign);
+      rest = rest.slice(atSign + 1);
+      this.auth = decodeURIComponent(auth);
+    }
+
+    // the host is the remaining to the left of the first non-host char
+    hostEnd = -1;
+    for (var i = 0; i < nonHostChars.length; i++) {
+      var hec = rest.indexOf(nonHostChars[i]);
+      if (hec !== -1 && (hostEnd === -1 || hec < hostEnd))
+        hostEnd = hec;
+    }
+    // if we still have not hit it, then the entire thing is a host.
+    if (hostEnd === -1)
+      hostEnd = rest.length;
+
+    this.host = rest.slice(0, hostEnd);
+    rest = rest.slice(hostEnd);
+
+    // pull out port.
+    this.parseHost();
+
+    // we've indicated that there is a hostname,
+    // so even if it's empty, it has to be present.
+    this.hostname = this.hostname || '';
+
+    // if hostname begins with [ and ends with ]
+    // assume that it's an IPv6 address.
+    var ipv6Hostname = this.hostname[0] === '[' &&
+        this.hostname[this.hostname.length - 1] === ']';
+
+    // validate a little.
+    if (!ipv6Hostname) {
+      var hostparts = this.hostname.split(/\./);
+      for (var i = 0, l = hostparts.length; i < l; i++) {
+        var part = hostparts[i];
+        if (!part) continue;
+        if (!part.match(hostnamePartPattern)) {
+          var newpart = '';
+          for (var j = 0, k = part.length; j < k; j++) {
+            if (part.charCodeAt(j) > 127) {
+              // we replace non-ASCII char with a temporary placeholder
+              // we need this to make sure size of hostname is not
+              // broken by replacing non-ASCII by nothing
+              newpart += 'x';
+            } else {
+              newpart += part[j];
+            }
+          }
+          // we test again with ASCII char only
+          if (!newpart.match(hostnamePartPattern)) {
+            var validParts = hostparts.slice(0, i);
+            var notHost = hostparts.slice(i + 1);
+            var bit = part.match(hostnamePartStart);
+            if (bit) {
+              validParts.push(bit[1]);
+              notHost.unshift(bit[2]);
+            }
+            if (notHost.length) {
+              rest = '/' + notHost.join('.') + rest;
+            }
+            this.hostname = validParts.join('.');
+            break;
+          }
+        }
+      }
+    }
+
+    if (this.hostname.length > hostnameMaxLen) {
+      this.hostname = '';
+    } else {
+      // hostnames are always lower case.
+      this.hostname = this.hostname.toLowerCase();
+    }
+
+    if (!ipv6Hostname) {
+      // IDNA Support: Returns a puny coded representation of "domain".
+      // It only converts the part of the domain name that
+      // has non ASCII characters. I.e. it dosent matter if
+      // you call it with a domain that already is in ASCII.
+      var domainArray = this.hostname.split('.');
+      var newOut = [];
+      for (var i = 0; i < domainArray.length; ++i) {
+        var s = domainArray[i];
+        newOut.push(s.match(/[^A-Za-z0-9_-]/) ?
+            'xn--' + punycode.encode(s) : s);
+      }
+      this.hostname = newOut.join('.');
+    }
+
+    var p = this.port ? ':' + this.port : '';
+    var h = this.hostname || '';
+    this.host = h + p;
+    this.href += this.host;
+
+    // strip [ and ] from the hostname
+    // the host field still retains them, though
+    if (ipv6Hostname) {
+      this.hostname = this.hostname.substr(1, this.hostname.length - 2);
+      if (rest[0] !== '/') {
+        rest = '/' + rest;
+      }
+    }
+  }
+
+  // now rest is set to the post-host stuff.
+  // chop off any delim chars.
+  if (!unsafeProtocol[lowerProto]) {
+
+    // First, make 100% sure that any "autoEscape" chars get
+    // escaped, even if encodeURIComponent doesn't think they
+    // need to be.
+    for (var i = 0, l = autoEscape.length; i < l; i++) {
+      var ae = autoEscape[i];
+      var esc = encodeURIComponent(ae);
+      if (esc === ae) {
+        esc = escape(ae);
+      }
+      rest = rest.split(ae).join(esc);
+    }
+  }
+
+
+  // chop off from the tail first.
+  var hash = rest.indexOf('#');
+  if (hash !== -1) {
+    // got a fragment string.
+    this.hash = rest.substr(hash);
+    rest = rest.slice(0, hash);
+  }
+  var qm = rest.indexOf('?');
+  if (qm !== -1) {
+    this.search = rest.substr(qm);
+    this.query = rest.substr(qm + 1);
+    if (parseQueryString) {
+      this.query = querystring.parse(this.query);
+    }
+    rest = rest.slice(0, qm);
+  } else if (parseQueryString) {
+    // no query string, but parseQueryString still requested
+    this.search = '';
+    this.query = {};
+  }
+  if (rest) this.pathname = rest;
+  if (slashedProtocol[lowerProto] &&
+      this.hostname && !this.pathname) {
+    this.pathname = '/';
+  }
+
+  //to support http.request
+  if (this.pathname || this.search) {
+    var p = this.pathname || '';
+    var s = this.search || '';
+    this.path = p + s;
+  }
+
+  // finally, reconstruct the href based on what has been validated.
+  this.href = this.format();
+  return this;
+};
+
+// format a parsed object into a url string
+function urlFormat(obj) {
+  // ensure it's an object, and not a string url.
+  // If it's an obj, this is a no-op.
+  // this way, you can call url_format() on strings
+  // to clean up potentially wonky urls.
+  if (isString(obj)) obj = urlParse(obj);
+  if (!(obj instanceof Url)) return Url.prototype.format.call(obj);
+  return obj.format();
+}
+
+Url.prototype.format = function() {
+  var auth = this.auth || '';
+  if (auth) {
+    auth = encodeURIComponent(auth);
+    auth = auth.replace(/%3A/i, ':');
+    auth += '@';
+  }
+
+  var protocol = this.protocol || '',
+      pathname = this.pathname || '',
+      hash = this.hash || '',
+      host = false,
+      query = '';
+
+  if (this.host) {
+    host = auth + this.host;
+  } else if (this.hostname) {
+    host = auth + (this.hostname.indexOf(':') === -1 ?
+        this.hostname :
+        '[' + this.hostname + ']');
+    if (this.port) {
+      host += ':' + this.port;
+    }
+  }
+
+  if (this.query &&
+      isObject(this.query) &&
+      Object.keys(this.query).length) {
+    query = querystring.stringify(this.query);
+  }
+
+  var search = this.search || (query && ('?' + query)) || '';
+
+  if (protocol && protocol.substr(-1) !== ':') protocol += ':';
+
+  // only the slashedProtocols get the //.  Not mailto:, xmpp:, etc.
+  // unless they had them to begin with.
+  if (this.slashes ||
+      (!protocol || slashedProtocol[protocol]) && host !== false) {
+    host = '//' + (host || '');
+    if (pathname && pathname.charAt(0) !== '/') pathname = '/' + pathname;
+  } else if (!host) {
+    host = '';
+  }
+
+  if (hash && hash.charAt(0) !== '#') hash = '#' + hash;
+  if (search && search.charAt(0) !== '?') search = '?' + search;
+
+  pathname = pathname.replace(/[?#]/g, function(match) {
+    return encodeURIComponent(match);
+  });
+  search = search.replace('#', '%23');
+
+  return protocol + host + pathname + search + hash;
+};
+
+function urlResolve(source, relative) {
+  return urlParse(source, false, true).resolve(relative);
+}
+
+Url.prototype.resolve = function(relative) {
+  return this.resolveObject(urlParse(relative, false, true)).format();
+};
+
+function urlResolveObject(source, relative) {
+  if (!source) return relative;
+  return urlParse(source, false, true).resolveObject(relative);
+}
+
+Url.prototype.resolveObject = function(relative) {
+  if (isString(relative)) {
+    var rel = new Url();
+    rel.parse(relative, false, true);
+    relative = rel;
+  }
+
+  var result = new Url();
+  Object.keys(this).forEach(function(k) {
+    result[k] = this[k];
+  }, this);
+
+  // hash is always overridden, no matter what.
+  // even href="" will remove it.
+  result.hash = relative.hash;
+
+  // if the relative url is empty, then there's nothing left to do here.
+  if (relative.href === '') {
+    result.href = result.format();
+    return result;
+  }
+
+  // hrefs like //foo/bar always cut to the protocol.
+  if (relative.slashes && !relative.protocol) {
+    // take everything except the protocol from relative
+    Object.keys(relative).forEach(function(k) {
+      if (k !== 'protocol')
+        result[k] = relative[k];
+    });
+
+    //urlParse appends trailing / to urls like http://www.example.com
+    if (slashedProtocol[result.protocol] &&
+        result.hostname && !result.pathname) {
+      result.path = result.pathname = '/';
+    }
+
+    result.href = result.format();
+    return result;
+  }
+
+  if (relative.protocol && relative.protocol !== result.protocol) {
+    // if it's a known url protocol, then changing
+    // the protocol does weird things
+    // first, if it's not file:, then we MUST have a host,
+    // and if there was a path
+    // to begin with, then we MUST have a path.
+    // if it is file:, then the host is dropped,
+    // because that's known to be hostless.
+    // anything else is assumed to be absolute.
+    if (!slashedProtocol[relative.protocol]) {
+      Object.keys(relative).forEach(function(k) {
+        result[k] = relative[k];
+      });
+      result.href = result.format();
+      return result;
+    }
+
+    result.protocol = relative.protocol;
+    if (!relative.host && !hostlessProtocol[relative.protocol]) {
+      var relPath = (relative.pathname || '').split('/');
+      while (relPath.length && !(relative.host = relPath.shift()));
+      if (!relative.host) relative.host = '';
+      if (!relative.hostname) relative.hostname = '';
+      if (relPath[0] !== '') relPath.unshift('');
+      if (relPath.length < 2) relPath.unshift('');
+      result.pathname = relPath.join('/');
+    } else {
+      result.pathname = relative.pathname;
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    result.host = relative.host || '';
+    result.auth = relative.auth;
+    result.hostname = relative.hostname || relative.host;
+    result.port = relative.port;
+    // to support http.request
+    if (result.pathname || result.search) {
+      var p = result.pathname || '';
+      var s = result.search || '';
+      result.path = p + s;
+    }
+    result.slashes = result.slashes || relative.slashes;
+    result.href = result.format();
+    return result;
+  }
+
+  var isSourceAbs = (result.pathname && result.pathname.charAt(0) === '/'),
+      isRelAbs = (
+          relative.host ||
+          relative.pathname && relative.pathname.charAt(0) === '/'
+      ),
+      mustEndAbs = (isRelAbs || isSourceAbs ||
+                    (result.host && relative.pathname)),
+      removeAllDots = mustEndAbs,
+      srcPath = result.pathname && result.pathname.split('/') || [],
+      relPath = relative.pathname && relative.pathname.split('/') || [],
+      psychotic = result.protocol && !slashedProtocol[result.protocol];
+
+  // if the url is a non-slashed url, then relative
+  // links like ../.. should be able
+  // to crawl up to the hostname, as well.  This is strange.
+  // result.protocol has already been set by now.
+  // Later on, put the first path part into the host field.
+  if (psychotic) {
+    result.hostname = '';
+    result.port = null;
+    if (result.host) {
+      if (srcPath[0] === '') srcPath[0] = result.host;
+      else srcPath.unshift(result.host);
+    }
+    result.host = '';
+    if (relative.protocol) {
+      relative.hostname = null;
+      relative.port = null;
+      if (relative.host) {
+        if (relPath[0] === '') relPath[0] = relative.host;
+        else relPath.unshift(relative.host);
+      }
+      relative.host = null;
+    }
+    mustEndAbs = mustEndAbs && (relPath[0] === '' || srcPath[0] === '');
+  }
+
+  if (isRelAbs) {
+    // it's absolute.
+    result.host = (relative.host || relative.host === '') ?
+                  relative.host : result.host;
+    result.hostname = (relative.hostname || relative.hostname === '') ?
+                      relative.hostname : result.hostname;
+    result.search = relative.search;
+    result.query = relative.query;
+    srcPath = relPath;
+    // fall through to the dot-handling below.
+  } else if (relPath.length) {
+    // it's relative
+    // throw away the existing file, and take the new path instead.
+    if (!srcPath) srcPath = [];
+    srcPath.pop();
+    srcPath = srcPath.concat(relPath);
+    result.search = relative.search;
+    result.query = relative.query;
+  } else if (!isNullOrUndefined(relative.search)) {
+    // just pull out the search.
+    // like href='?foo'.
+    // Put this after the other two cases because it simplifies the booleans
+    if (psychotic) {
+      result.hostname = result.host = srcPath.shift();
+      //occationaly the auth can get stuck only in host
+      //this especialy happens in cases like
+      //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+      var authInHost = result.host && result.host.indexOf('@') > 0 ?
+                       result.host.split('@') : false;
+      if (authInHost) {
+        result.auth = authInHost.shift();
+        result.host = result.hostname = authInHost.shift();
+      }
+    }
+    result.search = relative.search;
+    result.query = relative.query;
+    //to support http.request
+    if (!isNull(result.pathname) || !isNull(result.search)) {
+      result.path = (result.pathname ? result.pathname : '') +
+                    (result.search ? result.search : '');
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  if (!srcPath.length) {
+    // no path at all.  easy.
+    // we've already handled the other stuff above.
+    result.pathname = null;
+    //to support http.request
+    if (result.search) {
+      result.path = '/' + result.search;
+    } else {
+      result.path = null;
+    }
+    result.href = result.format();
+    return result;
+  }
+
+  // if a url ENDs in . or .., then it must get a trailing slash.
+  // however, if it ends in anything else non-slashy,
+  // then it must NOT get a trailing slash.
+  var last = srcPath.slice(-1)[0];
+  var hasTrailingSlash = (
+      (result.host || relative.host) && (last === '.' || last === '..') ||
+      last === '');
+
+  // strip single dots, resolve double dots to parent dir
+  // if the path tries to go above the root, `up` ends up > 0
+  var up = 0;
+  for (var i = srcPath.length; i >= 0; i--) {
+    last = srcPath[i];
+    if (last == '.') {
+      srcPath.splice(i, 1);
+    } else if (last === '..') {
+      srcPath.splice(i, 1);
+      up++;
+    } else if (up) {
+      srcPath.splice(i, 1);
+      up--;
+    }
+  }
+
+  // if the path is allowed to go above the root, restore leading ..s
+  if (!mustEndAbs && !removeAllDots) {
+    for (; up--; up) {
+      srcPath.unshift('..');
+    }
+  }
+
+  if (mustEndAbs && srcPath[0] !== '' &&
+      (!srcPath[0] || srcPath[0].charAt(0) !== '/')) {
+    srcPath.unshift('');
+  }
+
+  if (hasTrailingSlash && (srcPath.join('/').substr(-1) !== '/')) {
+    srcPath.push('');
+  }
+
+  var isAbsolute = srcPath[0] === '' ||
+      (srcPath[0] && srcPath[0].charAt(0) === '/');
+
+  // put the host back
+  if (psychotic) {
+    result.hostname = result.host = isAbsolute ? '' :
+                                    srcPath.length ? srcPath.shift() : '';
+    //occationaly the auth can get stuck only in host
+    //this especialy happens in cases like
+    //url.resolveObject('mailto:local1@domain1', 'local2@domain2')
+    var authInHost = result.host && result.host.indexOf('@') > 0 ?
+                     result.host.split('@') : false;
+    if (authInHost) {
+      result.auth = authInHost.shift();
+      result.host = result.hostname = authInHost.shift();
+    }
+  }
+
+  mustEndAbs = mustEndAbs || (result.host && srcPath.length);
+
+  if (mustEndAbs && !isAbsolute) {
+    srcPath.unshift('');
+  }
+
+  if (!srcPath.length) {
+    result.pathname = null;
+    result.path = null;
+  } else {
+    result.pathname = srcPath.join('/');
+  }
+
+  //to support request.http
+  if (!isNull(result.pathname) || !isNull(result.search)) {
+    result.path = (result.pathname ? result.pathname : '') +
+                  (result.search ? result.search : '');
+  }
+  result.auth = relative.auth || result.auth;
+  result.slashes = result.slashes || relative.slashes;
+  result.href = result.format();
+  return result;
+};
+
+Url.prototype.parseHost = function() {
+  var host = this.host;
+  var port = portPattern.exec(host);
+  if (port) {
+    port = port[0];
+    if (port !== ':') {
+      this.port = port.substr(1);
+    }
+    host = host.substr(0, host.length - port.length);
+  }
+  if (host) this.hostname = host;
+};
+
+function isString(arg) {
+  return typeof arg === "string";
+}
+
+function isObject(arg) {
+  return typeof arg === 'object' && arg !== null;
+}
+
+function isNull(arg) {
+  return arg === null;
+}
+function isNullOrUndefined(arg) {
+  return  arg == null;
+}
+
+},{"punycode":1,"querystring":4}],6:[function(require,module,exports){
 "use strict";
 
 /*global module*/
@@ -118,7 +1517,7 @@ module.exports = function(dependence, evidence) {
     return [sn, 1 - goodness];
 };
 
-},{}],2:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -262,7 +1661,7 @@ module.exports = function(nodes, layout) {
     return module;
 };
 
-},{"d3":10}],3:[function(require,module,exports){
+},{"d3":15}],8:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -462,7 +1861,7 @@ module.exports = function(container, transitions, update) {
     };
 };
 
-},{"./helpers.js":6,"d3":10}],4:[function(require,module,exports){
+},{"./helpers.js":11,"d3":15}],9:[function(require,module,exports){
 "use strict";
 
 /*global require, module, FileReader*/
@@ -530,7 +1929,7 @@ module.exports = function() {
     return module;
 }();
 
-},{"d3":10}],5:[function(require,module,exports){
+},{"d3":15}],10:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -717,7 +2116,7 @@ module.exports = function(container, shortcutKeys) {
     loaded[5] = nodeTypeHelp();
     loadThis('./help-content/part2.html', 6);
 };
-},{"./nodes/abstract-node.js":60,"./nodes/process-node.js":64,"d3":10}],6:[function(require,module,exports){
+},{"./nodes/abstract-node.js":65,"./nodes/process-node.js":69,"d3":15}],11:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -755,266 +2154,41 @@ module.exports = {
 	}
 	return true;
     },
+    any: function(list, f) {
+	var len = list.length;
+	for (var i = 0; i < len; i++) {
+	    if (f(list[i])) {
+		return true;
+	    }
+	}
+	return false;
+    },
     get: function(val) {
 	if (typeof val === "function") {
 	    return val();
 	} else {
 	    return val;
 	}
+    },
+    maybeNum: function(val) {
+	if (isNaN(val) || val === "") {
+	    return val;
+	} else {
+	    return parseFloat(val);
+	}
+    },
+    maybeBool: function(val) {
+	if (val === "true") {
+	    return true;
+	} else if (val === "false") {
+	    return false;
+	} else {
+	    return val;
+	}
     }
 };
 
-},{"d3":10}],7:[function(require,module,exports){
-"use strict";
-
-/*global require, module*/
-
-var d3 = require("d3");
-
-module.exports = function(nodes){
-    var num = function(el) {
-	return parseFloat(el.childNodes[0].data);
-    };
-
-    var isUrlAbsolute = new RegExp('^(?:[a-z]+:)?//', 'i');
-    var isAbsolute = function(url) {
-	return isUrlAbsolute.test(url);
-    };
-
-    var makeURL = function(originURL, maybeRelativeURL) {
-	if (isAbsolute(maybeRelativeURL)) {
-	    return maybeRelativeURL;
-	}
-
-	var parts = originURL.split("/");
-	parts.splice(parts.length - 1, 1);
-	
-	return parts.join("/") + "/" + maybeRelativeURL;
-    };
-
-    var makeNodeCallbackHandler = function(){
-	var cache = d3.map();
-	var errors = d3.map();
-	var callbacks = d3.map();
-	var errbacks = d3.map();
-
-	var handler = function(url, errback, callback) {
-	    if (cache.has(url)) {
-		callback(cache.get(url));
-	    } else if (errors.has(url)) {
-		errback(errors.get(url));
-	    }
-	    else {
-		if (!callbacks.has(url)) {
-		    callbacks.set(url, []);
-		    errbacks.set(url, []);
-		}
-		callbacks.get(url).push(callback);
-		errbacks.get(url).push(callback);
-
-		d3.html(url, function(error, html){
-		    if (error) {
-			errors.set(url, error);
-			errbacks.get(url).forEach(function(e){
-			    e(error);
-			});
-		    } else {
-			scrapeNode(html, url, handler, function(node){
-			    cache.set(url, node);
-			    callbacks.get(url).forEach(function(c){
-				c(node);
-			    });
-			});
-		    }
-		});
-	    }
-	};
-	return handler;
-    };
-
-    var identifyColumns = function(table, columns) {
-	var th = table.getElementsByTagName("th"),
-	    columnNumbers = d3.map(),
-	    i = 0;
-
-	Array.prototype.forEach.call(th, function(header){
-	    var text = header.innerHTML.toLowerCase();
-
-	    if (columns.indexOf(text) >= 0) {
-		columnNumbers.set(text, i);
-	    }
-	    i++;
-	});
-
-	if (columnNumbers.values().length === columns.length) {
-	    return columnNumbers;
-	}
-	return null;
-    };
-
-    var getRelevantCells = function(row, columnNumbers) {
-	var cells = row.getElementsByTagName("td"),
-	    data = d3.map();
-	if (cells.length === 0) {
-	    return null; // This is probably a header row.
-	}
-	
-	try {
-	    columnNumbers.entries().forEach(function(e){
-		data.set(e.key, cells[e.value]);
-	    });
-	    return data;
-	} catch (err) {
-	    console.log("Not a valid row " + row.html + " because " + err);
-	    return null;
-	}
-    };
-
-    var scrapeNode = function(doc, originURL, nodeCallbackHandler, callback) {
-	var children = [],
-	    errors = [],
-	    requestedChildren = [],
-	    dependence = null,
-	    success = null,
-	    failure = null,
-	    query = doc.getElementsByTagName ? doc.getElementsByTagName : doc.querySelectorAll;
-
-	var finished = function() {
-	    if (nodes.has(originURL)) {
-		callback(nodes.get(originURL));
-		return;
-	    }
-
-	    var node = nodes.create("process", originURL);
-
-	    children.forEach(function(child){
-		node.edgeTo(child.node)
-		    .necessity(child.necessity)
-		    .sufficiency(child.sufficiency);
-	    });
-
-	    if (dependence) {
-		node.dependence(dependence);
-	    }
-
-	    if (success && failure) {
-		node.localEvidence([failure, success]);
-	    }
-	    
-	    callback(node);
-	};
-
-	var maybeFinished = function() {
-	    if (children.length + errors.length === requestedChildren.length) {
-		finished();
-	    }
-	};
-
-	Array.prototype.forEach.call(query.call(doc, "table"), function(table){
-	    [
-		{columns: ["evidence", "necessity", "sufficiency"], f: function(data){ 
-		    var a = data.get("evidence").getElementsByTagName("a")[0],
-			result = {
-			    sufficiency: num(data.get("sufficiency")),
-			    necessity: num(data.get("necessity")),
-			    evidence: a.getAttribute("href")
-			};
-		    
-		    requestedChildren.push(result);
-		}},
-
-		{columns: ["dependence"], f: function(data){
-		    dependence = num(data.get("dependence"));
-		}},
-
-		{columns: ["success", "failure"], f: function(data){
-		    success = num(data.get("success"));
-		    failure = num(data.get("failure"));
-		}}
-
-	    ].forEach(function(tableType){
-		var columnNumbers = identifyColumns(table, tableType.columns);
-		if (columnNumbers) {
-		    Array.prototype.forEach.call(table.getElementsByTagName("tr"), function(row){
-			var extracted = getRelevantCells(row, columnNumbers);
-			if (extracted) {
-			    try {
-				tableType.f(extracted);
-			    } catch (err) {
-				console.error("Error reading table row.");
-				console.error(err);
-			    }
-			} else {
-			    // the row wasn't of the right type
-			}
-		    });
-		}
-	    });
-	});
-
-	requestedChildren.forEach(function(c){
-	    var url = makeURL(originURL, c.evidence);
-	    nodeCallbackHandler(url, 
-				function(error){
-				    console.log("Failed to scrape page " + url + " " + error);
-				    errors.push(c);
-				    maybeFinished();
-				}, 
-				function(node){
-				    c.node = node;
-				    children.push(c);
-					maybeFinished();
-				});
-	});
-	/* If we have no children, this will be ready now. */
-	maybeFinished();
-    };
-
-    var scrapeRoot = function(doc, originURL, callback) {
-	nodes.reset();
-	scrapeNode(doc, originURL, makeNodeCallbackHandler(), function(node){
-	    nodes.root(node);
-	    callback();
-	});
-    };
-
-    var module = {
-	/*
-	 Builds a Process Model by scraping HTML pages.
-	 Given an initial page, will look for tables.
-	 If it finds a table with the columns evidence, necessity and sufficiency, it will attempt to treat each row in that table as a source of evidence.
-
-	 Child nodes table:
-	 evidence: an anchor tag with an href
-	 necessity: a number between 0 and 1
-	 sufficiency a number between 0 and 1
-
-	 Dependence table:
-	 dependence: a number between 0 and 1
-
-	 Evidence table (for leaf nodes only):
-	 success: a number between 0 and 1
-	 failure: a number between 0 and 1
-	 */
-	scrape : function(url, callback) {
-	    d3.html(url, function(error, html){
-		if (error) {
-		    throw error.statusText;
-		}
-		
-		scrapeRoot(html, url, callback);
-	    });
-
-	},
-	scrapeCurrent: function(callback) {
-	    scrapeRoot(document, window.location.href, callback);
-	}
-	
-    };
-    return module;
-};
-
-},{"d3":10}],8:[function(require,module,exports){
+},{"d3":15}],12:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -1122,8 +2296,13 @@ module.exports = function(selection, helpLink, zoom, update) {
     document.addEventListener(
 	"keydown", 
 	function(e) {
-	    var current = selection.selected(),
-		props = Object.keys(current),
+	    var current = selection.selected();
+
+	    if (!current) {
+		return;
+	    }
+
+	    var props = Object.keys(current),
 		key = lookupKey(e);
 
 	    if (tryKeys(key, e, universalKeys, update, null)) {
@@ -1154,7 +2333,7 @@ module.exports = function(selection, helpLink, zoom, update) {
 	}
     };
 };
-},{"./helpers.js":6,"d3":10}],9:[function(require,module,exports){
+},{"./helpers.js":11,"d3":15}],13:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -1451,8 +2630,8 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
 	    rootSize = root.size(),
 	    /* If the root node isn't manually positioned, we'll offset it a little bit.
 	     We also account for Dagre using the middle of the node, while we use the top-left corner. */
- 	    xOffset = (root.x ? root.x : 50) + (rootSize[0] / 2),
-	    yOffset = (root.y ? root.y : 50) + (rootSize[1] / 2);
+ 	    xOffset = (root.x ? root.x : 10) + (rootSize[0] / 2),
+	    yOffset = (root.y ? root.y : (window.innerHeight / 3)) + (rootSize[1] / 2);
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
@@ -1612,7 +2791,38 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
     return module;
 };
 
-},{"d3":10,"dagre":11}],10:[function(require,module,exports){
+},{"d3":15,"dagre":16}],14:[function(require,module,exports){
+"use strict";
+
+/*global module, require*/
+
+var d3 = require("d3");
+
+module.exports = function(container, update) {
+    var messageDiv = container.append("div")
+	    .classed("message-panel", true);
+
+    var message = function(text, clazz) {
+	    messageDiv.append("div")
+	    .classed(clazz, true)
+	    .text(text)
+	    .transition()
+	    .delay(15000)
+	    .remove();
+    };
+
+    var m = {
+	info: function(text) {
+	    message(text, "info");
+	},
+	error: function(text) {
+	    message(text, "error");
+	    throw new Error(text);
+	}
+    };
+    return m;
+};
+},{"d3":15}],15:[function(require,module,exports){
 !function() {
   var d3 = {
     version: "3.4.11"
@@ -10846,7 +12056,7 @@ module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePa
   if (typeof define === "function" && define.amd) define(d3); else if (typeof module === "object" && module.exports) module.exports = d3;
   this.d3 = d3;
 }();
-},{}],11:[function(require,module,exports){
+},{}],16:[function(require,module,exports){
 /*
 Copyright (c) 2012-2013 Chris Pettitt
 
@@ -10874,7 +12084,7 @@ exports.layout = require("./lib/layout");
 exports.version = require("./lib/version");
 exports.debug = require("./lib/debug");
 
-},{"./lib/debug":12,"./lib/layout":13,"./lib/version":28,"graphlib":34}],12:[function(require,module,exports){
+},{"./lib/debug":17,"./lib/layout":18,"./lib/version":33,"graphlib":39}],17:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -10925,7 +12135,7 @@ exports.dotOrdering = function(g) {
   return result;
 };
 
-},{"./util":27}],13:[function(require,module,exports){
+},{"./util":32}],18:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -11196,7 +12406,7 @@ module.exports = function() {
 };
 
 
-},{"./order":14,"./position":19,"./rank":20,"./util":27,"graphlib":34}],14:[function(require,module,exports){
+},{"./order":19,"./position":24,"./rank":25,"./util":32,"graphlib":39}],19:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -11313,7 +12523,7 @@ function sweepUp(g, layerGraphs) {
   }
 }
 
-},{"./order/crossCount":15,"./order/initLayerGraphs":16,"./order/initOrder":17,"./order/sortLayer":18,"./util":27}],15:[function(require,module,exports){
+},{"./order/crossCount":20,"./order/initLayerGraphs":21,"./order/initOrder":22,"./order/sortLayer":23,"./util":32}],20:[function(require,module,exports){
 'use strict';
 
 var util = require('../util');
@@ -11372,7 +12582,7 @@ function twoLayerCrossCount(g, layer1, layer2) {
   return cc;
 }
 
-},{"../util":27}],16:[function(require,module,exports){
+},{"../util":32}],21:[function(require,module,exports){
 'use strict';
 
 var nodesFromList = require('graphlib').filter.nodesFromList,
@@ -11425,7 +12635,7 @@ function initLayerGraphs(g) {
   return layerGraphs;
 }
 
-},{"cp-data":29,"graphlib":34}],17:[function(require,module,exports){
+},{"cp-data":34,"graphlib":39}],22:[function(require,module,exports){
 'use strict';
 
 var crossCount = require('./crossCount'),
@@ -11465,7 +12675,7 @@ function initOrder(g, random) {
   g.graph().orderCC = Number.MAX_VALUE;
 }
 
-},{"../util":27,"./crossCount":15}],18:[function(require,module,exports){
+},{"../util":32,"./crossCount":20}],23:[function(require,module,exports){
 'use strict';
 
 var util = require('../util'),
@@ -11646,7 +12856,7 @@ function adjustWeights(g, weights) {
   return adjusted;
 }
 
-},{"../util":27,"graphlib":34}],19:[function(require,module,exports){
+},{"../util":32,"graphlib":39}],24:[function(require,module,exports){
 'use strict';
 
 var util = require('./util');
@@ -12088,7 +13298,7 @@ module.exports = function() {
   }
 };
 
-},{"./util":27}],20:[function(require,module,exports){
+},{"./util":32}],25:[function(require,module,exports){
 'use strict';
 
 var util = require('./util'),
@@ -12228,7 +13438,7 @@ function normalize(g) {
   g.eachNode(function(u, node) { node.rank -= m; });
 }
 
-},{"./rank/acyclic":21,"./rank/constraints":22,"./rank/feasibleTree":23,"./rank/initRank":24,"./rank/simplex":26,"./util":27,"graphlib":34}],21:[function(require,module,exports){
+},{"./rank/acyclic":26,"./rank/constraints":27,"./rank/feasibleTree":28,"./rank/initRank":29,"./rank/simplex":31,"./util":32,"graphlib":39}],26:[function(require,module,exports){
 'use strict';
 
 var util = require('../util');
@@ -12293,7 +13503,7 @@ function undo(g) {
   });
 }
 
-},{"../util":27}],22:[function(require,module,exports){
+},{"../util":32}],27:[function(require,module,exports){
 'use strict';
 
 exports.apply = function(g) {
@@ -12464,7 +13674,7 @@ exports.relax = function(g) {
   });
 };
 
-},{}],23:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 'use strict';
 
 /* jshint -W079 */
@@ -12591,7 +13801,7 @@ function slack(g, u, v) {
   return rankDiff - maxMinLen;
 }
 
-},{"../util":27,"cp-data":29,"graphlib":34}],24:[function(require,module,exports){
+},{"../util":32,"cp-data":34,"graphlib":39}],29:[function(require,module,exports){
 'use strict';
 
 var util = require('../util'),
@@ -12625,7 +13835,7 @@ function initRank(g) {
   });
 }
 
-},{"../util":27,"graphlib":34}],25:[function(require,module,exports){
+},{"../util":32,"graphlib":39}],30:[function(require,module,exports){
 'use strict';
 
 module.exports = {
@@ -12645,7 +13855,7 @@ function slack(graph, u, v, minLen) {
   return Math.abs(graph.node(u).rank - graph.node(v).rank) - minLen;
 }
 
-},{}],26:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 'use strict';
 
 var util = require('../util'),
@@ -12957,7 +14167,7 @@ function minimumLength(graph, u, v) {
   }
 }
 
-},{"../util":27,"./rankUtil":25}],27:[function(require,module,exports){
+},{"../util":32,"./rankUtil":30}],32:[function(require,module,exports){
 'use strict';
 
 /*
@@ -13078,15 +14288,15 @@ log.level = 0;
 
 exports.log = log;
 
-},{}],28:[function(require,module,exports){
+},{}],33:[function(require,module,exports){
 module.exports = '0.4.6';
 
-},{}],29:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 exports.Set = require('./lib/Set');
 exports.PriorityQueue = require('./lib/PriorityQueue');
 exports.version = require('./lib/version');
 
-},{"./lib/PriorityQueue":30,"./lib/Set":31,"./lib/version":33}],30:[function(require,module,exports){
+},{"./lib/PriorityQueue":35,"./lib/Set":36,"./lib/version":38}],35:[function(require,module,exports){
 module.exports = PriorityQueue;
 
 /**
@@ -13237,7 +14447,7 @@ PriorityQueue.prototype._swap = function(i, j) {
   keyIndices[origArrI.key] = j;
 };
 
-},{}],31:[function(require,module,exports){
+},{}],36:[function(require,module,exports){
 var util = require('./util');
 
 module.exports = Set;
@@ -13375,7 +14585,7 @@ function values(o) {
   return result;
 }
 
-},{"./util":32}],32:[function(require,module,exports){
+},{"./util":37}],37:[function(require,module,exports){
 /*
  * This polyfill comes from
  * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/isArray
@@ -13434,10 +14644,10 @@ if ('function' !== typeof Array.prototype.reduce) {
   };
 }
 
-},{}],33:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 module.exports = '1.1.3';
 
-},{}],34:[function(require,module,exports){
+},{}],39:[function(require,module,exports){
 exports.Graph = require("./lib/Graph");
 exports.Digraph = require("./lib/Digraph");
 exports.CGraph = require("./lib/CGraph");
@@ -13470,7 +14680,7 @@ exports.filter = {
 
 exports.version = require("./lib/version");
 
-},{"./lib/CDigraph":36,"./lib/CGraph":37,"./lib/Digraph":38,"./lib/Graph":39,"./lib/alg/components":40,"./lib/alg/dijkstra":41,"./lib/alg/dijkstraAll":42,"./lib/alg/findCycles":43,"./lib/alg/floydWarshall":44,"./lib/alg/isAcyclic":45,"./lib/alg/postorder":46,"./lib/alg/preorder":47,"./lib/alg/prim":48,"./lib/alg/tarjan":49,"./lib/alg/topsort":50,"./lib/converter/json.js":52,"./lib/filter":53,"./lib/graph-converters":54,"./lib/version":56}],35:[function(require,module,exports){
+},{"./lib/CDigraph":41,"./lib/CGraph":42,"./lib/Digraph":43,"./lib/Graph":44,"./lib/alg/components":45,"./lib/alg/dijkstra":46,"./lib/alg/dijkstraAll":47,"./lib/alg/findCycles":48,"./lib/alg/floydWarshall":49,"./lib/alg/isAcyclic":50,"./lib/alg/postorder":51,"./lib/alg/preorder":52,"./lib/alg/prim":53,"./lib/alg/tarjan":54,"./lib/alg/topsort":55,"./lib/converter/json.js":57,"./lib/filter":58,"./lib/graph-converters":59,"./lib/version":61}],40:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -13667,7 +14877,7 @@ function delEdgeFromMap(map, v, e) {
 }
 
 
-},{"cp-data":29}],36:[function(require,module,exports){
+},{"cp-data":34}],41:[function(require,module,exports){
 var Digraph = require("./Digraph"),
     compoundify = require("./compoundify");
 
@@ -13704,7 +14914,7 @@ CDigraph.prototype.toString = function() {
   return "CDigraph " + JSON.stringify(this, null, 2);
 };
 
-},{"./Digraph":38,"./compoundify":51}],37:[function(require,module,exports){
+},{"./Digraph":43,"./compoundify":56}],42:[function(require,module,exports){
 var Graph = require("./Graph"),
     compoundify = require("./compoundify");
 
@@ -13741,7 +14951,7 @@ CGraph.prototype.toString = function() {
   return "CGraph " + JSON.stringify(this, null, 2);
 };
 
-},{"./Graph":39,"./compoundify":51}],38:[function(require,module,exports){
+},{"./Graph":44,"./compoundify":56}],43:[function(require,module,exports){
 /*
  * This file is organized with in the following order:
  *
@@ -14009,7 +15219,7 @@ Digraph.prototype._filterNodes = function(pred) {
 };
 
 
-},{"./BaseGraph":35,"./util":55,"cp-data":29}],39:[function(require,module,exports){
+},{"./BaseGraph":40,"./util":60,"cp-data":34}],44:[function(require,module,exports){
 /*
  * This file is organized with in the following order:
  *
@@ -14144,7 +15354,7 @@ Graph.prototype.delEdge = function(e) {
 };
 
 
-},{"./BaseGraph":35,"./util":55,"cp-data":29}],40:[function(require,module,exports){
+},{"./BaseGraph":40,"./util":60,"cp-data":34}],45:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14187,7 +15397,7 @@ function components(g) {
   return results;
 }
 
-},{"cp-data":29}],41:[function(require,module,exports){
+},{"cp-data":34}],46:[function(require,module,exports){
 var PriorityQueue = require("cp-data").PriorityQueue;
 
 module.exports = dijkstra;
@@ -14267,7 +15477,7 @@ function dijkstra(g, source, weightFunc, incidentFunc) {
   return results;
 }
 
-},{"cp-data":29}],42:[function(require,module,exports){
+},{"cp-data":34}],47:[function(require,module,exports){
 var dijkstra = require("./dijkstra");
 
 module.exports = dijkstraAll;
@@ -14304,7 +15514,7 @@ function dijkstraAll(g, weightFunc, incidentFunc) {
   return results;
 }
 
-},{"./dijkstra":41}],43:[function(require,module,exports){
+},{"./dijkstra":46}],48:[function(require,module,exports){
 var tarjan = require("./tarjan");
 
 module.exports = findCycles;
@@ -14326,7 +15536,7 @@ function findCycles(g) {
   return tarjan(g).filter(function(cmpt) { return cmpt.length > 1; });
 }
 
-},{"./tarjan":49}],44:[function(require,module,exports){
+},{"./tarjan":54}],49:[function(require,module,exports){
 module.exports = floydWarshall;
 
 /**
@@ -14405,7 +15615,7 @@ function floydWarshall(g, weightFunc, incidentFunc) {
   return results;
 }
 
-},{}],45:[function(require,module,exports){
+},{}],50:[function(require,module,exports){
 var topsort = require("./topsort");
 
 module.exports = isAcyclic;
@@ -14431,7 +15641,7 @@ function isAcyclic(g) {
   return true;
 }
 
-},{"./topsort":50}],46:[function(require,module,exports){
+},{"./topsort":55}],51:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14458,7 +15668,7 @@ function postorder(g, root, f) {
   dfs(root);
 }
 
-},{"cp-data":29}],47:[function(require,module,exports){
+},{"cp-data":34}],52:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14485,7 +15695,7 @@ function preorder(g, root, f) {
   dfs(root);
 }
 
-},{"cp-data":29}],48:[function(require,module,exports){
+},{"cp-data":34}],53:[function(require,module,exports){
 var Graph = require("../Graph"),
     PriorityQueue = require("cp-data").PriorityQueue;
 
@@ -14556,7 +15766,7 @@ function prim(g, weightFunc) {
   return result;
 }
 
-},{"../Graph":39,"cp-data":29}],49:[function(require,module,exports){
+},{"../Graph":44,"cp-data":34}],54:[function(require,module,exports){
 module.exports = tarjan;
 
 /**
@@ -14624,7 +15834,7 @@ function tarjan(g) {
   return results;
 }
 
-},{}],50:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 module.exports = topsort;
 topsort.CycleException = CycleException;
 
@@ -14682,7 +15892,7 @@ CycleException.prototype.toString = function() {
   return "Graph has at least one cycle";
 };
 
-},{}],51:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 // This file provides a helper function that mixes-in Dot behavior to an
 // existing graph prototype.
 
@@ -14790,7 +16000,7 @@ function compoundify(SuperConstructor) {
   return Constructor;
 }
 
-},{"cp-data":29}],52:[function(require,module,exports){
+},{"cp-data":34}],57:[function(require,module,exports){
 var Graph = require("../Graph"),
     Digraph = require("../Digraph"),
     CGraph = require("../CGraph"),
@@ -14880,7 +16090,7 @@ function typeOf(obj) {
   return Object.prototype.toString.call(obj).slice(8, -1);
 }
 
-},{"../CDigraph":36,"../CGraph":37,"../Digraph":38,"../Graph":39}],53:[function(require,module,exports){
+},{"../CDigraph":41,"../CGraph":42,"../Digraph":43,"../Graph":44}],58:[function(require,module,exports){
 /* jshint -W079 */
 var Set = require("cp-data").Set;
 /* jshint +W079 */
@@ -14896,7 +16106,7 @@ exports.nodesFromList = function(nodes) {
   };
 };
 
-},{"cp-data":29}],54:[function(require,module,exports){
+},{"cp-data":34}],59:[function(require,module,exports){
 var Graph = require("./Graph"),
     Digraph = require("./Digraph");
 
@@ -14935,7 +16145,7 @@ Digraph.prototype.asUndirected = function() {
   return g;
 };
 
-},{"./Digraph":38,"./Graph":39}],55:[function(require,module,exports){
+},{"./Digraph":43,"./Graph":44}],60:[function(require,module,exports){
 // Returns an array of all values for properties of **o**.
 exports.values = function(o) {
   var ks = Object.keys(o),
@@ -14948,10 +16158,10 @@ exports.values = function(o) {
   return result;
 };
 
-},{}],56:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 module.exports = '0.7.4';
 
-},{}],57:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 function DOMParser(options){
 	this.options = 
 			options != true && //To the version (0.1.12) compatible
@@ -15206,7 +16416,7 @@ if(typeof require == 'function'){
 	exports.DOMParser = DOMParser;
 }
 
-},{"./dom":58,"./sax":59}],58:[function(require,module,exports){
+},{"./dom":63,"./sax":64}],63:[function(require,module,exports){
 /*
  * DOM Level 2
  * Object DOMException
@@ -16346,7 +17556,7 @@ if(typeof require == 'function'){
 	exports.XMLSerializer = XMLSerializer;
 }
 
-},{}],59:[function(require,module,exports){
+},{}],64:[function(require,module,exports){
 //[4]   	NameStartChar	   ::=   	":" | [A-Z] | "_" | [a-z] | [#xC0-#xD6] | [#xD8-#xF6] | [#xF8-#x2FF] | [#x370-#x37D] | [#x37F-#x1FFF] | [#x200C-#x200D] | [#x2070-#x218F] | [#x2C00-#x2FEF] | [#x3001-#xD7FF] | [#xF900-#xFDCF] | [#xFDF0-#xFFFD] | [#x10000-#xEFFFF]
 //[4a]   	NameChar	   ::=   	NameStartChar | "-" | "." | [0-9] | #xB7 | [#x0300-#x036F] | [#x203F-#x2040]
 //[5]   	Name	   ::=   	NameStartChar (NameChar)*
@@ -16912,7 +18122,7 @@ if(typeof require == 'function'){
 exports.XMLReader=XMLReader;
 }
 
-},{}],60:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17009,10 +18219,16 @@ module.exports = function() {
 	get : function(nodeName) {
 	    return nodes.get(nodeName);
 	},
+	clean: function() {
+	    removeUnreachable();
+	},
 	reset: function() {
 	    nodes = d3.map({});
 	    newNodes = 1;
 	    root = null;
+	},
+	types: function() {
+	    return types.keys();
 	},
 	onNavigate: function(callback) {
 	    onNavigate = callback;
@@ -17020,14 +18236,17 @@ module.exports = function() {
 	onRoot: function(callback) {
 	    onRoot.push(callback);
 	},
-	root: function(newRoot) {
+	root: function(newRoot, isSame) {
 	    if (newRoot !== undefined) {
 		root = newRoot;
-		return this;
 
-		onRoot.forEach(function(callback) {
-		    callback(root);
-		});
+		if (!isSame) {
+		    onRoot.forEach(function(callback) {
+			callback(root);
+		    });
+		}
+
+		return this;
 	    }
 	    return root;
 	},
@@ -17277,7 +18496,7 @@ module.exports = function() {
 
 
 
-},{"./process-node.js":64,"d3":10}],61:[function(require,module,exports){
+},{"./process-node.js":69,"d3":15}],66:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17285,7 +18504,8 @@ module.exports = function() {
 var d3 = require("d3");
 
 module.exports = function(nodes) {
-    var allowedTypes = d3.map();
+    var allowedTypes = d3.map(),
+	allTypes = d3.set(nodes.types());
     var intersection = function(a, b) {
 	return d3.set(a.values().filter(function(o) {
 	    return b.has(o);
@@ -17295,7 +18515,11 @@ module.exports = function(nodes) {
     return {
 	allowedTypesForNode: function(name) {
 	    if (!allowedTypes.has(name)) {
-		throw new Error("Don't know about node " + name);
+		if (nodes.get(name).incomingEdges().length === 0) {
+		    return allTypes;
+		} else {
+		    throw new Error("Don't know about node " + name);
+		}
 	    }
 	    
 	    return allowedTypes.get(name);
@@ -17320,14 +18544,13 @@ module.exports = function(nodes) {
 	    };
 
 	    allowedTypes = d3.map();
-	    allowedTypes.set(nodes.root().name(), nodes.root().type);
 
 	    update(nodes.root());
 	}
     };
 };
 
-},{"d3":10}],62:[function(require,module,exports){
+},{"d3":15}],67:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -17335,7 +18558,7 @@ module.exports = function(nodes) {
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js");
 
-module.exports = function(container, transitions, layout, clickHandler, update) {
+module.exports = function(container, transitions, layout, toolbar, clickHandler, update) {
     var types = d3.map();
 
     var filterByType = function(nodeSelection, type) {
@@ -17480,6 +18703,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 		    d3.select(this).classed("name-error", true);
 		}
 	    },
+	    function() {},
 	    function onLoseFocus(d, i) {
 		update();
 	    },
@@ -17512,7 +18736,9 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
 	    function onChange(d, i, val) {
 		d.description(val);
 	    },
+	    toolbar.focus,
 	    function onLoseFocus(d, i) {
+		toolbar.blur.call(this, d, i);
 		update();
 	    });
     };
@@ -17642,7 +18868,7 @@ module.exports = function(container, transitions, layout, clickHandler, update) 
     
 };
 
-},{"../svg-editable-text.js":68,"d3":10}],63:[function(require,module,exports){
+},{"../svg-editable-text.js":73,"d3":15}],68:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -18010,7 +19236,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
     });
 };
 
-},{"../helpers.js":6,"d3":10}],64:[function(require,module,exports){
+},{"../helpers.js":11,"d3":15}],69:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -18224,15 +19450,23 @@ module.exports.set("undecided", function(node, nodes) {
     node.allowedChildren = d3.set();
 
     node.chooseType = function(option) {
-	var replacement = nodes.create(option),
-	    name = node.name();
+	var name = node.name();
+
+	var randName = Math.random();
+	node.name(randName);
+	
+	var replacement = nodes.create(option, name);
+
+	if (nodes.root() === node) {
+	    nodes.root(replacement);
+	}	
 	
 	node.incomingEdges().forEach(function(e) {
 	    e.parent().edgeTo(replacement);
 	    e.disconnect();
 	});
 
-	replacement.name(name);
+	return replacement;
     };
     node.chooseType.help = "Click on a letter to choose the type of this node.";
     node.chooseType.keys = module.exports.keys()
@@ -18245,7 +19479,7 @@ module.exports.set("undecided", function(node, nodes) {
 	});
 });
 
-},{"../combine-evidence.js":1,"../helpers.js":6,"d3":10}],65:[function(require,module,exports){
+},{"../combine-evidence.js":6,"../helpers.js":11,"d3":15}],70:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -18419,12 +19653,28 @@ module.exports = function(nodes) {
     };
 };
 
-},{"d3":10,"xmldom":57}],66:[function(require,module,exports){
+},{"d3":15,"xmldom":62}],71:[function(require,module,exports){
 "use strict";
 
 /*global parent, require*/
 
+var update = function() {
+    trackAllowedTypes.update();
+    draw();
+    updateDownloadLink();
+    toolbar.update();
+    drawWiki.update();
+
+}, withUpdate = function(f) {
+    return function(args) {
+	f(args);
+	update();
+    };
+};
+
 var d3 = require("d3"),
+    URL = require("url"),
+    body = d3.select("body"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
     nodes = require("./nodes/abstract-node.js")(),
@@ -18433,32 +19683,23 @@ var d3 = require("d3"),
     transitions = require("./transition-switch.js")(),
     dataConstructor = require("./data.js"),
     perimetaConstructor = require("./perimeta-xml.js"),
-    htmlScrapeConstructor = require("./html-scrape.js"),
-    helpLink = d3.select("#help");
-
-var update = function() {
-    trackAllowedTypes.update();
-    draw();
-    updateDownloadLink();
-}, withUpdate = function(f) {
-    return function(args) {
-	f(args);
-	update();
-    };
-};
-
-var layout = require("./layout.js")(nodes, 240, 70, 10),
-
-    drawNodes = require("./nodes/draw-node.js")(g, transitions, layout,
+    helpLink = d3.select("#help"),
+    toolbar = require("./text-toolbar.js")(body, svg, transitions),
+    messages = require("./messages.js")(body, update),
+    layout = require("./layout.js")(nodes, 240, 70, 10),
+    drawNodes = require("./nodes/draw-node.js")(g, transitions, layout, toolbar,
 						withUpdate(selection.selected),
 						update),
-
     drawEdges = require("./draw-edge.js")(g, transitions, update),
-
+    wikiStore = require("./wiki-store.js")(nodes, update, messages.error, messages.info),
+    drawWiki = require("./wiki-draw.js")(wikiStore, body),
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	});
+	    toolbar.update();
+	}),
+    files = require("./files.js"),
+    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
 
 zoom.in = function() {
     zoom.scale(zoom.scale() * 1.1);
@@ -18468,8 +19709,6 @@ zoom.out = function() {
     zoom.scale(zoom.scale() / 1.1);
     zoom.event(g);
 };
-
-var shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
 
 require("./help.js")(helpLink, shortcutKeys.universalKeys());
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
@@ -18507,20 +19746,18 @@ var fromXML = function(fileName, content) {
 };
 fromXML.extensions = ["xml"];
 
-require("./files.js").drop(svg, [fromJson, fromXML]);
+files.drop(svg, [fromJson, fromXML]);
 
-if (parent !== window) {
-    /* If we're in an iframe, assume our parent is what we want to scrape. */
-    htmlScrapeConstructor(nodes).scrape(document.referrer, update);
-} 
-if (nodes.root() === null) {
-    htmlScrapeConstructor(nodes).scrapeCurrent(update);
-}
-if (nodes.root() === null) {
-    htmlScrapeConstructor.Scrape(nodes).scrape("table-test.html", update);
+var load = URL.parse(window.location.href, true).query["load"];
+if (load) {
+    wikiStore.loadUrl(load);
+    wikiStore.load();
+} else {
+    nodes.create("process");
+    update();
 }
 
-},{"./data.js":2,"./draw-edge.js":3,"./files.js":4,"./help.js":5,"./html-scrape.js":7,"./keys.js":8,"./layout.js":9,"./nodes/abstract-node.js":60,"./nodes/allowed-types.js":61,"./nodes/draw-node.js":62,"./nodes/draw-process-node.js":63,"./perimeta-xml.js":65,"./selection.js":67,"./transition-switch.js":69,"d3":10}],67:[function(require,module,exports){
+},{"./data.js":7,"./draw-edge.js":8,"./files.js":9,"./help.js":10,"./keys.js":12,"./layout.js":13,"./messages.js":14,"./nodes/abstract-node.js":65,"./nodes/allowed-types.js":66,"./nodes/draw-node.js":67,"./nodes/draw-process-node.js":68,"./perimeta-xml.js":70,"./selection.js":72,"./text-toolbar.js":74,"./transition-switch.js":75,"./wiki-draw.js":76,"./wiki-store.js":77,"d3":15,"url":5}],72:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -18557,14 +19794,14 @@ module.exports = function(nodes) {
 
     return m;
 };
-},{}],68:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 "use strict";
 
 /*global require, module */
 
 var d3 = require("d3");
 
-module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onLoseFocus, plaintext) {
+module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onFocus, onLoseFocus, plaintext) {
     var newForeign = newSelection
 	    .append("foreignObject")
 	    .classed("svg-editable-text", true)
@@ -18587,9 +19824,10 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 		// If this event bubbles up, the d3 drag behaviours will get hold of it and make trouble.
 		d3.event.stopPropagation();
 	    })
+	    .on("focus", onFocus)
 	    .on("blur", onLoseFocus);
 
-    foreign.selectAll("." + name)
+    var input = foreign.selectAll("." + name)
 	.attr("name", name)
 	.style("width", function(d, i) {
 	    var w = width instanceof Function ? width(d, i) : width;
@@ -18603,7 +19841,160 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
     }
 };
 
-},{"d3":10}],69:[function(require,module,exports){
+},{"d3":15}],74:[function(require,module,exports){
+"use strict";
+
+/*global require, module*/
+
+var d3 = require("d3"),
+    svgEditableText = require("./svg-editable-text.js");
+
+var command = function(c) {
+    return function() {
+	if (!document.execCommand(c)) {
+	    throw new Error("Could not exec browser command " + c);
+	}
+    };
+};
+
+module.exports = function(dialogueContainer, toolbarContainer, transitions) {
+    var target,
+	charWidth = 15,
+	dialogueThenCommand = function(fieldName, c) {
+	    var selectionRange;
+
+	    var form = dialogueContainer.append("form")
+		    .classed("dialogue", true)
+		    .style("visibility", "hidden")
+	    .on("submit", function() {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+
+		form.style("visibility", "hidden");
+		
+		if (target) {
+		    target.focus();
+		    document.getSelection().removeAllRanges();
+		    document.getSelection().addRange(selectionRange);
+		    if (!document.execCommand(c, false, field[0][0].value)) {
+			throw new Error("Could not exec browser command " + c + " with " + field.text());
+		    }
+
+		    d3.select(target)
+			.selectAll("a")
+			.attr("contenteditable", false);
+		}
+	    });
+
+	    var field = form
+		    .append("input")
+		    .attr("type", "text")
+		    .on("blur", function(d, i) {
+			form.style("visibility", "hidden");
+		    });
+
+	    form.append("input")
+		.attr("type", "submit");
+
+	    return function() {
+		if (target) {
+		    var rect = target.getBoundingClientRect();
+
+		    field.attr("placeholder", fieldName);
+
+		    form
+			.style("visibility", "visible")
+			.style("top", (rect.top - 25) + "px")
+			.style("left", (rect.left) + "px");
+
+		    selectionRange = document.getSelection().getRangeAt(0);
+
+		    field[0][0].value = "";
+		    field[0][0].focus();
+		}
+	    };
+	},
+
+	commands = [
+	{icon: "B", styles: {"font-weight": "bold"}, f: command("bold")},
+	{icon: "I", styles: {"font-style": "italic"}, f: command("italic")},
+	{icon: "U", styles: {"text-decoration": "underline"}, f: command("underline")},
+	{icon: "•", f: command("insertUnorderedList")},
+	{icon: "1.", f: command("insertOrderedList")},
+	{icon: "⇐", f: command("outdent")},
+	{icon: "⇒", f: command("indent")},
+	{icon: "link", command: "createLink", f: dialogueThenCommand("Link-URL", "createLink")}, 
+	{icon: "img", command: "insertImage", f: dialogueThenCommand("Image-URL", "insertImage")} 
+    ];
+
+    var bar = toolbarContainer.append("g")
+	    .attr("id", "text-toolbar")
+	    .attr("visibility", "hidden");
+
+    var positionOnTarget = function() {
+	if (target) {
+	    var rect = target.getBoundingClientRect();
+	    bar
+		.attr("transform", "translate(" + rect.left + "," + rect.top + ")");
+	}
+    };
+
+    var len = 0;
+    var buttons = bar
+	    .selectAll("g")
+	    .data(commands)
+	    .enter()
+	    .append("g")
+	    .classed("text-button", true)
+	    .attr("transform", function(d, i) {
+		var result = "translate(" + ((charWidth * len) - 8) + ",-30)";
+		len += d.icon.length;
+		return result;
+	    });
+
+    buttons.append("rect")
+	.attr("height", "20")
+	.attr("width", function(d, i) {
+	    return d.icon.length * charWidth;
+	});
+
+    buttons.append("text")
+	.classed("text-button-icon", true)
+	.text(function(d, i) {
+	    return d.icon;
+	})
+	.on("mousedown", function(d, i) {
+	    d3.event.stopPropagation();
+	    d3.event.preventDefault();
+	    d.f();
+	})
+	.attr("x", 3)
+	.attr("y", 16)
+	.each(function(d, i) {
+	    if (d.styles) {
+		var el = d3.select(this);
+		d3.map(d.styles).entries().forEach(function(e) {
+		    el.style(e.key, e.value);
+		});
+	    }
+	});
+
+    return {
+	blur: function(d, i) {
+	    bar.attr("visibility", "hidden");
+	},
+	focus: function(d, i) {
+	    var rect = this.getBoundingClientRect();
+	    target = this;
+	    positionOnTarget();
+	    bar.attr("visibility", "visible");
+	},
+	update: function(d, i) {
+	    positionOnTarget();
+	}
+    };
+};
+},{"./svg-editable-text.js":73,"d3":15}],75:[function(require,module,exports){
 "use strict";
 
 /*global module*/
@@ -18639,4 +20030,652 @@ module.exports = function(){
     return module;
 };
 
-},{}]},{},[66]);
+},{}],76:[function(require,module,exports){
+"use strict";
+
+/*global module, require*/
+
+var d3 = require("d3"),
+    URL = require("url");
+
+module.exports = function(wikiStore, container) {
+    var bar = container.append("div")
+	    .attr("id", "wiki-controls");
+
+    var load = bar.append("form")
+	    .attr("id", "wiki-load")
+	    .on("submit", function(d, i) {
+		d3.event.preventDefault();
+		wikiStore.load();
+	    });
+
+    load.append("input")
+	.attr("type", "submit")
+	.attr("value", "Load from Wiki");
+
+    var loadUrl = load.append("input")
+	    .attr("type", "text")
+	    .attr("placeholder", "url of root node")
+	    .on("input", function(d, i) {
+		wikiStore.loadUrl(this.value);
+		var url = URL.parse(window.location.href, true);
+		url.search = null; // url.search is unhelpful to work with, but overrides query
+		url.query["load"] = wikiStore.loadUrl();
+		window.history.replaceState(null, "url load change", URL.format(url));
+	    });
+
+    var save = bar.append("form")
+	.attr("id", "wiki-save")
+	.on("submit", function(d, i) {
+	    d3.event.preventDefault();
+	    commit.style("visibility", "visible");
+	    commitText[0][0].value = "";
+	    commitText[0][0].focus();
+	});
+
+    save.append("input")
+	.attr("type", "submit")
+	.attr("value", "Save to Wiki");
+
+    var saveUrl = save.append("input")
+	    .attr("type", "text")
+	    .attr("placeholder", "url of wiki")
+	    .on("input", function(d, i) {
+		wikiStore.saveUrl(this.value);
+	    });
+
+    save.append("span")
+	.text("/<name of root node>");
+
+    var commit = bar.append("form")
+	    .style("visibility", "hidden")
+	    .on("submit", function(d, i) {
+		d3.event.preventDefault();
+		wikiStore.save(commitText[0][0].value);
+		commit.style("visibility", "hidden");
+	    });
+
+    var commitText = commit.append("input")
+	    .attr("type", "text")
+	    .attr("placeholder", "Description of changes.")
+	    .on("blur", function(d, i) {
+		commit.style("visibility", "hidden");
+	    });
+
+    commit.append("input")
+    // Having a submit input makes the enter key work for submitting, but we probably don't actually want to see it.
+	.attr("type", "submit")
+	.attr("value", "Save")
+	.style("visibility", "hidden");
+
+    return {
+	update: function() {
+	    saveUrl[0][0].value = wikiStore.saveUrl();
+	    loadUrl[0][0].value = wikiStore.loadUrl();
+	}
+    };
+};
+},{"d3":15,"url":5}],77:[function(require,module,exports){
+"use strict";
+
+/*global require, module*/
+
+var d3 = require("d3"),
+    helpers = require("./helpers.js"),
+    any = helpers.any,
+    maybeNum = helpers.maybeNum,
+    maybeBool = helpers.maybeBool;
+
+/*
+ Save to and load from a Gitit wiki (see https://github.com/jgm/gitit).
+ 
+ Each node has a page in the wiki.
+ In the page is a div with id="content".
+ 
+ We store the properties for each node in a table with a column for each property and a single row containing their values.
+
+ We store the edges for each node in a table. Each row represents 1 edge. There is a child column containing links to each of the children. There may be necessity and sufficiency columns containing properties to go on the edges.
+
+ Other elements in the content div will be saved to the node's description, with the exception of things in the blacklist.
+
+ Security notes:
+ Load: when loading from the wiki, d3 parses the request using createContextualFragment (https://developer.mozilla.org/en-US/docs/Web/API/range.createContextualFragment). This does not cause any scripts to be run. We remove elements from the resulting fragment using a blacklist. We also deep clone our node in order to remove event handlers.
+
+ Save: when saving to the wiki, we will rely on the wiki's own server-side security to stop injection of malicious code.
+ 
+ TODO: implement multi-page save in Gitit so that we can do our saves in a transactional way.
+ */
+module.exports = function(nodes, update, errors, messages) {
+    var revisions = d3.map(),
+	toLoad,
+	edgeData = [],
+	/* 
+	 loadUrl points to the root node which we will load from.
+	 saveUrl points to the base url of the wiki. We will append the name of each node to it when we save.
+	 During loading, we look up the base url of the wiki and set saveUrl to equal that. We then use that url to load all the children. */
+	loadUrl = "",
+	saveUrl = "",
+	delay = 0;
+
+    var blackList = [
+	// These things need to be removed to prevent suprise execution of things.
+	"iframe", 
+	"script", 
+	"link",
+	"object",
+	"embed",
+
+	// These things are removed since we've already got the data stored and don't want to put them in the description field.
+	".revision", 
+	".pageTitle"
+    ];
+
+    var secure = function(el) {
+	blackList.forEach(function(q) {
+	    removeElements(q, el);
+	});
+	
+	// Deep cloning strips event handlers.
+	return el.cloneNode(true);
+    };
+
+    var checkResponseMessages = function(response, nodeName, errors) {
+	var range = document.createRange();
+	range.selectNode(document.body);
+
+	forEl(
+	    range.createContextualFragment(response),
+	    ".messages li", 
+	    function(m) {
+		if (m.innerHTML.indexOf("This page has been edited since you checked it out.") >= 0) {
+		    errors(
+			"Cannot save since node " + nodeName + 
+			    " at " + saveUrl + 
+			    " has been edited since it was loaded.");
+		} else {
+		    errors(
+			"Unknown problem saving " + nodeName + 
+			    " at " + saveUrl + 
+			    ": " + m.innerHTML);
+		}
+	    });
+    };
+
+    var makeUrl = function(parts) {
+	var url = parts[0];
+	parts.slice(1).forEach(function(part, i) {
+	    if (url[url.length - 1] === "/") {
+		if (part[0] === "/") {
+		    url += part.slice(1);
+		} else {
+		    url += part;
+		}
+	    } else {
+		if (part[0] === "/") {
+		    url += part;
+		} else {
+		    url += "/" + part;
+		}
+	    }
+	});
+	
+	return url;
+    };
+
+    var relativizeURL = function(specific, base) {
+	var i = specific.lastIndexOf(base);
+
+	if (i >= 0) {
+	    return specific.slice(i + base.length);
+	} else {
+	    return specific;
+	}
+    };
+
+    var loadCell = function(el) {
+	return maybeBool(
+	    maybeNum(
+		el.innerHTML.toLowerCase()));
+    };
+
+    var mapEl = function(parent, tag, f) {
+	return Array.prototype.map.call(parent.querySelectorAll(tag), f);
+    };
+
+    var forEl = function(parent, tag, f) {
+	Array.prototype.forEach.call(parent.querySelectorAll(tag), f);
+    };
+
+    var removeElements = function(tag, container) {
+	forEl(container, tag, function(el) {
+	    el.parentNode.removeChild(el);
+	});
+    };
+
+    var props = d3.map();
+    [
+	[
+	    // Type must come before any type-specific properties.
+	    "type",
+	    function load(node) {
+		return node.type;
+	    },
+	    function save(val, node) {
+		return node.chooseType(val);
+	    }
+	],
+	"dependence",
+	"settled",
+	"supports",
+	[
+	    "evidence", 
+	    function load(node) {
+		return "[" + node.localEvidence()[0] + "," + node.localEvidence()[1] + "]";
+	    },
+	    function save(val, node) {
+		var parts = val.replace(/\[|\]/g, "").split(",");
+		
+		return node.localEvidence([
+		    maybeNum(parts[0]),
+		    maybeNum(parts[1])
+		]);
+	    }	
+	]
+    ].forEach(function(p) {
+	if (typeof p === "string") {
+	    props.set(
+		p, 
+		{
+		    load: function(node) {
+			return node[p]();
+		    },
+		    save: function(val, node) {
+			return node[p](val);
+		    }
+		});
+	} else {
+	    props.set(
+		p[0],
+		{
+		    load: p[1],
+		    save: p[2]
+		}
+	    );
+	}
+    });
+
+    var edgeProps = d3.set([
+	"necessity",
+	"sufficiency"
+    ]);
+
+    var filteredProps = function(node) {
+	// Eliminate all the properties which aren't valid for the node. 
+	return props.keys()
+	    .filter(function(p) {
+		try {
+		    props.get(p).load(node);
+		    return true;
+		} catch (err) {
+		    return false;
+		}
+	    });
+    };
+
+    var loadProps = function(data, columns, rows) {
+	/* We'll assume all the property values are stored in the first row. */
+	var firstRow = rows[0],
+	    foundProp = false;
+
+	columns.forEach(function(c, i) {
+	    if (props.has(c)) {
+		data.set(
+		    c, 
+		    loadCell(firstRow[i]));
+		foundProp = true;
+	    }
+	});
+	return foundProp;
+    };
+
+    var maybeLoadFinished = function() {
+	toLoad--;
+
+	if (toLoad === 0) {
+	    
+	    edgeData.forEach(function(e) {
+		// Now that we have loaded all the nodes and know their types, we can put properties on their edges.
+		try {
+		    var edge = nodes.get(e.parent)
+			    .edgeTo(nodes.get(e.child));
+		} catch (err) {
+		    errors(
+			"Error getting connection from " + e.parent 
+			    + " to its child " + e.child 
+			    + ": " + err
+		    );
+		}
+
+		e.props.entries().forEach(function(edgeProp) {
+		    if (edgeProp.value !== "") {
+			try {
+			    edge[edgeProp.key](edgeProp.value);
+			} catch (err) {
+			    errors(
+				"Error setting edge property " + edgeProp.key
+				    + " to value " + edgeProp.value
+				    + " on edge from node " + e.parent
+				    + " to child node " + e.child
+				    + ": " + err
+			    );
+			}
+		    }
+		});
+	    });
+
+	    nodes.clean();
+
+	    update();
+	}
+    };
+
+    var loadEdges = function(parentName, columns, rows) {
+	var childI = columns.indexOf("child");
+	if (childI >= 0 && rows.length > 0) {
+	    rows.forEach(function(r) {
+		var childName = decodeURIComponent(r[childI].querySelector("a").getAttribute("href")),
+		    rowData = d3.map();
+		
+		columns.forEach(function(c, i) {
+		    if (edgeProps.has(c)) {
+			rowData.set(
+			    c,
+			    loadCell(r[i]));
+		    }
+		});
+
+		loadNode(childName);
+
+		edgeData.push({
+		    parent: parentName,
+		    child: childName,
+		    props: rowData
+		});
+	    });
+
+	    return true;
+	}
+	return false;
+	
+    };
+
+    var markdownTable = function(cols, rows) {
+	return "\n" +
+	    ([
+		cols,
+		cols.map(function(c) {return "-";})
+	    ]
+	     .concat(rows)
+	     .map(function(r) {
+		 if (!r.join) {
+		     throw new Error("Not a valid row " + r);
+		 }
+		 return "|" + r.join("|") + "|";
+	     })
+	     .join("\n"));
+    };
+
+    var saveEdges = function(node) {
+	if (node.edges().length === 0) {
+	    return "";
+	}
+
+	var anyNecessitySufficiency = any(
+	    node.edges(), 
+	    function(e) {
+		return e.necessity;
+	    });
+
+	var columns = ["child"]
+		.concat(anyNecessitySufficiency ? ["necessity", "sufficiency"] : []);
+
+	return markdownTable(
+	    columns, 
+	    node.edges().map(function(e) {
+		var row = [
+		    "[" + e.node().name() + "]()"
+		].concat(anyNecessitySufficiency
+			 ? [
+			     e.necessity ? e.necessity() : "",
+			     e.sufficiency? e.sufficiency() : ""
+			 ]
+			 : []);
+		
+		return row;
+	    }));
+    };
+
+    var saveProps = function(node) {
+	var filtered = filteredProps(node);
+
+	return markdownTable(
+	    filtered,
+	    [
+		filtered.map(function(p) {
+		    return props.get(p).load(node);
+		})
+	    ]
+	);
+    };
+
+    var markdownContent = function(node) {
+	return [
+	    node.description(),
+	    saveProps(node),
+	    saveEdges(node)
+	].join("\n");
+    };
+
+    var postData = function(node, commitMessage) {
+	var data = [
+	    "editedText=" + markdownContent(node),
+	    "logMsg=" + commitMessage,
+	    "update=Save"
+	];
+
+	if (revisions.has(node.name())) {
+	    data.push("sha1=" + revisions.get(node.name()));
+	}
+
+	return data.join("&");
+    };
+
+    var loadNode = function(name) {
+	if (nodes.has(name)) {
+	    return;
+	}
+
+	toLoad++;
+
+	nodes.create("undecided", name);
+
+	// Look at the history of the node to find its most recent history.
+	d3.html(
+	    makeUrl([
+		saveUrl, 
+		"_history", 
+		name
+	    ]), 
+	    function(error, html) {
+		if (error) {
+		    errors(error.response);
+		}
+
+		var latest = html.querySelector("#content ul li");
+		if (!latest) {
+		    errors("Could not find history " + makeUrl([
+			saveUrl,
+			"_history",
+			name
+		    ]));
+		}
+		
+		revisions.set(
+		    name,
+		    latest.getAttribute("revision"));
+
+		// Retrieve the latest revision we found.
+		d3.html(
+		    makeUrl([
+			saveUrl,
+			name
+		    ]) + "?revision=" + revisions.get(name),
+		    function(error, html) {
+			if (error) {
+			    errors(error.response);
+			}
+
+			var propData = d3.map(),
+			    wikiContent = secure(html.querySelector("#content")
+						 .querySelector("#wikipage"));
+
+			forEl(wikiContent, "table", function(table) {
+			    var columns = mapEl(table, "th", loadCell),
+				rows = mapEl(table, "tr", function(tr) {
+				    return mapEl(tr, "td", function(td) { return td;});
+				}).filter(function(row) {
+				    // Exclude header rows.
+				    return row.length > 0;
+				});
+
+			    
+			    if (loadProps(propData, columns, rows) || loadEdges(name, columns, rows)) {
+				table.parentNode.removeChild(table);
+			    }
+
+			});
+
+			props.keys().forEach(function(p) {
+			    if (propData.has(p)) {
+				if (!nodes.has(name)) {
+				    errors("Missing node " + name);
+				}
+
+				try {
+				    props.get(p).save(
+					propData.get(p),
+					// Reload the node each time in case it gets replaced.
+					nodes.get(name));
+				} catch (err) {
+				    errors(
+					"Error trying to load property " + p 
+					    + " for node " + name 
+					    + " of type " + nodes.get(name).type 
+					    + ": " + err
+				    );
+				}
+			    }
+			});
+
+			var node = nodes.get(name);
+
+			node.description(wikiContent.innerHTML);	
+			
+			maybeLoadFinished();
+		    });
+	    });
+    };
+
+    var module = {
+	loadUrl: function(val) {
+	    if (val === undefined) {
+		return loadUrl;
+	    } else {
+		loadUrl = val;
+		return module;
+	    }
+	},
+	saveUrl: function(val) {
+	    if (val === undefined) {
+		return saveUrl;
+	    } else {
+		saveUrl = val;
+		return module;
+	    }
+	},
+	load: function() {
+	    d3.html(makeUrl([loadUrl]), function(error, html){
+		if (error) {
+		    errors(error.response);
+		}
+
+		var logo = html.querySelector("#logo");
+
+		if (!logo) {
+		    errors("Not the URL of a wiki page " + loadUrl);
+		}
+
+		/* We'll want to save to the place we loaded from.  */
+		saveUrl = makeUrl([
+		    logo
+			.getElementsByTagName("a")[0].href
+		]);
+
+		/* Loading is going to happen, so clear out all the old stuff.  */
+		nodes.reset();
+		edgeData = [];
+		revisions = d3.map();
+		toLoad = 0;
+
+		loadNode(
+		    decodeURIComponent(
+			relativizeURL(loadUrl, saveUrl)));
+	    });
+	},
+	save: function(commitMessage) {
+	    var	stack = nodes.all().slice();
+
+	    var saveNext = function() {
+		if (stack.length === 0) {
+		    messages("Finished saving process diagram to wiki at " + saveUrl + "/" + nodes.root().name());
+		    loadUrl = makeUrl([
+			saveUrl, 
+			nodes.root().name()
+		    ]);
+		    module.load();
+
+		} else {
+		    var n = stack.pop();
+		    d3.xhr(
+			makeUrl([
+			    saveUrl, n.name()
+			]))
+			.header("Content-Type", "application/x-www-form-urlencoded")
+			.post(postData(n, commitMessage), function onSaveComplete(error, response) {
+			    if (error) {
+				if (error.response === "Server error: ResourceExists") {
+				    errors("Attempted to save page " + n.name()
+					   + " as a new page, but it already exists.");
+				} else {
+				    errors(error.response);
+				}
+			    }
+
+			    checkResponseMessages(response.response, n.name(), errors);
+
+			    saveNext();
+			});
+		}
+	    };
+
+	    saveNext();
+
+	    nodes.all().forEach(function(n) {
+
+	    });
+	}
+    };
+
+    return module;
+};
+},{"./helpers.js":11,"d3":15}]},{},[71]);
