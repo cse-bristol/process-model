@@ -41,7 +41,7 @@ module.exports = function(nodes) {
     };
     
     var loadNode = function(n) {
-	var name = n.getAttribute("name"),
+	var name = n.getAttribute("name").replace(/\//g, "|"),
 	    node = nodes.create(n.parentNode.tagName, name);
 
 	return node;
