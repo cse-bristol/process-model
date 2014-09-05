@@ -68,7 +68,7 @@ module.exports = function(nodes) {
 	    if (node.isLeaf()) {
 		node.localEvidence(evidence);
 	    } else {
-		var evidenceNode = nodes.create("process", node.name() + " evidence");
+		var evidenceNode = nodes.create("process", node.name() + "/evidence");
 		evidenceNode.localEvidence(evidence);
 		var localEvidenceEdge = node.edgeTo(evidenceNode);
 		if (localEvidenceWeight > 0 && propagatedEvidenceWeight > 0) {

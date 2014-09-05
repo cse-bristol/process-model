@@ -52,6 +52,25 @@ module.exports = function(nodes, update, errors, messages) {
 	".pageTitle"
     ];
 
+    var escapeTable = {
+	'"': "",
+	"'": "",
+	"<": "lt.",
+	">": "gt.",
+	"&": "and"
+    };
+
+    var escapeName = function(text) {
+	var current = text;
+
+	Object.keys(escapeTable).forEach(function(e) {
+	    current = current.replace(new RegExp(e, "g"), escapeTable[e]);
+	});
+	
+	return current;
+    };
+    
+    
     var secure = function(el) {
 	blackList.forEach(function(q) {
 	    removeElements(q, el);
@@ -265,7 +284,13 @@ module.exports = function(nodes, update, errors, messages) {
 	var childI = columns.indexOf("child");
 	if (childI >= 0 && rows.length > 0) {
 	    rows.forEach(function(r) {
-		var childName = decodeURIComponent(r[childI].querySelector("a").getAttribute("href")),
+		var a = r[childI].querySelector("a");
+
+		if (!a) {
+		    throw new Error("Malformed child table (missing link) in " + parentName);
+		}
+
+		var childName = decodeURIComponent(a.getAttribute("href")),
 		    rowData = d3.map();
 		
 		columns.forEach(function(c, i) {
@@ -325,7 +350,7 @@ module.exports = function(nodes, update, errors, messages) {
 	    columns, 
 	    node.edges().map(function(e) {
 		var row = [
-		    "[" + e.node().name() + "]()"
+		    "[/" + escapeName(e.node().name()) + "]()"
 		].concat(anyNecessitySufficiency
 			 ? [
 			     e.necessity ? e.necessity() : "",
@@ -530,7 +555,7 @@ module.exports = function(nodes, update, errors, messages) {
 		    var n = stack.pop();
 		    d3.xhr(
 			makeUrl([
-			    saveUrl, n.name()
+			    saveUrl, escapeName(n.name())
 			]))
 			.header("Content-Type", "application/x-www-form-urlencoded")
 			.post(postData(n, commitMessage), function onSaveComplete(error, response) {
