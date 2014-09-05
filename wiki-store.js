@@ -255,6 +255,8 @@ module.exports = function(nodes, update, errors, messages) {
 		});
 	    });
 
+	    nodes.clean();
+
 	    update();
 	}
     };
@@ -437,6 +439,10 @@ module.exports = function(nodes, update, errors, messages) {
 
 			props.keys().forEach(function(p) {
 			    if (propData.has(p)) {
+				if (!nodes.has(name)) {
+				    errors("Missing node " + name);
+				}
+
 				try {
 				    props.get(p).save(
 					propData.get(p),
@@ -499,6 +505,7 @@ module.exports = function(nodes, update, errors, messages) {
 
 		/* Loading is going to happen, so clear out all the old stuff.  */
 		nodes.reset();
+		edgeData = [];
 		revisions = d3.map();
 		toLoad = 0;
 
@@ -508,40 +515,45 @@ module.exports = function(nodes, update, errors, messages) {
 	    });
 	},
 	save: function(commitMessage) {
-	    var saves = 0;
-	    edgeData = [];
+	    var	stack = nodes.all().slice();
+
+	    var saveNext = function() {
+		if (stack.length === 0) {
+		    messages("Finished saving process diagram to wiki at " + saveUrl + "/" + nodes.root().name());
+		    loadUrl = makeUrl([
+			saveUrl, 
+			nodes.root().name()
+		    ]);
+		    module.load();
+
+		} else {
+		    var n = stack.pop();
+		    d3.xhr(
+			makeUrl([
+			    saveUrl, n.name()
+			]))
+			.header("Content-Type", "application/x-www-form-urlencoded")
+			.post(postData(n, commitMessage), function onSaveComplete(error, response) {
+			    if (error) {
+				if (error.response === "Server error: ResourceExists") {
+				    errors("Attempted to save page " + n.name()
+					   + " as a new page, but it already exists.");
+				} else {
+				    errors(error.response);
+				}
+			    }
+
+			    checkResponseMessages(response.response, n.name(), errors);
+
+			    saveNext();
+			});
+		}
+	    };
+
+	    saveNext();
 
 	    nodes.all().forEach(function(n) {
-		saves++;
 
-		d3.xhr(
-		    makeUrl([
-			saveUrl, n.name()
-		    ]))
-		    .header("Content-Type", "application/x-www-form-urlencoded")
-		    .post(postData(n, commitMessage), function onSaveComplete(error, response) {
-			if (error) {
-			    if (error.response === "Server error: ResourceExists") {
-				errors("Attempted to save page " + n.name()
-				       + " as a new page, but it already exists.");
-			    } else {
-				errors(error.response);
-			    }
-			}
-
-			checkResponseMessages(response.response, n.name(), errors);
-
-			saves--;
-
-			if (saves === 0) {
-			    messages("Finished saving process diagram to wiki at " + saveUrl + "/" + nodes.root().name());
-			    loadUrl = makeUrl([
-				saveUrl, 
-				nodes.root().name()
-			    ]);
-			    module.load();
-			}
-		    });
 	    });
 	}
     };

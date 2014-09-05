@@ -94,6 +94,9 @@ module.exports = function() {
 	get : function(nodeName) {
 	    return nodes.get(nodeName);
 	},
+	clean: function() {
+	    removeUnreachable();
+	},
 	reset: function() {
 	    nodes = d3.map({});
 	    newNodes = 1;
