@@ -26,43 +26,9 @@ module.exports = {
     clamp: function(min, num, max) {
 	return Math.max(min, Math.min(max, num));
     },
-    all: function(list, f) {
-	var len = list.length;
-	for (var i = 0; i < len; i++) {
-	    if (!f(list[i])) {
-		return false;
-	    }
-	}
-	return true;
-    },
-    any: function(list, f) {
-	var len = list.length;
-	for (var i = 0; i < len; i++) {
-	    if (f(list[i])) {
-		return true;
-	    }
-	}
-	return false;
-    },
     get: function(val) {
 	if (typeof val === "function") {
 	    return val();
-	} else {
-	    return val;
-	}
-    },
-    maybeNum: function(val) {
-	if (isNaN(val) || val === "") {
-	    return val;
-	} else {
-	    return parseFloat(val);
-	}
-    },
-    maybeBool: function(val) {
-	if (val === "true") {
-	    return true;
-	} else if (val === "false") {
-	    return false;
 	} else {
 	    return val;
 	}

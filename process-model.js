@@ -7,7 +7,7 @@ var update = function() {
     draw();
     updateDownloadLink();
     toolbar.update();
-    drawWiki.update();
+    
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -35,8 +35,7 @@ var d3 = require("d3"),
 						withUpdate(selection.selected),
 						update),
     drawEdges = require("./draw-edge.js")(g, transitions, update),
-    wikiStore = require("./wiki-store.js")(nodes, update, messages.error, messages.info),
-    drawWiki = require("./wiki-draw.js")(wikiStore, body),
+    wikiStore = require("./wiki-store.js")(nodes, update, body, body, messages.error, messages.info),
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
@@ -92,11 +91,11 @@ fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-var load = URL.parse(window.location.href, true).query["load"];
-if (load) {
-    wikiStore.loadUrl(load);
-    wikiStore.load();
+var wikiURL = URL.parse(window.location.href, true).query["wiki"];
+if (wikiURL !== undefined) {
+    wikiStore.baseURL(wikiURL);
 } else {
+    wikiStore.baseURL();
     nodes.create("process");
     update();
 }

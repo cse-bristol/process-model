@@ -3,8 +3,9 @@
 /*global require, module*/
 
 var d3 = require("d3"),
+    _ = require("lodash"),
     helpers = require("./helpers.js"),
-    all = helpers.all,
+    all = _.every,
     get = helpers.get;
 
 /*
