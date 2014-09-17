@@ -17003,8 +17003,7 @@ module.exports = function() {
 		getContent(
 		    page + "?revision=" + rev,
 		    function onSuccess(content) {
-			removeElements(".revision", content);
-			callback(content);
+			callback(content.querySelector("#wikipage"));
 		    },
 		    errback
 		);
@@ -28197,6 +28196,13 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 			});
 		    }
 
+		    if (page.has("other")) {
+			var desc = page.get("other").innerHTML.trim();
+			if (desc) {
+			    node.description(desc);
+			}
+		    }
+
 		    return node;
 		} else {
 		    errors("Node page was missing information about the type of node " + node);
@@ -28228,6 +28234,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	var data = {
 	    name: node.name(),
 	    content: {
+		other: node.description(),
 		node: {
 		    type: node.type
 		},

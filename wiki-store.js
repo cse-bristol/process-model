@@ -83,6 +83,13 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 			});
 		    }
 
+		    if (page.has("other")) {
+			var desc = page.get("other").innerHTML.trim();
+			if (desc) {
+			    node.description(desc);
+			}
+		    }
+
 		    return node;
 		} else {
 		    errors("Node page was missing information about the type of node " + node);
@@ -114,6 +121,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	var data = {
 	    name: node.name(),
 	    content: {
+		other: node.description(),
 		node: {
 		    type: node.type
 		},
