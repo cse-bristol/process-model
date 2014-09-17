@@ -22,6 +22,9 @@ module.exports = function(container, update) {
 	    message(text, "info");
 	},
 	error: function(text) {
+	    if (text.response) {
+		text = text.response;
+	    }
 	    message(text, "error");
 	    throw new Error(text);
 	}
