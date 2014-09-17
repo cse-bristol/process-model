@@ -13,10 +13,10 @@ module.exports = function(update, nodes, wikiStore, errors) {
 
 	if (query.wiki !== undefined) {
 	    wikiStore.baseURL(
-		query.wiki, 
+		decodeURIComponent(query.wiki), 
 		function() {
 		    if (wikiStore.baseURLValid() && query.root !== undefined) {
-			wikiStore.loadPage(query.root);
+			wikiStore.loadPage(decodeURIComponent(query.root));
 		    }
 		},
 		errors);

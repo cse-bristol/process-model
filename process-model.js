@@ -99,4 +99,10 @@ files.drop(svg, [fromJson, fromXML]);
 var queryString = require("./query-string.js")(update, nodes, wikiStore, messages.warnUser);
 queryString.load();
 
+if (wikiStore.baseURL() === "" && !wikiStore.baseURLValid()) {
+    var a = document.createElement("a");
+    a.href = "/";
+    wikiStore.baseURL(a.href);
+}
+
 update();

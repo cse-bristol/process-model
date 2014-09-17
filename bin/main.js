@@ -27793,6 +27793,12 @@ files.drop(svg, [fromJson, fromXML]);
 var queryString = require("./query-string.js")(update, nodes, wikiStore, messages.warnUser);
 queryString.load();
 
+if (wikiStore.baseURL() === "" && !wikiStore.baseURLValid()) {
+    var a = document.createElement("a");
+    a.href = "/";
+    wikiStore.baseURL(a.href);
+}
+
 update();
 },{"./data.js":7,"./draw-edge.js":8,"./files.js":9,"./help.js":10,"./keys.js":12,"./layout.js":13,"./messages.js":14,"./nodes/abstract-node.js":73,"./nodes/allowed-types.js":74,"./nodes/draw-node.js":75,"./nodes/draw-process-node.js":76,"./perimeta-xml.js":78,"./query-string.js":80,"./selection.js":81,"./text-toolbar.js":83,"./transition-switch.js":84,"./wiki-store.js":85,"d3":15,"url":5}],80:[function(require,module,exports){
 "use strict";
@@ -27810,10 +27816,10 @@ module.exports = function(update, nodes, wikiStore, errors) {
 
 	if (query.wiki !== undefined) {
 	    wikiStore.baseURL(
-		query.wiki, 
+		decodeURIComponent(query.wiki), 
 		function() {
 		    if (wikiStore.baseURLValid() && query.root !== undefined) {
-			wikiStore.loadPage(query.root);
+			wikiStore.loadPage(decodeURIComponent(query.root));
 		    }
 		},
 		errors);
