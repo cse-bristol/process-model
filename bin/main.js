@@ -16883,10 +16883,17 @@ module.exports = function() {
 		if (!latest) {
 		    errback("Could not find any versions of " + page);
 		} else {
-		    var rev = latest.getAttribute("revision");
-		    pageCache.set(page, rev);		 
+		    var subject = latest.querySelector(".subject").innerHTML;
+		    if (subject.indexOf("Deleted using web interface.") >= 0) {
 
-		    callback(rev);
+			pageCache.remove(page);
+			callback("");
+
+		    } else {
+			var rev = latest.getAttribute("revision");
+			pageCache.set(page, rev);
+			callback(rev);
+		    }
 		}
 	    },
 	    errback
@@ -16928,9 +16935,19 @@ module.exports = function() {
 	);
     };
 
+    var getRevisionThenSave = function(name, markdown, logMessage, callback, errback) {
+	// We need the revision number to do this save.
+	getHistory(
+	    name,
+	    function gotRevision(rev) {
+		savePage(name, markdown, logMessage, callback, errback);
+	    },
+	    errback);
+    };
+
     var savePage = function(name, markdown, logMessage, callback, errback) {
 	if (pageCache.has(name) && pageCache.get(name) === null) {
-	    errback("Cannot save page " + name + " because it already exists, and we can't update it since we don't know what version we have.");
+	    getRevisionThenSave(name, markdown, logMessage, callback, errback);
 
 	} else {
 	    d3.xhr(makeURL([url, name]))
@@ -16939,9 +16956,9 @@ module.exports = function() {
 		    makeSavePagePost(name, markdown, logMessage), 
 		    function (error, response) {
 			if (error) {
-			    if (error.response === "Server error: ResourceExists") {
-				errback("Attempted to save page " + name
-					+ " as a new page, but it already exists.");
+			    if (error.response.indexOf("ResourceExists") >= 0) {
+				getRevisionThenSave(name, markdown, logMessage, callback, errback);
+
 			    } else {
 				errback(error.response);
 			    }
@@ -17131,7 +17148,7 @@ module.exports = function() {
 	save: function(pages, files, logMessage, callback, errback) {
 	    var pageStack = pages.slice(),
 		fileStack = files.slice(),
-		reportedSuccess = false;
+		done = 0;
 
 	    var saveLoop = function() {
 		if (pageStack.length > 0) {
@@ -17149,6 +17166,7 @@ module.exports = function() {
 			    loadPage(
 				page.name,
 				function onSuccess(content) {
+				    done++;
 				    saveLoop();
 				},
 				function onError(error) {
@@ -17167,13 +17185,13 @@ module.exports = function() {
 			file.content,
 			logMessage,
 			function onSuccess() {
+			    done++;
 			    saveLoop();
 			},
 			errback
 		    );
 
-		} else if (!reportedSuccess) {
-		    reportedSuccess = true;
+		} else if (done === (pages.length = files.length)) {
 		    callback("Successful save.");
 		}
 	    };
@@ -17357,7 +17375,7 @@ var pageLink = {
 	return name;
     },
     save: function(val) {
-	return "[" + val + "]()";
+	return "[" + (val[0] === "/" ? "" : "/") + val + "]()";
     }
 };
 
@@ -28152,7 +28170,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 		type: choices(types),
 		dependence: optional(float(0, 1)),
 		settled: optional(boolean),
-		supports: optional(boolean),
+		support: optional(boolean),
 		evidence: optional(list(float(0, 1)))
 	    }
 	};

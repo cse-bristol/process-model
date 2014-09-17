@@ -39,7 +39,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 		type: choices(types),
 		dependence: optional(float(0, 1)),
 		settled: optional(boolean),
-		supports: optional(boolean),
+		support: optional(boolean),
 		evidence: optional(list(float(0, 1)))
 	    }
 	};
