@@ -154,10 +154,14 @@ rect.conflict {
     pointer-events: none;
 }
 
+.weights {
+    pointer-events: auto;
+}
+
 .edge circle {
     fill: green;
     stroke: #708090;
-
+    pointer-events: auto;
 }
 
 .edge circle:hover {
