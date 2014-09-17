@@ -2783,6 +2783,9 @@ module.exports = function(container, update) {
 	    message(text, "info");
 	},
 	error: function(text) {
+	    if (text.response) {
+		text = text.response;
+	    }
 	    message(text, "error");
 	    throw new Error(text);
 	}
@@ -16854,7 +16857,11 @@ module.exports = function() {
 		makeURL([url, address]), 
 		function(error, html) {
 		    if (error) {
-			errback(error);
+			if (error.statusText !== undefined) {
+			    errback(error.statusText + " " + address);
+			} else {
+			    errback(error);
+			}
 		    } else {
 			var content = html.querySelector("#content");
 			if (content) {
@@ -16874,7 +16881,7 @@ module.exports = function() {
 	    function lookupRevision (content) {
 		var latest = content.querySelector("ul li");
 		if (!latest) {
-		    errback("Could not find history for " + page);
+		    errback("Could not find any versions of " + page);
 		} else {
 		    var rev = latest.getAttribute("revision");
 		    pageCache.set(page, rev);		 
@@ -26240,7 +26247,7 @@ module.exports = function() {
 	reset: function() {
 	    nodes = d3.map({});
 	    newNodes = 1;
-	    root = null;
+	    root = undefined;
 	},
 	types: function() {
 	    return types.keys();
@@ -26883,7 +26890,7 @@ module.exports = function(container, transitions, layout, toolbar, clickHandler,
     
 };
 
-},{"../svg-editable-text.js":81,"d3":15}],76:[function(require,module,exports){
+},{"../svg-editable-text.js":82,"d3":15}],76:[function(require,module,exports){
 "use strict";
 
 /*global module, require*/
@@ -27673,11 +27680,16 @@ module.exports = function(nodes) {
 /*global parent, require*/
 
 var update = function() {
+    if (nodes.root() === undefined) {
+	var n = nodes.create("process");
+	nodes.root(n);
+    }
+
     trackAllowedTypes.update();
     draw();
     updateDownloadLink();
     toolbar.update();
-    
+    queryString.save();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -27731,7 +27743,7 @@ var draw = function() {
     var display = layout.display();
     
     drawNodes.draw(display.nodes);
- 
+    
     drawEdges.draw(display.edges);
 };
 
@@ -27761,16 +27773,72 @@ fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-var wikiURL = URL.parse(window.location.href, true).query["wiki"];
-if (wikiURL !== undefined) {
-    wikiStore.baseURL(wikiURL);
-} else {
-    wikiStore.baseURL();
-    nodes.create("process");
-    update();
-}
+var queryString = require("./query-string.js")(update, nodes, wikiStore, messages.warnUser);
+queryString.load();
 
-},{"./data.js":7,"./draw-edge.js":8,"./files.js":9,"./help.js":10,"./keys.js":12,"./layout.js":13,"./messages.js":14,"./nodes/abstract-node.js":73,"./nodes/allowed-types.js":74,"./nodes/draw-node.js":75,"./nodes/draw-process-node.js":76,"./perimeta-xml.js":78,"./selection.js":80,"./text-toolbar.js":82,"./transition-switch.js":83,"./wiki-store.js":84,"d3":15,"url":5}],80:[function(require,module,exports){
+update();
+},{"./data.js":7,"./draw-edge.js":8,"./files.js":9,"./help.js":10,"./keys.js":12,"./layout.js":13,"./messages.js":14,"./nodes/abstract-node.js":73,"./nodes/allowed-types.js":74,"./nodes/draw-node.js":75,"./nodes/draw-process-node.js":76,"./perimeta-xml.js":78,"./query-string.js":80,"./selection.js":81,"./text-toolbar.js":83,"./transition-switch.js":84,"./wiki-store.js":85,"d3":15,"url":5}],80:[function(require,module,exports){
+"use strict";
+
+/*global module, require*/
+
+var d3 = require("d3"),
+    URL = require("url");
+
+module.exports = function(update, nodes, wikiStore, errors) {
+    var listening = true;
+
+    var load = function() {
+	var query = URL.parse(window.location.href, true).query;
+
+	if (query.wiki !== undefined) {
+	    wikiStore.baseURL(
+		query.wiki, 
+		function() {
+		    if (wikiStore.baseURLValid() && query.root !== undefined) {
+			wikiStore.loadPage(query.root);
+		    }
+		},
+		errors);
+	}
+    };
+
+    d3.select(window).on("popstate", function() {
+	listening = false;
+	load();
+	update();
+	listening = true;
+    });
+
+    return {
+	load: load,
+	save: function() {
+	    if (listening) {
+		var url = URL.parse(window.location.href, true),
+		    query = url.query,
+		    changes = false;
+
+		if (wikiStore.baseURLValid()) {
+		    if (query.wiki !== wikiStore.baseURL()) {
+			query.wiki = wikiStore.baseURL();
+			changes = true;
+		    }
+
+		    if (query.root !== nodes.root().name()) {
+			query.root = nodes.root().name();
+			changes = true;
+		    }
+		}
+
+		if (changes) {
+		    url.search = null,
+		    window.history.pushState(null, "", URL.format(url));
+		}
+	    }
+	}
+    };
+};
+},{"d3":15,"url":5}],81:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -27807,7 +27875,7 @@ module.exports = function(nodes) {
 
     return m;
 };
-},{}],81:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 "use strict";
 
 /*global require, module */
@@ -27854,7 +27922,7 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
     }
 };
 
-},{"d3":15}],82:[function(require,module,exports){
+},{"d3":15}],83:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
@@ -28007,7 +28075,7 @@ module.exports = function(dialogueContainer, toolbarContainer, transitions) {
 	}
     };
 };
-},{"./svg-editable-text.js":81,"d3":15}],83:[function(require,module,exports){
+},{"./svg-editable-text.js":82,"d3":15}],84:[function(require,module,exports){
 "use strict";
 
 /*global module*/
@@ -28043,7 +28111,7 @@ module.exports = function(){
     return module;
 };
 
-},{}],84:[function(require,module,exports){
+},{}],85:[function(require,module,exports){
 "use strict";
 
 /*global require, module*/
