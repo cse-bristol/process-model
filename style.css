@@ -10,6 +10,11 @@
     left: 1vw;
 }
 
+#wiki-open-close {
+    top: 2em;
+    right: 0.3em;
+}
+
 #model {
     height: 96vh;
     width: 99vw;
@@ -17,8 +22,8 @@
 
 #help {
     position: fixed;
-    top: 10px;
-    right: 10px;
+    top: 0.2em;
+    right: 0.4em;
     font-size: xx-large;
     text-decoration: none;
 }
@@ -225,8 +230,8 @@ g.weight-half:hover {
 
 .message-panel {
     position: fixed;
-    top: 1vh;
-    right: 2vw;
+    top: 0.5em;
+    right: 3em;
     width: 50vw;
     height: 99vh;
     pointer-events: none;
