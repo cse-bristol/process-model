@@ -3,11 +3,16 @@
 /*global parent, require*/
 
 var update = function() {
+    if (nodes.root() === undefined) {
+	var n = nodes.create("process");
+	nodes.root(n);
+    }
+
     trackAllowedTypes.update();
     draw();
     updateDownloadLink();
     toolbar.update();
-    
+    queryString.save();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -61,7 +66,7 @@ var draw = function() {
     var display = layout.display();
     
     drawNodes.draw(display.nodes);
- 
+    
     drawEdges.draw(display.edges);
 };
 
@@ -91,11 +96,7 @@ fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-var wikiURL = URL.parse(window.location.href, true).query["wiki"];
-if (wikiURL !== undefined) {
-    wikiStore.baseURL(wikiURL);
-} else {
-    wikiStore.baseURL();
-    nodes.create("process");
-    update();
-}
+var queryString = require("./query-string.js")(update, nodes, wikiStore, messages.warnUser);
+queryString.load();
+
+update();

@@ -100,7 +100,7 @@ module.exports = function() {
 	reset: function() {
 	    nodes = d3.map({});
 	    newNodes = 1;
-	    root = null;
+	    root = undefined;
 	},
 	types: function() {
 	    return types.keys();
