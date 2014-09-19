@@ -20,6 +20,19 @@ var previousEdge = function(edge) {
     return choices[nextI];
 };
 
+/*
+ Remove special XML characters from the node name.
+ */
+var cleanse = function(name) {
+    return name
+	.replace(/'/g, "")
+	.replace(/"/g, "")
+	.replace(/&nbsp;/g, " ")
+	.replace(/&lt;/g, "lt.")
+	.replace(/&gt;/g, "gt.")
+	.replace(/&amp;/g, "and");
+};
+
 module.exports = function() {
     var nodes, newNodes, root,
 	onCreate = [],
@@ -132,6 +145,10 @@ module.exports = function() {
 	    onCreate.push(callback);
 	},
 	create : function(type, startName) {
+	    if (startName) {
+		startName = cleanse(startName);
+	    } 
+
 	    if (nodes.has(startName)) {
 		throw new Error("Tried to create a node that already exists " + startName);
 	    }
@@ -194,6 +211,8 @@ module.exports = function() {
 		},
 		name: function(n) {
 		    if (n) {
+			n = cleanse(n);
+
 			if (nodes.has(n)) {
 			    throw "Name already taken " + n;
 			}
