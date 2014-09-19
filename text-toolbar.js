@@ -38,7 +38,7 @@ module.exports = function(dialogueContainer, toolbarContainer, transitions) {
 
 		    d3.select(target)
 			.selectAll("a")
-			.attr("contenteditable", false);
+			.style("contenteditable", false);
 		}
 	    });
 
