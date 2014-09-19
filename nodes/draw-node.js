@@ -113,7 +113,7 @@ module.exports = function(container, transitions, layout, toolbar, clickHandler,
 	    .classed("resize-handle", true)
 	    .call(dragResize)
 	    .append("text")
-	    .text("⇲");
+	    .text("⇘");
 
 	nodes.selectAll("g.resize-handle")
 	    .attr("transform", function(d, i) {
