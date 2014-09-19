@@ -31,8 +31,8 @@ module.exports = function(update, nodes, wikiStore, errors) {
 		    query = url.query,
 		    changes = false;
 
-		if (query.root !== nodes.root().name()) {
-		    query.root = nodes.root().name();
+		if (query.root !== "models/" + nodes.root().name()) {
+		    query.root = "models/" + nodes.root().name();
 		    changes = true;
 		}
 	    }

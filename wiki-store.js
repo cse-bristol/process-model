@@ -4,7 +4,8 @@
 
 var d3 = require("d3"),
     interopModule = require("gitit-interop"),
-    types = require("./nodes/process-node.js").keys();
+    types = require("./nodes/process-node.js").keys(),
+    modelsDir = "models/";
 
 /*
  Save to and load from a Gitit wiki (see https://github.com/jgm/gitit).
@@ -44,12 +45,15 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	    }
 	};
 
-    var loadNode = function(name, pages) {
+    var loadNode = function(location, pages) {
+	var modelsDirI = location.indexOf(modelsDir),
+	    name = modelsDirI === 0 ? location.slice(modelsDir.length) : location;
+
 	if (nodes.has(name)) {
 	    return nodes.get(name);
 	} else {
-	    if (pages.has(name)) {
-		var page = pages.get(name);
+	    if (pages.has(location)) {
+		var page = pages.get(location);
 
 		if (page.has("node")) {
 		    var nodeData = page.get("node"),
@@ -119,7 +123,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 
     var saveNode = function(node) {
 	var data = {
-	    name: node.name(),
+	    name: modelsDir + node.name(),
 	    content: {
 		other: node.description(),
 		node: {
