@@ -165,7 +165,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	);
     };
 
-    interop.makeDisplay(
+    var display = interop.makeDisplay(
 	container, 
 	buttonContainer,
 	wikiSave,
@@ -177,14 +177,11 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
     );
 
     return {
-	baseURL: function() {
-	    return interop.requests.baseURL.apply(this, arguments);
-	},
-	baseURLValid: function() {
-	    return interop.requests.baseURLValid.apply(this, arguments);
-	},
 	loadPage: function(page) {
 	    wikiLoad(page);
+	},
+	update: function() {
+	    display.wikiPage(nodes.root().name());
 	}
     };
 };
