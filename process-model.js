@@ -62,6 +62,7 @@ zoom.out = function() {
 require("./help.js")(helpLink, shortcutKeys.universalKeys());
 require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
 zoom(svg);
+svg.on("dblclick.zoom", null);
 
 var draw = function() {
     var display = layout.display();
