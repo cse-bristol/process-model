@@ -7,6 +7,11 @@ var d3 = require("d3"),
     types = require("./nodes/process-node.js").keys(),
     modelsDir = "models/";
 
+var nameWithPrefix = function(node) {
+    var n = node.name();
+    return n.indexOf(modelsDir) === 0 ? n : (modelsDir + n);
+};
+
 /*
  Save to and load from a Gitit wiki (see https://github.com/jgm/gitit).
  
@@ -123,7 +128,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 
     var saveNode = function(node) {
 	var data = {
-	    name: modelsDir + node.name(),
+	    name: nameWithPrefix(node),
 	    content: {
 		other: node.description(),
 		node: {
@@ -131,7 +136,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 		},
 		edges: node.edges().map(function(e) {
 		    var d = {
-			child: e.node().name()
+			child: nameWithPrefix(e.node())
 		    };
 
 		    if (e.necessity !== undefined) {
