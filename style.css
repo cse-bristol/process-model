@@ -1,5 +1,6 @@
 #download {
     position: fixed;
+    visibility: hidden;
     top: 1.5vh;
     left: 30vw;
 }
