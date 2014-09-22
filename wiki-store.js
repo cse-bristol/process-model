@@ -4,6 +4,7 @@
 
 var d3 = require("d3"),
     interopModule = require("gitit-interop"),
+    callbackFactory = require("./helpers.js").callbackHandler,
     types = require("./nodes/process-node.js").keys(),
     modelsDir = "models/";
 
@@ -24,14 +25,17 @@ var nameWithPrefix = function(node) {
 
  Other elements in the content div will be saved to the node's description.
  */
-module.exports = function(nodes, update, container, buttonContainer, errors, messages) {
-    var interop = interopModule(errors),
+module.exports = function(nodes, layout, zoom, update, container, buttonContainer, errors, messages) {
+    var onSave = callbackFactory(),
+	onLoad = callbackFactory(),
+	interop = interopModule(errors),
 	s = interop.schema,
 	float = s.float,
 	choices = s.choices,
 	boolean = s.boolean,
 	multiple = s.multiple,
 	list = s.list,
+	text = s.text,
 	optional = s.optional,
 	pageLink = s.pageLink,
 	
@@ -47,18 +51,32 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 		settled: optional(boolean),
 		support: optional(boolean),
 		evidence: optional(list(float(0, 1)))
+	    },
+	    view: {
+		translate: list(float()),
+		scale: float()
 	    }
 	};
 
     var loadNode = function(location, pages) {
-	var modelsDirI = location.indexOf(modelsDir),
-	    name = modelsDirI === 0 ? location.slice(modelsDir.length) : location;
+	var name = location.replace(modelsDir, "");
+
+	if (name[0] === "/") {
+	    name = name.slice(1);
+	}
 
 	if (nodes.has(name)) {
 	    return nodes.get(name);
 	} else {
 	    if (pages.has(location)) {
 		var page = pages.get(location);
+
+		if (page.has("view")) {
+		    var view = page.get("view");
+		    zoom.scale(view.get("scale"));
+		    zoom.translate(view.get("translate"));
+		    zoom.go();
+		}
 
 		if (page.has("node")) {
 		    var nodeData = page.get("node"),
@@ -85,7 +103,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 				if (prop !== "child" 
 				    && edge[prop] !== undefined 
 				    && edgeData.has(prop)) {
-			    
+				    
 				    edge[prop](edgeData.get(prop));
 				}
 			    });
@@ -120,6 +138,7 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	    function(pageData, fileData) {
 		nodes.reset();
 		loadNode(page, pageData);
+		onLoad();
 		update();
 	    },
 	    errors
@@ -151,6 +170,13 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	    }
 	};
 
+	if (nodes.root() === node) {
+	    data.content.view = {
+		translate: zoom.translate(),
+		scale: zoom.scale()
+	    };
+	}
+
 	Object.keys(schema.node).forEach(function(prop) {
 	    if (prop !== "type"
 		&& node[prop] !== undefined) {
@@ -169,7 +195,10 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	    nodes.all().map(saveNode),
 	    [],
 	    logMessage,
-	    messages,
+	    function(text) {
+		onSave();
+		messages(text);
+	    },
 	    errors
 	);
     };
@@ -191,6 +220,8 @@ module.exports = function(nodes, update, container, buttonContainer, errors, mes
 	},
 	update: function() {
 	    display.wikiPage(nodes.root().name());
-	}
+	},
+	onLoad: onLoad.add,
+	onSave: onSave.add
     };
 };

@@ -11,7 +11,6 @@ var update = function() {
 	updateDownloadLink();
 	toolbar.update();
 	wikiStore.update();
-	queryString.save();
     }
 
 }, withUpdate = function(f) {
@@ -40,22 +39,26 @@ var d3 = require("d3"),
 						withUpdate(selection.selected),
 						update),
     drawEdges = require("./draw-edge.js")(g, transitions, update),
-    wikiStore = require("./wiki-store.js")(nodes, update, body, body, messages.error, messages.info),
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	    toolbar.update();
 	}),
+    wikiStore = require("./wiki-store.js")(nodes, layout, zoom, update, body, body, messages.error, messages.info),
     files = require("./files.js"),
     shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
 
+zoom.go = function() {
+    zoom.event(g);
+};
+
 zoom.in = function() {
     zoom.scale(zoom.scale() * 1.1);
-    zoom.event(g);
+    zoom.go();
 };
 zoom.out = function() {
     zoom.scale(zoom.scale() / 1.1);
-    zoom.event(g);
+    zoom.go();
 };
 
 require("./help.js")(helpLink, shortcutKeys.universalKeys());

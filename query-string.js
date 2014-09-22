@@ -26,25 +26,30 @@ module.exports = function(update, nodes, wikiStore, errors) {
 	update();
 	listening = true;
     });
+    
+    var save = function() {
+	if (listening) {
+	    var url = URL.parse(window.location.href, true),
+		query = url.query,
+		changes = false;
+
+	    if (query.root !== "models/" + nodes.root().name()) {
+		query.root = "models/" + nodes.root().name();
+		changes = true;
+	    }
+	}
+
+	if (changes) {
+	    url.search = null,
+	    window.history.pushState(null, "", URL.format(url));
+	}
+    };
+
+    wikiStore.onLoad(save);
+    wikiStore.onSave(save);
 
     return {
 	load: load,
-	save: function() {
-	    if (listening) {
-		var url = URL.parse(window.location.href, true),
-		    query = url.query,
-		    changes = false;
-
-		if (query.root !== "models/" + nodes.root().name()) {
-		    query.root = "models/" + nodes.root().name();
-		    changes = true;
-		}
-	    }
-
-	    if (changes) {
-		url.search = null,
-		window.history.pushState(null, "", URL.format(url));
-	    }
-	}
+	save: save
     };
 };
