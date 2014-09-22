@@ -11,7 +11,11 @@ module.exports = function(update, nodes, wikiStore, errors) {
     var load = function() {
 	var query = URL.parse(window.location.href, true).query;
 
-	if (query.root !== undefined) {
+	if (query.root === undefined) {
+	    nodes.root(
+		nodes.create("process"));
+	    update();
+	} else {
 	    wikiStore.loadPage(decodeURIComponent(query.root));
 	}
     };

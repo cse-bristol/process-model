@@ -3,17 +3,16 @@
 /*global parent, require*/
 
 var update = function() {
-    if (nodes.root() === undefined) {
-	var n = nodes.create("process");
-	nodes.root(n);
+    if (nodes.all().length === 0) {
+	messages.error("No process nodes loaded.");
+    } else {
+	trackAllowedTypes.update();
+	draw();
+	updateDownloadLink();
+	toolbar.update();
+	wikiStore.update();
+	queryString.save();
     }
-
-    trackAllowedTypes.update();
-    draw();
-    updateDownloadLink();
-    toolbar.update();
-    wikiStore.update();
-    queryString.save();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -100,5 +99,3 @@ files.drop(svg, [fromJson, fromXML]);
 
 var queryString = require("./query-string.js")(update, nodes, wikiStore, messages.warnUser);
 queryString.load();
-
-update();
