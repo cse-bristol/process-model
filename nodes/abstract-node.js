@@ -30,7 +30,8 @@ var cleanse = function(name) {
 	.replace(/&nbsp;/g, " ")
 	.replace(/&lt;/g, "lt.")
 	.replace(/&gt;/g, "gt.")
-	.replace(/&amp;/g, "and");
+	.replace(/&amp;/g, "and")
+	.replace(/&/g, "and");
 };
 
 module.exports = function() {
