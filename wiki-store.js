@@ -34,7 +34,7 @@ module.exports = function(nodes, layout, zoom, update, container, buttonContaine
 	choices = s.choices,
 	boolean = s.boolean,
 	multiple = s.multiple,
-	list = s.list,
+	tuple = s.tuple,
 	text = s.text,
 	optional = s.optional,
 	pageLink = s.pageLink,
@@ -50,10 +50,10 @@ module.exports = function(nodes, layout, zoom, update, container, buttonContaine
 		dependence: optional(float(0, 1)),
 		settled: optional(boolean),
 		support: optional(boolean),
-		evidence: optional(list(float(0, 1)))
+		evidence: optional(tuple(float(0, 1), float(0, 1)))
 	    },
 	    view: {
-		translate: list(float()),
+		translate: tuple(float(), float()),
 		scale: float()
 	    }
 	};
