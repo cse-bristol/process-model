@@ -213,7 +213,7 @@ module.exports.set("undecided", function(node, nodes) {
     node.chooseType = function(option) {
 	var name = node.name();
 
-	node.name(Math.random());
+	node.name("" + Math.random());
 	
 	var replacement = nodes.create(option, name);
 
