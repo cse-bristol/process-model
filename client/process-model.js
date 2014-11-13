@@ -10,7 +10,6 @@ var update = function() {
 	draw();
 	updateDownloadLink();
 	toolbar.update();
-	wikiStore.update();
     }
 
 }, withUpdate = function(f) {
@@ -44,9 +43,11 @@ var d3 = require("d3"),
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	    toolbar.update();
 	}),
-    wikiStore = require("./wiki-store.js")(nodes, layout, zoom, update, body, body, messages.error, messages.info),
     files = require("./files.js"),
-    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update);
+    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update),
+
+    search = require("./search.js")(body),
+    store = require("./store.js")(search, nodes);
 
 zoom.go = function() {
     zoom.event(g);
@@ -100,5 +101,4 @@ fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-var queryString = require("./query-string.js")(update, nodes, wikiStore, messages.warnUser);
-queryString.load();
+var queryString = require("./query-string.js")(search);

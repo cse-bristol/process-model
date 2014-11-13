@@ -11,7 +11,7 @@
 	"dagre": "0.4.6",
 	"xmldom": "0.1.16",
 	"browserify": "5.9.1",
-
-	"gitit-interop": "git://github.com/cse-bristol/gitit-interop.git"
+	"share": "0.7.3",
+	"browserchannel": "2.0.0"
     }
 }
