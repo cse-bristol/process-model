@@ -1,5 +1,5 @@
 {
-    "name": "process-model",
+    "name": "process-model-client",
     "version": "0.5.0",
     "description": "",
     "keywords": ["process model", "systems thinking", "directed acyclic graph"],
