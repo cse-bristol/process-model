@@ -120,8 +120,6 @@ module.exports = function(container) {
 			.text(function(d, i) {
 			    return d[0];
 			});
-
-		var buttons = newResults.enter().append();
 	    });
 	}, 500
     );
