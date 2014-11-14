@@ -252,3 +252,46 @@ g.weight-half:hover {
     color: red;
     border-color: red;
 }
+
+#document-control {
+    position: absolute;
+    font-size: large;
+    top: 0;
+    left: 0;
+    padding: 1.0em;
+    font-family: helvetica;
+}
+
+#document-search {
+    font-size: large;
+    margin-left: 0.1em;
+}
+
+#document-search-results {
+    list-style-type: none;
+    margin: 0;
+    padding-left: 0em;
+    padding-top: 0.1em;
+    display: block;
+    width: 23.5em;
+}
+
+.document-search-result:hover {
+    text-decoration: underline;
+    background-color: #E0E0E0;
+}
+
+.search-result-button {
+    margin: 0.4em;
+}
+
+.document-search-result-text {
+    width: 13em;
+    padding: 0.2em;
+    padding-left: 0.2em;
+    display: inline-block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    vertical-align: middle;
+}

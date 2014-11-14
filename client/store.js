@@ -2,15 +2,21 @@
 
 /*global module, require*/
 
-var sharejs = require('./node_modules/share/lib/client/index.js'),
+var _ = require("lodash"),
+    sharejs = require('./node_modules/share/lib/client/index.js'),
     BCSocket = require('./node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
-    coll = "process-models";
+    coll = "process-models",
+    url = function() {
+	var a = document.createElement("a");
+	a.href = "/";
+	return a.href + "channel";
+    }();
 
 module.exports = function(search, nodes) {
-    // URL? What should it be?
+    // TODO: URL? What should it be?
     var connection = new sharejs.Connection(
 	new BCSocket(
-	    "http://localhost/channel",
+	    url,
 	    {
 		reconnect: true
 	    })
@@ -18,13 +24,16 @@ module.exports = function(search, nodes) {
 	doc;
 
     search.onLoad(function(name) {
-	if (doc !== null) {
+	if (doc) {
 	    doc.destroy();
 	}
 
-	doc = connection.get(coll, name);
+	doc = connection.get(coll, name.toLowerCase());
 	doc.whenReady(function() {
-	    doc.getSnapshot();
+	    var snap = doc.getSnapshot();
+	    if (!snap) {
+		doc.create("json0", {model: {}, layout: {}});
+	    }
 
 	    // TODO clear out the node graph, rebuild it from the JSON.
 	    // TODO subscribe to new events
@@ -34,21 +43,25 @@ module.exports = function(search, nodes) {
     });
 
     search.onImport(function(name) {
+	name.toLowerCase();
 	// TODO fetch the document and add it as a subnode of the root node.
     });
 
     search.onDelete(function(name) {
 	// Deletion is completely independent of the currently loaded document.
-	var toDelete = connection.get(coll, name);
+	var toDelete = connection.get(coll, name.toLowerCase());
 	toDelete.del();
 	toDelete.destroy();
     });
 
-    search.provideSearch(function(text, callback) {
-	// TODO what is index?
+    search.provideSearch(function(text, callback, errback) {
 	// TODO escape text and use it to query the name of the document
-	connection.createFetchQuery(index, text, {}, function(documents) {
-	    // TODO call callback with the titles of the documents
+	connection.createFetchQuery(coll, text, {}, function(error, results, extraData) {
+	    if (error) {
+		errback(error);
+	    } else {
+		callback(_.pluck(results, "name"));
+	    }
 	});
     });
 };
