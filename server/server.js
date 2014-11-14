@@ -1,6 +1,6 @@
 "use strict";
 
-/*global module, require*/
+/*global module, require, process*/
 
 var sharejs = require('share'),
     livedb = sharejs.db,
@@ -8,10 +8,15 @@ var sharejs = require('share'),
     server = connect(),
     Duplex = require('stream').Duplex,
     browserChannel = require('browserchannel').server,
-    port = 8080,
-
     backend = livedb.client(livedb.memory()),
-    share = require('share').server.createClient({backend: backend});
+    share = require('share').server.createClient({backend: backend}),
+    port = function() {
+	if (process.argv.length === 1) {
+	    return process.argv[0];
+	} else {
+	    return 8080;
+	}
+    }();
 
 server.use(
     browserChannel(
