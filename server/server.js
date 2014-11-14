@@ -2,8 +2,8 @@
 
 /*global module, require*/
 
-var livedb = require('livedb'),
-    sharejs = require('share'),
+var sharejs = require('share'),
+    livedb = sharejs.db,
     connect = require('connect'),
     server = connect(),
     stream = require('stream'),

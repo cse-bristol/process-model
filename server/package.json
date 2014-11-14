@@ -8,7 +8,6 @@
     "dependencies": {
 	"share": "0.7.3",
 	"browserchannel": "2.0.0",
-	"livedb": "0.4.9",
 	"connect": "3.3.3"
     }
 }
