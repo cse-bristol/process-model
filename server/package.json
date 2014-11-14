@@ -8,6 +8,7 @@
     "dependencies": {
 	"share": "0.7.3",
 	"browserchannel": "2.0.0",
-	"connect": "3.3.3"
+	"connect": "3.3.3",
+	"livedb-mongo": "0.4.1"
     }
 }

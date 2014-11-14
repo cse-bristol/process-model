@@ -8,8 +8,9 @@ var sharejs = require('share'),
     server = connect(),
     Duplex = require('stream').Duplex,
     browserChannel = require('browserchannel').server,
-    backend = livedb.client(livedb.memory()),
-    share = require('share').server.createClient({backend: backend}),
+    livedbmongo = require('livedb-mongo'),
+    backend = livedbmongo('mongodb://localhost:27017/process-model?auto_reconnect', {safe:true}),
+    share = sharejs.server.createClient({backend: livedb.client(backend)}),
     port = function() {
 	if (process.argv.length === 1) {
 	    return process.argv[0];

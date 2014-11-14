@@ -13,7 +13,6 @@ var _ = require("lodash"),
     }();
 
 module.exports = function(search, nodes) {
-    // TODO: URL? What should it be?
     var connection = new sharejs.Connection(
 	new BCSocket(
 	    url,
@@ -23,6 +22,19 @@ module.exports = function(search, nodes) {
     ),
 	doc;
 
+    var nodeDict = function() {
+	var dict = {};
+
+	nodes.all().forEach(function(n) {
+	    dict[n.id()] = {
+		name: n.name(),
+		type: n.type
+	    };
+	});
+
+	return dict;
+    };
+
     search.onLoad(function(name) {
 	if (doc) {
 	    doc.destroy();
@@ -31,13 +43,25 @@ module.exports = function(search, nodes) {
 	doc = connection.get(coll, name.toLowerCase());
 	doc.whenReady(function() {
 	    var snap = doc.getSnapshot();
-	    if (!snap) {
-		doc.create("json0", {model: {}, layout: {}});
+	    if (snap) {
+		// TODO clear out the node graph, rebuild it from the JSON.
+	    } else {
+		doc.create(
+		    "json0",
+		    {
+			nodes: nodeDict(),
+			layout: {
+			    collapsed: [],
+			    sizes: {
+			    },
+			    positions: {
+			    }
+			}
+		    });
 	    }
 
-	    // TODO clear out the node graph, rebuild it from the JSON.
-	    // TODO subscribe to new events
 	});
+	// TODO subscribe to new events
 	doc.subscribe();
 
     });
@@ -55,8 +79,8 @@ module.exports = function(search, nodes) {
     });
 
     search.provideSearch(function(text, callback, errback) {
-	// TODO escape text and use it to query the name of the document
-	connection.createFetchQuery(coll, text, {}, function(error, results, extraData) {
+	// TODO *insecure*. Anyone could modify the Javascript in arbitrary ways here. Can we fire this from the server side and sanitize the text variable?
+	connection.createFetchQuery(coll, {_id: text}, {}, function(error, results, extraData) {
 	    if (error) {
 		errback(error);
 	    } else {
