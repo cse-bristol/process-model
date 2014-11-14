@@ -10,7 +10,9 @@ module.exports = function(search) {
 	var query = URL.parse(window.location.href, true).query;
 
 	if (query.name !== undefined) {
-	    search.load(decodeURIComponent(query.name));
+	    var title = decodeURIComponent(query.name);
+	    search.load(title);
+	    document.title = title;
 	}
     };
 
@@ -23,6 +25,7 @@ module.exports = function(search) {
 	if (encodedName !== query.name) {
 	    query.name = encodedName;
 	    window.history.pushState(null, "", URL.format(url));
+	    document.title = name;
 	}
     };
 
