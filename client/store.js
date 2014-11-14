@@ -2,15 +2,15 @@
 
 /*global module, require*/
 
-var sharejs = require('share').client,
-    browserChannelSocket = require('browserchannel').BCSocket,
+var sharejs = require('./node_modules/share/lib/client/index.js'),
+    BCSocket = require('./node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
     coll = "process-models";
 
 module.exports = function(search, nodes) {
     // URL? What should it be?
-    var connection = sharejs.Connection(
-	browserChannelSocket(
-	    null,
+    var connection = new sharejs.Connection(
+	new BCSocket(
+	    "http://localhost/channel",
 	    {
 		reconnect: true
 	    })

@@ -6,7 +6,7 @@ var sharejs = require('share'),
     livedb = sharejs.db,
     connect = require('connect'),
     server = connect(),
-    stream = require('stream'),
+    Duplex = require('stream').Duplex,
     browserChannel = require('browserchannel').server,
     port = 8080,
 
@@ -15,11 +15,8 @@ var sharejs = require('share'),
 
 server.use(
     browserChannel(
-	{
-	    base: "/process-model/server"
-	},
 	function(client) {
-	    var stream = stream.Duplex({objectMode: true});
+	    var stream = new Duplex({objectMode: true});
 
 	    stream._read = function() {};
 	    stream._write = function(chunk, encoding, callback) {
