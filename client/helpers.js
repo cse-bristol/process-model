@@ -54,5 +54,20 @@ module.exports = {
 	};
 
 	return f;
+    },
+    guid: function() {
+	var chunk = function() {
+	    return Math.floor((1 + Math.random()) * 0x10000)
+		.toString(16)
+		.substring(1);
+	};
+	
+	return [
+	    chunk() + chunk(),
+	    chunk(),
+	    chunk(),
+	    chunk(),
+	    chunk() + chunk() + chunk()
+	].join("-");
     }
 };
