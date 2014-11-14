@@ -57,6 +57,10 @@ module.exports = function(container) {
     var doSearch = _.debounce(
 	function() {
 	    var val = getSearchValue();
+
+	    if (val === "") {
+		return;
+	    }
 	    
 	    searchF(val, function(names) {
 		var results = searchResults.selectAll("li")
