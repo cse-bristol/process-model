@@ -256,16 +256,29 @@ module.exports = function(search, nodes) {
     });
 
     search.onDelete(function(name) {
-	// Deletion does not change the document which is loaded, unless it's the current document.
-	// TODO handle the case when we are deleting the current document?
-	var toDelete = connection.get(coll, name.toLowerCase());
-	toDelete.del();
-	toDelete.destroy();
+	name = name.toLowerCase();
+	if (name === doc.name) {
+	    doc.del();
+	    doc.destroy();
+	    nodes.reset();
+	    opQueue = [];
+	    doc = null;
+	    context = {submitOp: function(op) {
+		opQueue.push(op);
+	    }};
+	} else {
+	    var toDelete = connection.get(coll, name.toLowerCase());
+	    toDelete.subscribe();
+	    toDelete.whenReady(function() {
+		toDelete.del();
+		toDelete.destroy();
+	    });
+	}
     });
 
     search.provideSearch(function(text, callback, errback) {
 	// TODO *insecure*. Anyone could modify the Javascript in arbitrary ways here. Can we fire this from the server side and sanitize the text variable?
-	connection.createFetchQuery(coll, {_id: text}, {}, function(error, results, extraData) {
+	connection.createFetchQuery(coll, {_id: {$regex: "^" + text}}, {}, function(error, results, extraData) {
 	    if (error) {
 		errback(error);
 	    } else {
