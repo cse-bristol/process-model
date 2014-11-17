@@ -4,7 +4,8 @@
 
 var update = function() {
     if (nodes.all().length === 0) {
-	messages.error("No process nodes loaded.");
+	nodes.create("process", "root");
+	update();
     } else {
 	trackAllowedTypes.update();
 	draw();
@@ -102,3 +103,4 @@ fromXML.extensions = ["xml"];
 files.drop(svg, [fromJson, fromXML]);
 
 var queryString = require("./query-string.js")(search);
+update();

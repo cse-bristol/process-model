@@ -69,5 +69,7 @@ module.exports = {
 	    chunk(),
 	    chunk() + chunk() + chunk()
 	].join("-");
+    },
+    noop: function() {
     }
 };

@@ -4,7 +4,9 @@
 
 var d3 = require("d3"),
     combineEvidence = require("../combine-evidence.js"),
-    clamp = require("../helpers.js").clamp;
+    helpers = require("../helpers.js"),
+    clamp = helpers.clamp,
+    callbacks = helpers.callbackHandler;
 
 var spaceToToggle = function(prop) {
     prop.keys = [{
@@ -215,7 +217,7 @@ module.exports.set("undecided", function(node, nodes) {
 
 	node.name("" + Math.random());
 	
-	var replacement = nodes.create(option, name);
+	var replacement = nodes.create(option, name, node.id);
 
 	if (nodes.root() === node) {
 	    nodes.root(replacement);

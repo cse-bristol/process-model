@@ -3,7 +3,10 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    types = require("./process-node.js");
+    types = require("./process-node.js"),
+    helpers = require("../helpers.js"),
+    guid = helpers.guid,
+    callbacks = helpers.callbackHandler;
 
 var nextEdge = function(edge) {
     var choices = edge.parent().edges(),
@@ -24,6 +27,10 @@ var previousEdge = function(edge) {
  Remove special XML characters from the node name.
  */
 var cleanse = function(name) {
+    if (!name.replace) {
+	throw name;
+    }
+    
     return name
 	.replace(/'/g, "")
 	.replace(/"/g, "")
@@ -36,10 +43,10 @@ var cleanse = function(name) {
 
 module.exports = function() {
     var nodes, newNodes, root,
-	onCreate = [],
-	onRoot = [],
-	onDelete,
-	onNavigate;
+	onCreate = callbacks(),
+	onRoot = callbacks(),
+	onDelete = callbacks(),
+	onNavigate = callbacks();
 
     var assertNoCycles = function(node) {
 	var assertNoCyclesAccum = function(node, seen, edge) {
@@ -119,33 +126,31 @@ module.exports = function() {
 	types: function() {
 	    return types.keys();
 	},
-	onNavigate: function(callback) {
-	    onNavigate = callback;
-	},
-	onRoot: function(callback) {
-	    onRoot.push(callback);
-	},
+	onNavigate: onNavigate.add,
+	onRoot: onRoot.add,
 	root: function(newRoot, isSame) {
 	    if (newRoot !== undefined) {
+		var oldRoot = root;
 		root = newRoot;
 
 		if (!isSame) {
-		    onRoot.forEach(function(callback) {
-			callback(root);
-		    });
+		    onRoot(root, oldRoot);
 		}
 
 		return this;
 	    }
 	    return root;
 	},
-	onDelete: function(callback) {
-	    onDelete = callback;
-	},
-	onCreate: function(callback) {
-	    onCreate.push(callback);
-	},
-	create : function(type, startName) {
+	onDelete: onDelete.add,
+	onCreate: onCreate.add,
+	/*
+	 Nodes must always be created with a type.
+
+	 startName is optional. If it is specified, it may be modfied to make it unique. Otherwise, a unique name will be generated.
+
+	 id is optional. If it is not specified, a unique id will be generated.
+	 */
+	create : function(type, startName, id) {
 	    if (startName) {
 		startName = cleanse(startName);
 	    } 
@@ -160,13 +165,19 @@ module.exports = function() {
 
 	    var edges = [],
 		description = "Write about this node here.",
-		name = startName;
+		name = startName,
+		onEdgeTo = callbacks();
 
 	    while (!name || nodes.has(name)) {
 		name = "new " + newNodes++;
 	    }
 
 	    var node = {
+		/*
+		 ids are immutable and never change.
+		 They are unique since they are generated with a massive amount of randomness.
+		 */
+		id: id ? id : guid(),
 		type: type,
 		childTypes: function() {
 		    throw new Error("Child types was not implemented for node of type " + type);
@@ -203,6 +214,7 @@ module.exports = function() {
 		    edges.push(edgeTo);
 		    try {
 			assertNoCycles(node);
+			onEdgeTo(edgeTo);
 			return edgeTo;
 			
 		    } catch (err) {
@@ -210,6 +222,12 @@ module.exports = function() {
 			throw err;
 		    }
 		},
+		onEdgeTo: onEdgeTo.add,
+		
+		/*
+		 Names may be changed by the user.
+		 They may never collide - we enforce that here - but when looking to uniquely identify a node, prefer to use id since it is immutable.
+		 */
 		name: function(n) {
 		    if (n) {
 			n = cleanse(n);
@@ -224,6 +242,7 @@ module.exports = function() {
 			
 			return node;
 		    }
+
 		    return name;
 		},
 		description: function(c) {
@@ -302,14 +321,13 @@ module.exports = function() {
 
 	    if (nodes.empty()) {
 		root = node;
+		onRoot(root, null);
 	    }
 	    nodes.set(node.name(), node);
 
 	    types.get(type)(node, nodeContainer);
 
-	    onCreate.forEach(function(callback) {
-		callback(node);
-	    });
+	    onCreate(node);
 
 	    if (!node.allowedChildren.empty()) {
 		node.allowedChildren.keys = [{
@@ -325,6 +343,8 @@ module.exports = function() {
 	    return node;
 	},
 	edge: function(from, to) {
+	    var onDisconnect = callbacks();
+	    
 	    if (!(to.type === 'undecided' || from.allowedChildren.has(to.type))) {
 		throw new Error("Cannot connect node of type " + from.type + " to node of type " + to.type);
 	    }
@@ -339,7 +359,9 @@ module.exports = function() {
 		/* Removes the edge. Tests if any nodes are now unreachable from the root node, and removes them too. */
 		disconnect: function() {
 		    from.removeEdge(edge);
-		}
+		    onDisconnect();
+		},
+		onDisconnect: onDisconnect.add
 	    };
 
 	    edge.keys = [
@@ -387,6 +409,3 @@ module.exports = function() {
     nodeContainer.reset();
     return nodeContainer;
 };
-
-
-
