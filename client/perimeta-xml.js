@@ -3,10 +3,10 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    DOMParser = require('xmldom').DOMParser;
+    DOMParser = require('xmldom').DOMParser,
+    nodeCollectionFactory = require("./nodes/node-collection.js");
 
-module.exports = function(nodes) {
-
+module.exports = function(text) {
     var num = function(elArray) {
 	return parseFloat(elArray[0].childNodes[0].data);
     };
@@ -40,14 +40,7 @@ module.exports = function(nodes) {
 	return [0, 1];
     };
     
-    var loadNode = function(n) {
-	var name = n.getAttribute("name").replace(/\//g, "|"),
-	    node = nodes.create(n.parentNode.tagName, name);
-
-	return node;
-    };
-
-    var loadNodeDetails = function(n, node) {
+    var loadNodeDetails = function(n, node, nodeCollection) {
 	/* Should be run after joining up all the nodes with edges,
 	 because we need to know whether a node is a leaf. */
 	var aspect = n.getElementsByTagName("nodeAspect")[0],
@@ -56,8 +49,11 @@ module.exports = function(nodes) {
 	    localEvidence = aspect.getElementsByTagName("localFOM"),
 	    localEvidenceWeight = aspect.getElementsByTagName("localFOMWeight"),
 	    propagatedEvidenceWeight = aspect.getElementsByTagName("propFOMWeight"),
-	    metadata = n.getElementsByTagName("optionalAttribute");
+	    metadata = n.getElementsByTagName("optionalAttribute"),
+	    name = n.getAttribute("name").replace(/\//g, "|");
 
+	node.name(name);
+	
 	if (dependence.length > 0 && !node.isLeaf() && node.dependence) {
 	    node.dependence(loadDependence(dependence[0]), true);
 	}
@@ -68,9 +64,17 @@ module.exports = function(nodes) {
 	    if (node.isLeaf()) {
 		node.localEvidence(evidence);
 	    } else {
-		var evidenceNode = nodes.create("process", node.name() + "/evidence");
+		/*
+		 We've got some evidence on a non-leaf node, which is not allowed.
+		 We'll make an extra leaf node to hold that evidence.
+		 */
+		
+		var evidenceNode = nodeCollection.getOrCreate("process");
+		evidenceNode.name(node.name() + "/evidence");
 		evidenceNode.localEvidence(evidence);
+		
 		var localEvidenceEdge = node.edgeTo(evidenceNode);
+		
 		if (localEvidenceWeight > 0 && propagatedEvidenceWeight > 0) {
 		    var localWeight = num(localEvidenceWeight), 
 			propWeight = num(propagatedEvidenceWeight), 
@@ -85,11 +89,15 @@ module.exports = function(nodes) {
 	    }
 	}
 
-	Array.prototype.slice.call(metadata).forEach(function(m) {
-	    node.metadata.push({name: m.getAttribute("key"), children: [
-		{name: m.getAttribute("value"), children: []}
-	    ]});
-	});
+	/*
+	 Mash optional properties into a big text blob.
+	 */
+	node.description(
+	    Array.prototype.slice.call(metadata).map(function(m) {
+		return m.getAttribute("key") + ": " + m.getAttribute("value");
+	    })
+		.join("\n")
+	);
     };
 
     var loadLinks = function(links, nodesById) {
@@ -112,8 +120,8 @@ module.exports = function(nodes) {
 	});
     };
 
-    var findRootNodes = function(nodesById) {
-	var candidates = nodesById.values();
+    var findRootNode = function(nodeCollection) {
+	var candidates = nodeCollection.all();
 
 	if (candidates.length === 0 ) {
 	    throw new Error("No nodes created");
@@ -146,27 +154,30 @@ module.exports = function(nodes) {
 	return nodesWithoutParents[0];
     };
     
-    return {
-	deserialize: function(text) {
-	    var doc = new DOMParser().parseFromString(text, "text/xml"),
-		nodeElements = doc.getElementsByTagName("node"),
-		links = doc.getElementsByTagName("link"),
-		nodesById = d3.map();
+    var doc = new DOMParser().parseFromString(text, "text/xml"),
+	nodeElements = doc.getElementsByTagName("node"),
+	links = doc.getElementsByTagName("link"),
+	nodeCollection = nodeCollectionFactory();
 
-	    Array.prototype.forEach.call(nodeElements, function(n){
-		nodesById.set(n.getAttribute("id"), loadNode(n));
-	    });
+    /*
+     Create all the nodes with just their type and id.
+    */
+    Array.prototype.forEach.call(nodeElements, function(n){
+	nodeCollection.getOrCreate(n.parentNode.tagName, n.getAttribute("id"));
+    });
 
-	    loadLinks(links, nodesById);
+    /*
+     Join nodes up into a graph.
+     */
+    loadLinks(links, nodeCollection);
 
-	    Array.prototype.forEach.call(nodeElements, function(n){
-		loadNodeDetails(n, nodesById.get(n.getAttribute("id")));
-	    });
-
-	    nodes.root(findRootNodes(nodesById));
-	},
-	serialize: function(rootnode) {
-	    throw new Error("not implemented");
-	}
-    };
+    /*
+     Fill in details about each node.
+    */
+    Array.prototype.forEach.call(nodeElements, function(n){
+	loadNodeDetails(n, nodeCollection.get(n.getAttribute("id"), nodeCollection));
+    });
+    
+    nodeCollection.root(findRootNode(nodeCollection));
+    return nodeCollection;
 };

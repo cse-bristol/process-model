@@ -39,7 +39,7 @@ var increaseDecreaseKey = function(prop, key, step) {
 };
 
 module.exports = d3.map({
-    "process" : function(node, nodes){
+    "process": function(node){
 	node.help = "An activity that realizes a transformation.";
 
 	var localE = [Math.random() / 2, 0.5 + (Math.random() / 2)],
@@ -164,7 +164,7 @@ module.exports = d3.map({
 	};
     },
 
-    "issue" : function(node, nodes) {
+    "issue" : function(node) {
 	node.help = "A concern or question about the Process, subjected to debate and discussion.";
 
 	var settled = false;
@@ -182,13 +182,13 @@ module.exports = d3.map({
 	spaceToToggle(node.settled);
     },
 
-    "option" : function(node, nodes) {
+    "option" : function(node) {
 	node.help = "Possible answers, alternatives or courses of action in reply to the Issue.";
 
 	node.allowedChildren = d3.set(["argument", "option"]);
     },
 
-    "argument" : function(node, nodes) {
+    "argument" : function(node) {
 	node.help = "Evidence, reason or opinions in favor or against an Option.";
 
 	var support = false;
@@ -207,28 +207,13 @@ module.exports = d3.map({
     }
 });
 
-module.exports.set("undecided", function(node, nodes) {
+module.exports.set("undecided", function(node) {
     node.help = "A choice between many possible kinds of nodes.";
 
     node.allowedChildren = d3.set();
 
-    node.chooseType = function(option) {
-	var name = node.name();
-
-	node.name("" + Math.random());
-	
-	var replacement = nodes.create(option, name, node.id);
-
-	if (nodes.root() === node) {
-	    nodes.root(replacement);
-	}	
-	
-	node.incomingEdges().forEach(function(e) {
-	    e.parent().edgeTo(replacement);
-	    e.disconnect();
-	});
-
-	return replacement;
+    node.chooseType = function(nodeContainer, option) {
+	return nodeContainer.chooseNodeType(node, option);
     };
     node.chooseType.help = "Click on a letter to choose the type of this node.";
     node.chooseType.keys = module.exports.keys()
@@ -236,7 +221,10 @@ module.exports.set("undecided", function(node, nodes) {
 	    return {
 		key: k[0],
 		description: "choose " + k,
-		value: k
+		value: k,
+		action: function(nodeContainer) {
+		    return nodeContainer.chooseNodeType(node, k);
+		}
 	    };
 	});
 });

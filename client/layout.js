@@ -3,9 +3,12 @@
 /*global require, module*/
 
 var d3 = require("d3"),
-    dagre = require("dagre");
+    dagre = require("dagre"),
+    defaultNodeWidth = 240,
+    defaultNodeHeight = 70,
+    nodeSidePadding = 10;
 
-module.exports = function(nodes, defaultNodeWidth, defaultNodeHeight, nodeSidePadding) {
+module.exports = function(nodes) {
     var collapsedNodes = d3.set(),
 	manualPositions = d3.map(),
 	manualSizes = d3.map();

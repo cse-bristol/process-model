@@ -3,9 +3,10 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    onScroll = require("../helpers.js").onScroll;
+    onScroll = require("../helpers.js").onScroll,
+    allowedTypes = require("./allowedTypes.js");
 
-module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, update) {
+module.exports = function(drawNodes, getNodeCollection, transitions, update) {
     var junctionRadius = 5;
 
     var findDragTarget = function() {
@@ -57,11 +58,11 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 		    if (oldNode.allowedChildren.empty()) {
 			throw new Error("Nodes of type " + oldNode.type + " cannot have children.");
 		    }
-		    if (oldNode.allowedChildren.values().length === 1) {
-			newNode = nodes.create(oldNode.allowedChildren.values()[0]);
-		    } else {
-			newNode = nodes.create('undecided');
-		    };
+		    var newNodeType = oldNode.allowedChildren.values().length === 1 ?
+			    oldNode.allowedChildren.values()[0] :
+			    "undecided";
+		    
+		    newNode = getNodeCollection().getOrCreate(newNodeType);
 		}
 
 		try {
@@ -217,7 +218,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
     drawNodes.registerType("undecided", function(newNodes, nodeDisplay) {
 	var typeOptions = nodeDisplay.selectAll("g.node-choice")
 		.data(function(d, i) {
-		    return trackAllowedTypes.allowedTypesForNode(d.name())
+		    return allowedTypes(d)
 			.values()
 			.map(function(option) {
 			    return {node: d, option: option};
@@ -234,7 +235,7 @@ module.exports = function(drawNodes, trackAllowedTypes, nodes, transitions, upda
 		    d3.select(this).classed("node-choice-" + d.option, true);
 		})
 		.on("click", function(d, i) {
-		    d.node.chooseType(d.option);
+		    getNodeCollection.chooseNodeType(d.node, d.option);
 		    update();
 		});
 

@@ -2,35 +2,51 @@
 
 /*global require, module*/
 
-module.exports = function(nodes) {
-    var selected = nodes.root();
+module.exports = function(onNodeCollectionChanged, getNodeCollection) {
+    var selectedVal,
+	selectRoot = function() {
+	    m.selected(
+		getNodeCollection().root()
+	    );
+	},
+	setupEvents = function() {
+	    var coll = getNodeCollection();
+	    
+	    coll.onNodeCreate(m.selected);
+	    
+	    coll.onNodeDelete(function(deleted) {
+		if (selectedVal === deleted) {
+		    selectRoot();
+		}
+	    });
+	    
+	    coll.onEdgeDelete(function(deleted) {
+		if (selectedVal === deleted) {
+		    selectRoot();
+		}
+	    });
+	    
+	    coll.onNavigate(m.selected);
+	};
+
+    onNodeCollectionChanged(selectRoot);
 
     var m = {
 	selected: function(val) {
 	    if (val === undefined) {
-		return selected;
+		return selectedVal;
+		
 	    } else {
-		if (selected) {
-		    selected.selected = false;
+		if (selectedVal) {
+		    selectedVal.selected = false;
 		}
 
-		selected = val;
+		selectedVal = val;
 		val.selected = true;
-		return this;
+		return m;
 	    }
 	}
     };
-
-    nodes.onCreate(m.selected);
-    nodes.onDelete(function(type, deleted) {
-	if (type === "node" && selected.name() === deleted) {
-	    m.selected(nodes.root());
-	} else if (type === "edge" && selected === deleted) {
-	    m.selected(nodes.root());
-	}
-    });
-    nodes.onRoot(m.selected);
-    nodes.onNavigate(m.selected);
 
     return m;
 };

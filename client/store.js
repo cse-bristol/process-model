@@ -6,6 +6,9 @@ var _ = require("lodash"),
     sharejs = require('./node_modules/share/lib/client/index.js'),
     BCSocket = require('./node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
     helpers = require("./helpers"),
+    jsonData = require("./data.js"),
+    serializeNode = jsonData.serializeNode,
+    serializeEdge = jsonData.serializeEdge,
     callbacks = helpers.callbackHandler,
     noop = helpers.noop,
     coll = "process-models",
@@ -15,65 +18,7 @@ var _ = require("lodash"),
 	return a.href + "channel";
     }();
 
-/*
- Nodes are stored by their id.
- */
-var serializeNode = function(node) {
-    var n = {
-	name: node.name(),
-	description: node.description(),
-	type: node.type,
-	edges: serializeEdges(node.edges())
-    };
-
-    if (node.settled) {
-	n.settled = node.settled();
-    }
-
-    if (node.dependence) {
-	n.dependence = node.dependence();
-    }
-
-    if (node.support) {
-	n.support = node.support();
-    }
-
-    if (node.localEvidence && node.isLeaf) {
-	n.localEvidence = node.localEvidence();
-    }
-
-    return n;
-};
-
-/*
- Edges are stored on each node by the id of their target.
- */
-var serializeEdges = function(edges) {
-    var r = {};
-    
-    edges.forEach(function(e) {
-	r[e.node().id] = serializeEdge(e);
-    });
-    
-    return r;
-};
-
-var serializeEdge = function(edge) {
-    var e = {
-    };
-
-    if (edge.necessity) {
-	e.necessity = edge.necessity();
-    }
-
-    if (edge.sufficiency) {
-	e.sufficiency = edge.sufficiency();
-    }
-
-    return e;
-};
-
-module.exports = function(search, nodes) {
+module.exports = function(search, onNodeCollectionChanged, getNodeCollection, setNodeCollectionAndLayout) {
     var connection = new sharejs.Connection(
 	new BCSocket(
 	    url,
@@ -86,6 +31,8 @@ module.exports = function(search, nodes) {
 	context = {submitOp: function(op) {
 	    opQueue.push(op);
 	}};
+
+    connection.debug = true;
 
     var hook = function(o, makePath, serialize, prop) {
 	if (o[prop]) {
@@ -116,6 +63,9 @@ module.exports = function(search, nodes) {
     };
 
     var hookNode = function(node) {
+	/*
+	 I've chosen not to hook up the chooseType function in here. This means that a node changes identity when it changes type, which is probably ok since it has no interesting properties on it.
+	 */   
 	var makePath = function() {
 	    return ["nodes", node.id];
 	};
@@ -136,7 +86,6 @@ module.exports = function(search, nodes) {
 	    hookEdge(edge);
 	});
 
-	// TODO chooseType is complicated because the current behaviour recreates the node
 	// TODO description should use the text interface
     };
 
@@ -161,54 +110,40 @@ module.exports = function(search, nodes) {
 	});
     };
 
-    nodes.onCreate(function(node) {
-	hookNode(node);
-	context.submitOp(
-	    [{
-		p: ["nodes", node.id],
-		oi: serializeNode(node)
-	    }],
-	    noop
-	);
-    });
-
-    nodes.onDelete(function(type, o) {
-	if (type === "edge") {
+    onNodeCollectionChanged(function() {
+	getNodeCollection().onCreate(function(node) {
+	    hookNode(node);
 	    context.submitOp(
 		[{
-		    p: ["nodes", o.parent().id, o.node().id],
-		    od: serializeEdge(o)
+		    p: ["nodes", node.id],
+		    oi: serializeNode(node)
 		}],
 		noop
 	    );
-	    
-	} else if (type === "node") {
-	    context.submitOp(
-		[{
-		    p: ["nodes", o.id],
-		    od: o
-		}],
-		noop	     
-	    );
-	} else {
-	    throw new Error("Unknown type " + type);
-	}
-    });
+	});
 
-    nodes.onRoot(function(rootNode, previousRootNode) {
-	var op = {
-	    p: ["root"],
-	    oi: rootNode.id
-	};
-
-	if (previousRootNode) {
-	    op.od = previousRootNode.id;
-	}
-	
-	context.submitOp(
-	    [op],
-	    noop
-	);
+	getNodeCollection().onDelete(function(type, o) {
+	    if (type === "edge") {
+		context.submitOp(
+		    [{
+			p: ["nodes", o.parent().id, o.node().id],
+			od: serializeEdge(o)
+		    }],
+		    noop
+		);
+		
+	    } else if (type === "node") {
+		context.submitOp(
+		    [{
+			p: ["nodes", o.id],
+			od: o
+		    }],
+		    noop	     
+		);
+	    } else {
+		throw new Error("Unknown type " + type);
+	    }
+	});
     });
 
     search.onLoad(function(name) {
@@ -243,11 +178,13 @@ module.exports = function(search, nodes) {
 		});
 		opQueue = [];
 	    }
-
 	});
-	// TODO subscribe to new events
-	doc.subscribe();
 
+	doc.subscribe();
+	doc.on("after op", function(op, context) {
+	    // TODO subscribe to new events
+	    console.log("after op");
+	});
     });
 
     search.onImport(function(name) {
@@ -260,7 +197,7 @@ module.exports = function(search, nodes) {
 	if (name === doc.name) {
 	    doc.del();
 	    doc.destroy();
-	    nodes.reset();
+	    // TODO make a new layout and node collection here
 	    opQueue = [];
 	    doc = null;
 	    context = {submitOp: function(op) {

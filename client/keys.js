@@ -48,7 +48,12 @@ var lookupKey = function(e) {
     return String.fromCharCode(e.keyCode).toLowerCase();
 };
 
-var tryKeys = function(key, event, keyHandlers, update, property) {
+/*
+ Attempts to find a matching key in the keyHandlers list. Returns true and calls the update() function if one was found.
+
+ property is optional. It represents a property setter, which will be called if a matching keyhandler is found, but has no action.
+ */
+var tryKeys = function(key, event, keyHandlers, update, nodeContainer, property) {
     for (var i = keyHandlers.length - 1; i >= 0; i--) {
 	var option = keyHandlers[i];
 
@@ -67,7 +72,7 @@ var tryKeys = function(key, event, keyHandlers, update, property) {
 		event.stopPropagation();
 		
 		if (option.action !== undefined) {
-		    option.action();
+		    option.action(nodeContainer);
 		} else {
 		    property(get(option.value));
 		}
@@ -81,7 +86,7 @@ var tryKeys = function(key, event, keyHandlers, update, property) {
 };
 
 
-module.exports = function(selection, helpLink, zoom, update) {
+module.exports = function(selection, helpLink, zoom, update, getNodeCollection) {
     var universalKeys = [
 	{
 	    key: "+",
@@ -106,7 +111,8 @@ module.exports = function(selection, helpLink, zoom, update) {
     document.addEventListener(
 	"keydown", 
 	function(e) {
-	    var current = selection.selected();
+	    var current = selection.selected(),
+		nodeContainer = getNodeCollection();
 
 	    if (!current) {
 		return;
@@ -115,12 +121,12 @@ module.exports = function(selection, helpLink, zoom, update) {
 	    var props = Object.keys(current),
 		key = lookupKey(e);
 
-	    if (tryKeys(key, e, universalKeys, update, null)) {
+	    if (tryKeys(key, e, universalKeys, update, nodeContainer, null)) {
 		return;
 	    }
 
 	    if (current.keys !== undefined) {
-		if (tryKeys(key, e, current.keys, update, null)) {
+		if (tryKeys(key, e, current.keys, update, nodeContainer, null)) {
 		    return;
 		}
 	    }
@@ -128,7 +134,7 @@ module.exports = function(selection, helpLink, zoom, update) {
 	    for (var prop in current) {
 		var p = current[prop];
 		if (p.keys !== undefined) {
-		    if (tryKeys(key, e, p.keys, update, p)) {
+		    if (tryKeys(key, e, p.keys, update, nodeContainer, p)) {
 			return;
 		    }
 		}

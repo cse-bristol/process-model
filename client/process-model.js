@@ -3,15 +3,9 @@
 /*global parent, require*/
 
 var update = function() {
-    if (nodes.all().length === 0) {
-	nodes.create("process", "root");
-	update();
-    } else {
-	trackAllowedTypes.update();
-	draw();
-	updateDownloadLink();
-	toolbar.update();
-    }
+    draw();
+    updateDownloadLink();
+    toolbar.update();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -25,17 +19,31 @@ var d3 = require("d3"),
     body = d3.select("body"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
-    nodes = require("./nodes/abstract-node.js")(),
-    selection = require("./selection.js")(nodes),
-    trackAllowedTypes = require("./nodes/allowed-types.js")(nodes),
+    helpers = require("./helpers.js"),
+    callbacks = helpers.callbackHandler,
+    createLayout = require("./layout.js"),
+    nodeCollection,
+    layout,
+    getNodeCollection = function() {
+	return nodeCollection;
+    },
+    setNodeCollectionAndLayout = function(val) {
+	nodeCollection = val.nodes;
+	layout = val.layout;
+	
+	onNodeCollectionChanged();
+	update();
+    },
+    onNodeCollectionChanged = callbacks(),
+    selection = require("./selection.js")(onNodeCollectionChanged.add, getNodeCollection),
     transitions = require("./transition-switch.js")(),
-    dataConstructor = require("./data.js"),
-    perimetaConstructor = require("./perimeta-xml.js"),
+    jsonData = require("./data.js"),
+    perimetaDeserialize = require("./perimeta-xml.js"),
     helpLink = d3.select("#help"),
     toolbar = require("./text-toolbar.js")(body, svg, transitions),
     messages = require("./messages.js")(body, update),
-    layout = require("./layout.js")(nodes, 240, 70, 10),
-    drawNodes = require("./nodes/draw-node.js")(g, transitions, layout, toolbar,
+    //layout = require("./layout.js")(nodes, ),
+    drawNodes = require("./nodes/draw-node.js")(g, transitions, toolbar,
 						withUpdate(selection.selected),
 						update),
     drawEdges = require("./draw-edge.js")(g, transitions, update),
@@ -45,10 +53,10 @@ var d3 = require("d3"),
 	    toolbar.update();
 	}),
     files = require("./files.js"),
-    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update),
+    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, getNodeCollection),
 
     search = require("./search.js")(body),
-    store = require("./store.js")(search, nodes);
+    store = require("./store.js")(search, onNodeCollectionChanged.add, getNodeCollection, setNodeCollectionAndLayout);
 
 zoom.go = function() {
     zoom.event(g);
@@ -64,7 +72,7 @@ zoom.out = function() {
 };
 
 require("./help.js")(helpLink, shortcutKeys.universalKeys());
-require("./nodes/draw-process-node.js")(drawNodes, trackAllowedTypes, nodes, transitions, update);
+require("./nodes/draw-process-node.js")(drawNodes, getNodeCollection, transitions, update);
 zoom(svg);
 svg.on("dblclick.zoom", null);
 
@@ -79,24 +87,24 @@ var draw = function() {
 var updateDownloadLink = function(){
     d3.select("#download")
 	.attr("download", function(d, i){
-	    return nodes.root().name() + ".json";
+	    return document.title + ".json";
 	})
 	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(dataConstructor(nodes, layout).serialize(nodes.root()));
+	    return "data:application/json," + encodeURIComponent(jsonData.serialize(nodeCollection, layout));
 	});
 };
 
 var fromJson = function(fileName, content){
-    nodes.reset();
-    nodes.root(dataConstructor(nodes, layout).deserialize(content));
-    update();
+    setNodeCollectionAndLayout(
+	jsonData.deserialize(content));
 };
 fromJson.extensions = ["json"];
 
 var fromXML = function(fileName, content) {
-    nodes.reset();
-    perimetaConstructor(nodes).deserialize(content);
-    update();
+    setNodeCollectionAndLayout({
+	nodes: perimetaDeserialize(content),
+	layout: createLayout(getNodeCollection)
+    });
 };
 fromXML.extensions = ["xml"];
 

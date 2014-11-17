@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js");
 
-module.exports = function(container, transitions, layout, toolbar, clickHandler, update) {
+module.exports = function(container, transitions, toolbar, clickHandler, update) {
     var types = d3.map();
 
     var filterByType = function(nodeSelection, type) {
