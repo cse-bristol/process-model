@@ -24,6 +24,7 @@ module.exports = function(search) {
 
 	if (encodedName !== query.name) {
 	    query.name = encodedName;
+	    url.search = null;
 	    window.history.pushState(null, "", URL.format(url));
 	    document.title = name;
 	}
