@@ -14,7 +14,13 @@ var callbacks = require("./helpers.js").callbackHandler,
 module.exports = function(container, searchFunction, alwaysIncludeSearchText, callback) {
     var form = container
 	    .append("form")
-	    .attr("id", "search-control");
+	    .attr("id", "search-control")
+    // Search immediately if you hit enter.
+	    .on("submit", function(d, i) {
+		d3.event.stopPropagation();
+		d3.event.preventDefault();
+		doSearch();
+	    });
 
     var getSearchValue = function() {
 	return search.node().value.toLowerCase().trim();
@@ -29,17 +35,17 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, ca
 	    .attr("type", "text")
 	    .attr("id", "search")
     // Allow a little time for the user to finish typing.
-	    .on("input", doSearchSoonish)
-    // Search immediately if you hit enter.
-	    .on("submit", doSearch)
+	    .on("input", function(d, i) {
+		doSearchSoonish();
+	    })
 	    .on("blur", function() {
 		hideResults(true);
 	    });
 
     // Having a 'submit' input allows you to press enter in the search box to send a search.
     var submit = form.append("input")
-	    .attr("type", "submit")
-	    .style("visibility", "hidden");
+    	    .attr("type", "submit")
+    	    .style("visibility", "hidden");
 
     var searchResults = form.append("ul")
 	    .attr("id", "search-results");    

@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var sharejs = require('../node_modules/share/lib/client/index.js'),
+var _ = require("lodash"),
+    sharejs = require('../node_modules/share/lib/client/index.js'),
     BCSocket = require('../node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
     coll = "process-models",
     url = function() {
