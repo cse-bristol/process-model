@@ -28,7 +28,7 @@ module.exports = function(documentControl) {
 	    query.name = encodedName;
 	    url.search = null;
 	    window.history.pushState(null, "", URL.format(url));
-	    document.title = name;
+	    document.title = name + " - Process Model";
 	}
     };
 
