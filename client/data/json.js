@@ -8,7 +8,6 @@ var d3 = require("d3"),
 
 var serializeEdge = function(edge) {
     var e = {
-	to: edge.node().id
     };
     
     if (edge.necessity) {

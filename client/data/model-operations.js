@@ -25,13 +25,13 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 		var args = arguments;
 
 		if (arguments.length) {
-		    var oldVal = serialize(o),
-			returnVal = wrapped.apply(this, arguments),
-			newVal = serialize(o);
+		    var oldVal = wrapped.apply(o),
+			returnVal = wrapped.apply(o, arguments),
+			newVal = wrapped.apply(o);
 
 		    getContext().submitOp(
 			[{
-			    p: makePath(),
+			    p: makePath().concat([prop]),
 			    od: oldVal,
 			    oi: newVal
 			}],
@@ -64,7 +64,7 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 
     var hookEdge = function(edge) {
 	var makePath = function() {
-	    return ["nodes", edge.parent().id, edge.node().id];
+	    return ["nodes", edge.parent().id, "edges", edge.node().id];
 	};
 
 	["necessity", "sufficiency"]
