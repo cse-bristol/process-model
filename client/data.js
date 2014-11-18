@@ -143,6 +143,7 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
     });
     
     nodeCollection.root(nodeCollection.get(o.root));
+    nodeCollection.build();
 };
 
 /*
