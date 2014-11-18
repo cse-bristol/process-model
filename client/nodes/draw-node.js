@@ -258,7 +258,7 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	draw: function(displayNodes) {
 	    var nodeDisplay = container.selectAll("g.process-node")
 		    .data(displayNodes, function(d, i){
-			return d.type + "/" + d.name();
+			return d.id;
 		    });
 
 	    transitions.fadeOut(nodeDisplay);
