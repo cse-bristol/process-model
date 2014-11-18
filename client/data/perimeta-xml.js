@@ -4,7 +4,7 @@
 
 var d3 = require("d3"),
     DOMParser = require('xmldom').DOMParser,
-    nodeCollectionFactory = require("./nodes/node-collection.js");
+    nodeCollectionFactory = require("../nodes/node-collection.js");
 
 module.exports = function(text) {
     var num = function(elArray) {

@@ -253,21 +253,23 @@ g.weight-half:hover {
     border-color: red;
 }
 
-#document-control {
+#toolbar {
     position: absolute;
+    top: 1em;
+    left: 1em;
+}
+
+#search-control {
     font-size: large;
-    top: 0;
-    left: 0;
-    padding: 1.0em;
     font-family: helvetica;
 }
 
-#document-search {
+#search {
     font-size: large;
     margin-left: 0.1em;
 }
 
-#document-search-results {
+#search-results {
     list-style-type: none;
     margin: 0;
     padding-left: 0em;
@@ -276,13 +278,9 @@ g.weight-half:hover {
     width: 23.5em;
 }
 
-.document-search-result:hover {
+.search-result:hover {
     text-decoration: underline;
     background-color: #E0E0E0;
-}
-
-.search-result-button {
-    margin: 0.4em;
 }
 
 .document-search-result-text {

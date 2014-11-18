@@ -4,12 +4,14 @@
 
 var update = function() {
     if (!nodeCollection) {
-	freshNodeCollectionAndLayout();
+	setNodeCollectionAndLayout(
+	    freshNodeCollectionAndLayout()
+	);
     }
     
     draw();
     updateDownloadLink();
-    toolbar.update();
+    textControls.update();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -21,6 +23,8 @@ var update = function() {
 var d3 = require("d3"),
     URL = require("url"),
     body = d3.select("body"),
+    toolbar = body.append("div")
+	.attr("id", "toolbar"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
     helpers = require("./helpers.js"),
@@ -48,35 +52,34 @@ var d3 = require("d3"),
 	    nodes.getOrCreateNode("process")
 	);
 	nodes.build();
-	setNodeCollectionAndLayout(
-	    {
-		nodes: nodes,
-		layout: createLayout(nodes)
-	    }
-	);
+	return {
+	    nodes: nodes,
+	    layout: createLayout(nodes)
+	};
     },
     onNodeCollectionChanged = callbacks(),
     selection = require("./selection.js")(onNodeCollectionChanged.add, getNodeCollection),
     transitions = require("./transition-switch.js")(),
-    jsonData = require("./data.js"),
-    perimetaDeserialize = require("./perimeta-xml.js"),
+    jsonData = require("./data/json.js"),
+    perimetaDeserialize = require("./data/perimeta-xml.js"),
     helpLink = d3.select("#help"),
-    toolbar = require("./text-toolbar.js")(body, svg, transitions),
+    textControls = require("./text-toolbar.js")(body, svg, transitions),
     messages = require("./messages.js")(body, update),
-    drawNodes = require("./nodes/draw-node.js")(g, transitions, toolbar,
+    drawNodes = require("./nodes/draw-node.js")(g, transitions, textControls,
 						withUpdate(selection.selected),
 						update),
     drawEdges = require("./draw-edge.js")(g, transitions, update),
     zoom = d3.behavior.zoom()
 	.on("zoom", function(){
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	    toolbar.update();
+	    textControls.update();
 	}),
     files = require("./files.js"),
     shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, getNodeCollection),
-
-    search = require("./search.js")(body),
-    store = require("./store.js")(search, onNodeCollectionChanged.add, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout);
+    backend = require("./data/backend.js")(),
+    documentControl = require("./document-controls.js")(toolbar, backend.search),
+    store = require("./data/store.js")(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout),
+    modelOperations = require("./data/model-operations.js")(store.context, store.onContextChanged.add, getNodeCollection, getLayout, onNodeCollectionChanged.add);
 
 zoom.go = function() {
     zoom.event(g);
@@ -100,7 +103,6 @@ var draw = function() {
     var display = layout.display();
     
     drawNodes.draw(display.nodes);
-    
     drawEdges.draw(display.edges);
 };
 
@@ -110,7 +112,9 @@ var updateDownloadLink = function(){
 	    return document.title + ".json";
 	})
 	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(jsonData.serialize(nodeCollection, layout));
+	    return "data:application/json," + encodeURIComponent(
+		JSON.stringify(
+		    jsonData.serialize(nodeCollection, layout)));
 	});
 };
 
@@ -130,5 +134,4 @@ fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-var queryString = require("./query-string.js")(search);
-update();
+var queryString = require("./query-string.js")(documentControl);

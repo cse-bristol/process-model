@@ -3,8 +3,8 @@
 /*global require, module*/
 
 var d3 = require("d3"),
-    nodeCollectionFactory = require("./nodes/node-collection.js"),
-    layoutFactory = require("./layout.js");
+    nodeCollectionFactory = require("../nodes/node-collection.js"),
+    layoutFactory = require("../layout.js");
 
 var serializeEdge = function(edge) {
     var e = {
@@ -155,12 +155,11 @@ module.exports = {
     serializeNode: serializeNode,
     serializeEdge: serializeEdge,
     serialize: function(nodeCollection, layout) {
-	return JSON.stringify(
-	    {
+	return {
 		layout: serializeLayout(layout),
 		root: nodeCollection.root().id,
 		nodes: serializeNodes(nodeCollection.all())
-	    });
+	    };
     },
 
     deserialize: function(json) {
