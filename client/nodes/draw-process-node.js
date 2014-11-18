@@ -62,7 +62,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 			    oldNode.allowedChildren.values()[0] :
 			    "undecided";
 		    
-		    newNode = getNodeCollection().getOrCreate(newNodeType);
+		    newNode = getNodeCollection().getOrCreateNode(newNodeType);
 		}
 
 		try {
@@ -218,7 +218,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
     drawNodes.registerType("undecided", function(newNodes, nodeDisplay) {
 	var typeOptions = nodeDisplay.selectAll("g.node-choice")
 		.data(function(d, i) {
-		    return allowedTypes(d)
+		    return allowedTypes(d, getNodeCollection())
 			.values()
 			.map(function(option) {
 			    return {node: d, option: option};
@@ -235,7 +235,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		    d3.select(this).classed("node-choice-" + d.option, true);
 		})
 		.on("click", function(d, i) {
-		    getNodeCollection.chooseNodeType(d.node, d.option);
+		    getNodeCollection().chooseNodeType(d.node, d.option);
 		    update();
 		});
 

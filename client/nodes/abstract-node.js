@@ -84,7 +84,7 @@ module.exports = function(type, id, onEdgeCreate, onEdgeDelete, onNavigate) {
 	    return edges;
 	},
 	removeEdge : function(edge) {
-	    onEdgeDelete("edge", edge);
+	    onEdgeDelete(edge);
 	    edges.splice(edges.indexOf(edge), 1);
 	},
 	edgeTo : function(to) {

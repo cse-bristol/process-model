@@ -3,6 +3,10 @@
 /*global parent, require*/
 
 var update = function() {
+    if (!nodeCollection) {
+	freshNodeCollectionAndLayout();
+    }
+    
     draw();
     updateDownloadLink();
     toolbar.update();
@@ -21,11 +25,15 @@ var d3 = require("d3"),
     g = svg.append("g"),
     helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler,
+    createNodeCollection = require("./nodes/node-collection.js"),
     createLayout = require("./layout.js"),
     nodeCollection,
     layout,
     getNodeCollection = function() {
 	return nodeCollection;
+    },
+    getLayout = function() {
+	return layout;
     },
     setNodeCollectionAndLayout = function(val) {
 	nodeCollection = val.nodes;
@@ -33,6 +41,19 @@ var d3 = require("d3"),
 	
 	onNodeCollectionChanged();
 	update();
+    },
+    freshNodeCollectionAndLayout = function() {
+	var nodes = createNodeCollection();
+	nodes.root(
+	    nodes.getOrCreateNode("process")
+	);
+	nodes.build();
+	setNodeCollectionAndLayout(
+	    {
+		nodes: nodes,
+		layout: createLayout(nodes)
+	    }
+	);
     },
     onNodeCollectionChanged = callbacks(),
     selection = require("./selection.js")(onNodeCollectionChanged.add, getNodeCollection),
@@ -42,7 +63,6 @@ var d3 = require("d3"),
     helpLink = d3.select("#help"),
     toolbar = require("./text-toolbar.js")(body, svg, transitions),
     messages = require("./messages.js")(body, update),
-    //layout = require("./layout.js")(nodes, ),
     drawNodes = require("./nodes/draw-node.js")(g, transitions, toolbar,
 						withUpdate(selection.selected),
 						update),
@@ -56,7 +76,7 @@ var d3 = require("d3"),
     shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, getNodeCollection),
 
     search = require("./search.js")(body),
-    store = require("./store.js")(search, onNodeCollectionChanged.add, getNodeCollection, setNodeCollectionAndLayout);
+    store = require("./store.js")(search, onNodeCollectionChanged.add, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout);
 
 zoom.go = function() {
     zoom.event(g);

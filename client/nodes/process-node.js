@@ -164,7 +164,7 @@ module.exports = d3.map({
 	};
     },
 
-    "issue" : function(node) {
+    "issue": function(node) {
 	node.help = "A concern or question about the Process, subjected to debate and discussion.";
 
 	var settled = false;
@@ -182,13 +182,13 @@ module.exports = d3.map({
 	spaceToToggle(node.settled);
     },
 
-    "option" : function(node) {
+    "option": function(node) {
 	node.help = "Possible answers, alternatives or courses of action in reply to the Issue.";
 
 	node.allowedChildren = d3.set(["argument", "option"]);
     },
 
-    "argument" : function(node) {
+    "argument": function(node) {
 	node.help = "Evidence, reason or opinions in favor or against an Option.";
 
 	var support = false;

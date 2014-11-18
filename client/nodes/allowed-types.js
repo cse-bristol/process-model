@@ -4,8 +4,8 @@
 
 var d3 = require("d3"),
     allTypes = d3.set(
-	Object.keys(
-	    require("./process-node.js"))),
+	require("./process-node.js").keys()
+    ),
     intersection = function(a, b) {
 	return d3.set(a.values().filter(function(o) {
 	    return b.has(o);
@@ -20,11 +20,11 @@ module.exports = function(node, nodeCollection) {
 	throw new Error("Only appropriate for undecided nodes.");
     }
     
-    var allowed = d3.set(allTypes);
+    var allowed = allTypes;
 
     nodeCollection.edgesToNode(node)
 	.forEach(function(e) {
-	    allowed = intersection(allowed, node.allowedChildren);
+	    allowed = intersection(allowed, e.parent().allowedChildren);
 	});
 
     return allowed;

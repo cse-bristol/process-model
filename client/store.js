@@ -5,6 +5,8 @@
 var _ = require("lodash"),
     sharejs = require('./node_modules/share/lib/client/index.js'),
     BCSocket = require('./node_modules/browserchannel/dist/bcsocket-uncompressed.js').BCSocket,
+    collectionFactory = require("./nodes/node-collection.js"),
+    layoutFactory = require("./layout.js"),
     helpers = require("./helpers"),
     jsonData = require("./data.js"),
     serializeNode = jsonData.serializeNode,
@@ -18,7 +20,7 @@ var _ = require("lodash"),
 	return a.href + "channel";
     }();
 
-module.exports = function(search, onNodeCollectionChanged, getNodeCollection, setNodeCollectionAndLayout) {
+module.exports = function(search, onNodeCollectionChanged, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout) {
     var connection = new sharejs.Connection(
 	new BCSocket(
 	    url,
@@ -75,17 +77,6 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, se
 		hook(node, makePath, serializeNode, p);
 	    });
 
-	node.onEdgeTo(function(edge) {
-	    context.submitOp(
-		[{
-		    p: makePath().concat(["edges", edge.node().id]),
-		    oi: serializeEdge(edge)
-		}],
-		noop
-	    );
-	    hookEdge(edge);
-	});
-
 	// TODO description should use the text interface
     };
 
@@ -98,20 +89,12 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, se
 	    .forEach(function(p) {
 		hook(edge, makePath, serializeEdge, p);
 	    });
-	
-	edge.onDisconnect(function() {
-	    context.submitOp(
-		[{
-		    p: makePath(),
-		    od: serializeEdge(edge)
-		}],
-		noop
-	    );
-	});
     };
 
     onNodeCollectionChanged(function() {
-	getNodeCollection().onCreate(function(node) {
+	var coll = getNodeCollection();
+	
+	coll.onNodeCreate(function(node) {
 	    hookNode(node);
 	    context.submitOp(
 		[{
@@ -122,27 +105,35 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, se
 	    );
 	});
 
-	getNodeCollection().onDelete(function(type, o) {
-	    if (type === "edge") {
-		context.submitOp(
-		    [{
-			p: ["nodes", o.parent().id, o.node().id],
-			od: serializeEdge(o)
-		    }],
-		    noop
-		);
-		
-	    } else if (type === "node") {
-		context.submitOp(
-		    [{
-			p: ["nodes", o.id],
-			od: o
-		    }],
-		    noop	     
-		);
-	    } else {
-		throw new Error("Unknown type " + type);
-	    }
+	coll.onNodeDelete(function(node) {
+	    context.submitOp(
+		[{
+		    p: ["nodes", node.id],
+		    od: node
+		}],
+		noop	     
+	    );
+	});
+
+	coll.onEdgeCreate(function(edge) {
+	    context.submitOp(
+		[{
+		    p: ["nodes", edge.parent().id, "edges", edge.node().id],
+		    oi: serializeEdge(edge)
+		}],
+		noop
+	    );
+	    hookEdge(edge);
+	});
+
+	coll.onEdgeDelete(function(edge) {
+	    context.submitOp(
+		[{
+		    p: ["nodes", edge.parent().id, "edges", edge.node().id],
+		    od: serializeEdge(edge)
+		}],
+		noop
+	    );
 	});
     });
 
@@ -155,8 +146,11 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, se
 	doc.whenReady(function() {
 	    var snap = doc.getSnapshot();
 	    if (snap) {
+		setNodeCollectionAndLayout(
+		    jsonData.deserialize(snap)
+		);
+		
 		context = doc.createContext();
-		// TODO clear out the node graph, rebuilt it from history.
 	    } else {
 		doc.create(
 		    "json0",
@@ -189,7 +183,20 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, se
 
     search.onImport(function(name) {
 	name.toLowerCase();
-	// TODO fetch the document and add it as a subnode of the root node.
+	var toImport = connection.get(coll, name.toLowerCase());
+	toImport.subscribe();
+	toImport.whenReady(function() {
+	    var snap = doc.getSnapshot();
+	    if (snap) {
+		var deserialized = jsonData.deserialize(snap);
+		getNodeCollection().root().edgeTo(
+		    deserialized.nodes.root()
+		);
+		getLayout().merge(deserialized.layout);
+	    } else {
+		throw new Error("Attempted to import a collection, but it has been deleted " + snap);
+	    }
+	});
     });
 
     search.onDelete(function(name) {
@@ -197,12 +204,12 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, se
 	if (name === doc.name) {
 	    doc.del();
 	    doc.destroy();
-	    // TODO make a new layout and node collection here
 	    opQueue = [];
 	    doc = null;
 	    context = {submitOp: function(op) {
 		opQueue.push(op);
 	    }};
+	    freshNodeCollectionAndLayout();
 	} else {
 	    var toDelete = connection.get(coll, name.toLowerCase());
 	    toDelete.subscribe();

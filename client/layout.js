@@ -30,13 +30,6 @@ module.exports = function(nodes) {
 	});
     };
 
-    var rename = function (lookup, oldName, newName) {
-	if (lookup.has(oldName)) {
-	    lookup.set(newName, lookup.get(oldName));
-	    lookup.remove(oldName);
-	}
-    };
-
     var nodesToKeep = function() {
 	var stack = [nodes.root()],
 	    found = d3.map(),
@@ -44,23 +37,23 @@ module.exports = function(nodes) {
 
 	while(stack.length > 0) {
 	    var current = stack.pop(),
-		isCollapsed = collapsedNodes.has(current.name());
+		isCollapsed = collapsedNodes.has(current.id);
 
-	    found.set(current.name(), current);
+	    found.set(current.id, current);
 
 	    current.edges().forEach(function(e){
 		/* 
 		 If we reach a node from any uncollapsed node, or from two or more collapsed nodes, we'll keep it.
 		 */
-		if (found.has(e.node().name())) {
+		if (found.has(e.node().id)) {
 		    // NOOP
 
-		} else if (!isCollapsed || foundFromCollapsed.has(e.node().name())) {
+		} else if (!isCollapsed || foundFromCollapsed.has(e.node().id)) {
 		    stack.push(e.node());
-		    foundFromCollapsed.remove(e.node().name());
+		    foundFromCollapsed.remove(e.node().id);
 
 		} else {
-		    foundFromCollapsed.add(e.node().name());
+		    foundFromCollapsed.add(e.node().id);
 		}
 	    });
 	}
@@ -78,13 +71,13 @@ module.exports = function(nodes) {
 	    while(stack.length > 0) {
 		var currentEdge = stack.pop(),
 		    currentNode = currentEdge.node();
-		if (targets.has(currentNode.name())) {
+		if (targets.has(currentNode.id)) {
 		    // NOOP
 
-		} else if (!reachable.has(currentNode.name())) {
+		} else if (!reachable.has(currentNode.id)) {
 		    stack = stack.concat(currentNode.edges());
 		} else {
-		    targets.set(currentNode.name(), currentNode);
+		    targets.set(currentNode.id, currentNode);
 		}
 	    }
 
@@ -133,8 +126,8 @@ module.exports = function(nodes) {
 	};
 
 	var buildDisplayNode = function(node) {
-	    if (displayNodes.has(node.name())) {
-		return displayNodes.get(node.name());
+	    if (displayNodes.has(node.id)) {
+		return displayNodes.get(node.id);
 	    }
 
 	    var displayEdges,
@@ -142,12 +135,12 @@ module.exports = function(nodes) {
 
 	    displayNode.isView = true;
 
-	    if (collapsedNodes.has(node.name())) {
+	    if (collapsedNodes.has(node.id)) {
 		displayEdges = buildCollapsedEdges(displayNode);
 
 		displayNode.collapsed = function(shouldCollapse) {
 		    if (shouldCollapse === false) {
-			collapsedNodes.remove(node.name());
+			collapsedNodes.remove(node.id);
 			return this;
 		    } else {
 			return true;
@@ -181,7 +174,7 @@ module.exports = function(nodes) {
 		displayNode.edgeTo = function(n) {
 		    var found;
 		    displayEdges.forEach(function(e){
-			if (e.node().name() === n.name()) {
+			if (e.node().id === n.id) {
 			    found = e;
 			}
 		    });
@@ -195,7 +188,7 @@ module.exports = function(nodes) {
 		
 		displayNode.collapsed = function(shouldCollapse)  {
 		    if (shouldCollapse) {
-			collapsedNodes.add(node.name());
+			collapsedNodes.add(node.id);
 			return this;
 		    } else {
 			return false;
@@ -203,24 +196,7 @@ module.exports = function(nodes) {
 		};
 	    }
 
-	    displayNode.name = function(n) {
-		if (n === undefined) {
-		    return node.name();
-		} else {
-		    var oldName = node.name();
-			
-		    node.name(n);
-
-		    if (collapsedNodes.has(oldName)) {
-			collapsedNodes.remove(oldName);
-			collapsedNodes.add(n);
-		    }
-
-		    rename(manualPositions, oldName, n);
-		    rename(manualSizes, oldName, n);
-		    return displayNode;
-		}
-	    };
+	    displayNode.id = node.id;
 
 	    displayNode.edges = function() {
 		return displayEdges;
@@ -235,27 +211,27 @@ module.exports = function(nodes) {
 			throw "Position should be an array of [x, y]. Was " + xy;
 		    }
 
-		    manualPositions.set(node.name(), xy);
+		    manualPositions.set(node.id, xy);
 		    return displayNode;
 		} else {
-		    return manualPositions.get(node.name());
+		    return manualPositions.get(node.id);
 		}
 	    };
 
 	    displayNode.autoPosition = function() {
-		manualPositions.remove(node.name());
-		manualSizes.remove(node.name());
+		manualPositions.remove(node.id);
+		manualSizes.remove(node.id);
 	    };
 
 	    displayNode.size = function(pos) {
 		if (pos === undefined) {
-		    if (manualSizes.has(node.name())) {
-			return manualSizes.get(node.name());
+		    if (manualSizes.has(node.id)) {
+			return manualSizes.get(node.id);
 		    } else {
 			return [defaultNodeWidth, defaultNodeHeight];
 		    }
 		}
-		manualSizes.set(node.name(), [
+		manualSizes.set(node.id, [
 		    pos[0] < 80 ? 80 : pos[0],
 		    pos[1] < 50 ? 50 : pos[1]
 		]);
@@ -275,13 +251,13 @@ module.exports = function(nodes) {
 		return nodeSidePadding;
 	    };
 	    
-	    if (manualPositions.has(node.name())) {
-		var xy = manualPositions.get(node.name());
+	    if (manualPositions.has(node.id)) {
+		var xy = manualPositions.get(node.id);
 		displayNode.x = xy[0];
 		displayNode.y = xy[1];
 	    }
 
-	    displayNodes.set(node.name(), displayNode);
+	    displayNodes.set(node.id, displayNode);
 	    return displayNode;
 	};
 
@@ -302,14 +278,14 @@ module.exports = function(nodes) {
 
 	while (toRead.length > 0) {
 	    var node = toRead.pop();
-	    nodePositions.set(node.name(), node);
+	    nodePositions.set(node.id, node);
 
 	    node.edges().forEach(function(e){
 		if (e.node().x || e.node().y) {
 		    manualEdgePositions.push(e);
 		} else {
 		    toRead.push(e.node());
-		    edgePositions.push([node.name(), e.node().name()]);
+		    edgePositions.push([node.id, e.node().id]);
 		}
 	    });
 	}
@@ -332,7 +308,7 @@ module.exports = function(nodes) {
 		.rankSep(70)
 		.rankDir("LR")
 		.run(graph),
-	    rootLayout = layout._nodes[root.name()].value;
+	    rootLayout = layout._nodes[root.id].value;
 
 	xOffset -= rootLayout.x;
 	yOffset -= rootLayout.y;
@@ -385,10 +361,10 @@ module.exports = function(nodes) {
 
 	while (stack.length > 0) {
 	    var current = stack.pop();
-	    if (visited.has(current.name())) {
+	    if (visited.has(current.id)) {
 		// NOOP
 	    } else {
-		visited.add(current.name());
+		visited.add(current.id);
 		resultNodes.push(current);
 		resultEdges = resultEdges.concat(current.edges());
 		stack = stack.concat(current.edges().map(function(e){
@@ -432,19 +408,19 @@ module.exports = function(nodes) {
 
 	    var reachable = nodesToKeep(),
 		reachableCollapsed = nodes.all().filter(function(n){
-		    return reachable.has(n.name()) && collapsedNodes.has(n.name());
+		    return reachable.has(n.id) && collapsedNodes.has(n.id);
 		}),
 		displayGraph = buildDisplayGraph(reachable);
 
 	    var result = asNodeAndEdgeLists(displayGraph);
 
-	    if (!manualPositions.has(displayGraph.name())) {
+	    if (!manualPositions.has(displayGraph.id)) {
 		/* Set the position of the root node. */
-		manualPositions.set(displayGraph.name(), [0, 0]);
+		manualPositions.set(displayGraph.id, [0, 0]);
 	    }
 
 	    var layoutRoots = result.nodes.filter(function(n){
-		return manualPositions.has(n.name()) && reachable.has(n.name());
+		return manualPositions.has(n.id) && reachable.has(n.id);
 	    });
 
 	    while (layoutRoots.length > 0) {

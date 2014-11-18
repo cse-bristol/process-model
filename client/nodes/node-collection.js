@@ -2,11 +2,12 @@
 
 /*global module, require*/
 
-var d3 = require("d3"),
+var _ = require("lodash"),
+    d3 = require("d3"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
     guid = helpers.guid,
-    makeNodes = require("./abstract-node.js");
+    makeNode = require("./abstract-node.js");
 
 /*
  A graph of process nodes starting from a particular root node.
@@ -49,10 +50,10 @@ module.exports = function() {
 
 	while (stack.length > 0) {
 	    var current = stack.pop();
-	    if (!seen.has(current.name())) {
-		seen.add(current.name());
+	    if (!seen.has(current.id)) {
+		seen.add(current.id);
 		current.edges().forEach(function(e){
-		    if (e.node() === node) {
+		    if (e.node().id === node.id) {
 			edges.push(e);
 		    } else {
 			stack.push(e.node());
@@ -76,11 +77,11 @@ module.exports = function() {
 		}
 		
 	    } else {
-		node = makeNodes.create(type, id, onEdgeCreate, onEdgeDelete, onNavigate);
+		node = makeNode(type, id, onEdgeCreate, onEdgeDelete, onNavigate);
 
 	    }
 	} else {
-	    node = makeNodes.create(type, guid(), onEdgeCreate, onEdgeDelete, onNavigate);
+	    node = makeNode(type, guid(), onEdgeCreate, onEdgeDelete, onNavigate);
 	}
 	onNodeCreate(node);
 	nodesById.set(node.id, node);
@@ -88,15 +89,17 @@ module.exports = function() {
     };
 
     var m = {
-	all: nodesById.values,
-	has: nodesById.has,
-	get: nodesById.get,
+	all: _.bind(nodesById.values, nodesById),
+	has: _.bind(nodesById.has, nodesById),
+	get: _.bind(nodesById.get, nodesById),
 	clean: removeUnreachable,
 	root: function(newRoot) {
 	    if (newRoot) {
 		if (built) {
 		    throw new Error("Cannot change the root node once the collection has been built.");
 		}
+
+		root = newRoot;
 		
 		return m;
 	    }
@@ -133,7 +136,7 @@ module.exports = function() {
 	    var replacement = getOrCreateNode(type);
 	    replacement.name(node.name());
 	    
-	    node.incomingEdges().forEach(function(e) {
+	    edgesToNode(node).forEach(function(e) {
 		e.parent().edgeTo(replacement);
 		e.disconnect();
 	    });
