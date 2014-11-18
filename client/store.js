@@ -201,7 +201,7 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, ge
 
     search.onDelete(function(name) {
 	name = name.toLowerCase();
-	if (name === doc.name) {
+	if (doc && name === doc.name) {
 	    doc.del();
 	    doc.destroy();
 	    opQueue = [];
@@ -222,7 +222,7 @@ module.exports = function(search, onNodeCollectionChanged, getNodeCollection, ge
 
     search.provideSearch(function(text, callback, errback) {
 	// TODO *insecure*. Anyone could modify the Javascript in arbitrary ways here. Can we fire this from the server side and sanitize the text variable?
-	connection.createFetchQuery(coll, {_id: {$regex: "^" + text}}, {}, function(error, results, extraData) {
+	connection.createFetchQuery(coll, {_id: {$regex: text}}, {}, function(error, results, extraData) {
 	    if (error) {
 		errback(error);
 	    } else {
