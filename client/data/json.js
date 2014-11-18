@@ -84,7 +84,7 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
     edgeIds.forEach(function(edgeId) {
 	var e = serialized.edges[edgeId];
 	
-	var edge = deserialized.edgeTo(nodeCollection.get(e.to));
+	var edge = deserialized.edgeTo(nodeCollection.get(edgeId));
 
 	if (edge.necessity) {
 	    edge.necessity(e.necessity);
@@ -134,7 +134,7 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
      */
     Object.keys(o.nodes).forEach(function(id) {
 	var serialized = o.nodes[id],
-	    node = nodeCollection.getOrCreate(serialized.type, id);
+	    node = nodeCollection.getOrCreateNode(serialized.type, id);
     });
 
     Object.keys(o.nodes).forEach(function(id) {
@@ -146,7 +146,9 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
 };
 
 /*
- JSON serialization and deserialization.
+ Converts model and layout to and from simpler Javascript objects for data transfer.
+
+ Doesn't actually do any JSON parsing (that's handled for us in Sharejs).
 
  Format documented in README.org
  */
@@ -164,7 +166,7 @@ module.exports = {
     deserialize: function(json) {
 	var nodeCollection = nodeCollectionFactory(),
 	    layout = layoutFactory(nodeCollection);
-	deserializeLayoutAndData(JSON.parse(json), nodeCollection, layout);
+	deserializeLayoutAndData(json, nodeCollection, layout);
 
 	return {
 	    nodes: nodeCollection,

@@ -120,7 +120,8 @@ var updateDownloadLink = function(){
 
 var fromJson = function(fileName, content){
     setNodeCollectionAndLayout(
-	jsonData.deserialize(content));
+	jsonData.deserialize(
+	    JSON.parse(content)));
 };
 fromJson.extensions = ["json"];
 
