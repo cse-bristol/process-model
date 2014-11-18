@@ -4,7 +4,13 @@
 
 var d3 = require("d3"),
     types = require("./nodes/process-node.js"),
-    nodes = require("./nodes/abstract-node.js")();
+    helpers = require("./helpers.js"),
+    noop = helpers.noop,
+    nodeFactory = require("./nodes/abstract-node.js"),
+    createNode = function(type, id) {
+	return nodeFactory(type, id, noop, noop, noop);
+    };
+
 
 var propertyNames = d3.map({
     "p" : "propagated-evidence"
@@ -27,7 +33,7 @@ var altKeyNames = d3.map({
 });
 
 var makeExampleEdge = function(typedNode) {
-    var child = nodes.create("undecided"),
+    var child = createNode("undecided", 4),
 	edge = typedNode.edgeTo(child);
     
     typedNode.extendIncomingEdge(edge);
@@ -103,7 +109,7 @@ var nodeTypeHelp = function() {
     };
 
     var typeHelp = function(type) {
-	var example = nodes.create(type),
+	var example = createNode(type, 1),
 	    children = example.allowedChildren.empty() > 0 ?
 		"Cannot have children" :
 		"Possible children: " + example.allowedChildren.values().join("; ");
@@ -132,7 +138,7 @@ var shortcutHelp = function(shortcutKeys) {
 };
 
 var nodeShortcutHelp = function() {
-    var example = nodes.create("process");
+    var example = createNode("process", 2);
     return h(3, "Node Shortcut Keys")
 	+ tag("ul", example.keys.map(function(shortcut) {
 	    return tag("li", keypress(shortcut) + " to " + shortcut.description);
@@ -140,7 +146,7 @@ var nodeShortcutHelp = function() {
 };
 
 var edgeShortcutHelp = function() {
-    var node = nodes.create("process"),
+    var node = createNode("process", 3),
 	edge = makeExampleEdge(node);
 
     return h(3, "Edge Shortcut Keys")

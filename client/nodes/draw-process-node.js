@@ -4,7 +4,7 @@
 
 var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
-    allowedTypes = require("./allowedTypes.js");
+    allowedTypes = require("./allowed-types.js");
 
 module.exports = function(drawNodes, getNodeCollection, transitions, update) {
     var junctionRadius = 5;

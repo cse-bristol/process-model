@@ -28,13 +28,13 @@ var cleanse = function(name) {
 
 var assertNoCycles = function(node) {
     var assertNoCyclesAccum = function(node, seen, edge) {
-	if (seen.indexOf(node.name()) >= 0) {
+	if (seen.indexOf(node.id) >= 0) {
 	    throw new Error("Cycle detected for node " + node.name() + " from " + edge.parent().name());
 	}
 
 	node.edges().forEach(function(e){
 	    var copy = seen.slice(0);
-	    copy.push(node.name());
+	    copy.push(node.id);
 	    assertNoCyclesAccum(e.node(), copy, e);
 	});
     };
@@ -54,6 +54,10 @@ var assertNoCycles = function(node) {
 module.exports = function(type, id, onEdgeCreate, onEdgeDelete, onNavigate) {
     if (!types.has(type)) {
 	throw new Error("Unknown type of node " + type);
+    }
+
+    if (id === null || id === undefined) {
+	throw new Error("Must always specify an id when creating a node.");
     }
 
     var edges = [],
