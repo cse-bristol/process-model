@@ -84,6 +84,13 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 	    }],
 	    noop
 	);
+
+	coll.all().forEach(function(n) {
+	    hookNode(n);
+	    n.edges().forEach(function(e) {
+		hookEdge(e);
+	    });
+	});
 	
 	coll.onNodeCreate(function(node) {
 	    hookNode(node);
