@@ -179,6 +179,5 @@ module.exports = function(text) {
     });
     
     nodeCollection.root(findRootNode(nodeCollection));
-    nodeCollection.build();
     return nodeCollection;
 };

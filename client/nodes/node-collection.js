@@ -106,7 +106,15 @@ module.exports = function() {
 	    
 	    return root;
 	},
+
+	/*
+	 Call this when you have finished initializing a collection and are ready to initialize it.
+	 */
 	build: function() {
+	    if (built) {
+		throw new Error("Tried to build a collection which has already finished building.");
+	    }
+	    
 	    built = true;
 	    removeUnreachable();
 	    if (!root) {

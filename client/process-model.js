@@ -40,6 +40,7 @@ var d3 = require("d3"),
 	return layout;
     },
     setNodeCollectionAndLayout = function(val) {
+	val.nodes.build();
 	nodeCollection = val.nodes;
 	layout = val.layout;
 	
