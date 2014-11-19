@@ -10,7 +10,7 @@ var update = function() {
     }
     
     draw();
-    updateDownloadLink();
+    updateExportLink();
     textControls.update();
 
 }, withUpdate = function(f) {
@@ -106,16 +106,16 @@ var draw = function() {
     drawEdges.draw(display.edges);
 };
 
-var updateDownloadLink = function(){
-    d3.select("#download")
-	.attr("download", function(d, i){
-	    return document.title + ".json";
-	})
-	.attr("href", function(d, i){
-	    return "data:application/json," + encodeURIComponent(
+var updateExportLink = function(){
+    console.log("updating export link");
+    documentControl.updateExportLink(
+	"data:application/json,"
+	    + encodeURIComponent(
 		JSON.stringify(
-		    jsonData.serialize(nodeCollection, layout)));
-	});
+		    jsonData.serialize(nodeCollection, layout)
+		)
+	    )
+    );
 };
 
 var fromJson = function(fileName, content){

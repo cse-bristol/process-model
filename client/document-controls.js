@@ -12,7 +12,7 @@ var d3 = require("d3"),
  Provides UI buttons to manage documents.
  */
 module.exports = function(container, searchFunction) {
-    var documentName = null,
+    var title = null,
 	temp = false,
 	lastSearch = null,
 	onNew = callbacks(),
@@ -20,37 +20,32 @@ module.exports = function(container, searchFunction) {
 	onSaveAs = callbacks(),
 	onInsert = callbacks(),
 	onDelete = callbacks();
+
+    var setTitle = function(newTitle, newTemp) {
+	if (temp) {
+	    onDelete(title);
+	}
+	title = newTitle;
+	temp = newTemp;
+	jsonExport.attr("download", title + ".json");
+    };
     
     var withSearch = function(alwaysIncludeSearchText, callback) {
-	// TODO decide where to put the search box.
 	return function() {
 	    if (lastSearch) {
 		lastSearch.hide();
 	    }
-	    lastSearch = search(container, searchFunction, alwaysIncludeSearchText, documentName, callback);
+	    lastSearch = search(container, searchFunction, alwaysIncludeSearchText, title, callback);
 	};
     };
 
-    var clearTempDocument = function() {
-	if (temp) {
-	    onDelete(documentName);
-	}
-    };
-
     var newDoc = function() {
-	clearTempDocument();
-	    
-	temp = true;
-	documentName = guid();
-	onNew(documentName);
+	setTitle(guid(), true);
+	onNew(title);
     };
 
     var open = function(name) {
-	clearTempDocument();
-
-	temp = false;
-	documentName = name;
-	onOpen(name);
+	setTitle(name, false);
     };
     
     var buttons = d3.map({
@@ -59,10 +54,7 @@ module.exports = function(container, searchFunction) {
 	Open: withSearch(false, open),
 	
 	"Save as": withSearch(true, function(result) {
-	    clearTempDocument();
-
-	    temp = false;
-	    documentName = result;
+	    setTitle(result, false);
 	    onSaveAs(result);
 	}),
 	
@@ -71,16 +63,11 @@ module.exports = function(container, searchFunction) {
 	}),
 	
 	Delete: withSearch(false, function(result) {
-	    if (result === documentName) {
-		temp = true;
-		documentName = guid();
-		onNew(documentName);
-		
+	    if (result === title) {
+		setTitle(guid(), true);
+		onNew(title);
+	    }		
 		onDelete(result);
-		
-	    } else {
-		onDelete(result);
-	    }
 	})
     });
 
@@ -96,6 +83,11 @@ module.exports = function(container, searchFunction) {
 	    buttons.get(d)();
 	});
 
+    var jsonExport = container.append("a")
+	    .classed("document-control-button", true)
+	    .text("Export")
+	    .attr("href", "javascript:void(0)");
+
     return {
 	newDoc: newDoc,
 	onNew: onNew.add,
@@ -103,6 +95,9 @@ module.exports = function(container, searchFunction) {
 	onOpen: onOpen.add,
 	onSaveAs: onSaveAs.add,
 	onInsert: onInsert.add,
-	onDelete: onDelete.add
+	onDelete: onDelete.add,
+	updateExportLink: function(val) {
+	    jsonExport.attr("href", val);
+	}
     };
 };
