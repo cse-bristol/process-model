@@ -259,6 +259,23 @@ g.weight-half:hover {
     left: 1em;
 }
 
+.document-control-button {
+    cursor: pointer;
+    display: inline-block;
+    width: 5em;
+    background-color: #E0E0E0;
+    font-size: large;
+    font-family: monospace;
+    text-align: center;
+    padding: 0.2em;
+    margin: 0.1em;
+    opacity: 0.8;
+}
+
+.document-control-button:hover {
+    opacity: 1.0;
+}
+
 #search-control {
     font-size: large;
     font-family: helvetica;
