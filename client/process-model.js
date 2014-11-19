@@ -107,7 +107,6 @@ var draw = function() {
 };
 
 var updateExportLink = function(){
-    console.log("updating export link");
     documentControl.updateExportLink(
 	"data:application/json,"
 	    + encodeURIComponent(
