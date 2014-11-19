@@ -284,9 +284,15 @@ g.weight-half:hover {
     padding: 0.2em;
 }
 
+.search-result {
+    background-color: palegreen;
+    opacity: 0.8;
+    cursor: pointer;
+}
+
 .search-result:hover {
     text-decoration: underline;
-    background-color: #E0E0E0;
+    opacity: 1.0;
 }
 
 .search-result-current-page {
