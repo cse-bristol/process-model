@@ -52,7 +52,6 @@ var d3 = require("d3"),
 	nodes.root(
 	    nodes.getOrCreateNode("process")
 	);
-	nodes.build();
 	return {
 	    nodes: nodes,
 	    layout: createLayout(nodes)
