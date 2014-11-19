@@ -46,6 +46,7 @@ module.exports = function(container, searchFunction) {
 
     var open = function(name) {
 	setTitle(name, false);
+	onOpen(name);
     };
     
     var buttons = d3.map({
