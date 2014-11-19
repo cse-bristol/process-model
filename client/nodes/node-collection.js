@@ -152,6 +152,16 @@ module.exports = function() {
 	    return replacement;
 	},
 
+	merge: function(toMerge) {
+	    toMerge.all()
+		.forEach(function(node) {
+		    nodesById.set(node.id, node);
+		    onNodeCreate(node);
+		});
+
+	    root.edgeTo(toMerge.root());
+	},
+
 	onNodeCreate: onNodeCreate.add,
 	onNodeDelete: onNodeDelete.add,
 	onEdgeCreate: onEdgeCreate.add,

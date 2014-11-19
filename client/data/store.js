@@ -15,7 +15,7 @@ var _ = require("lodash"),
 
  Keeps track of the open sharejs document.
  */
-module.exports = function(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout) {
+module.exports = function(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout, update) {
     var doc,
 	context,
 	onContextChanged = callbacks(),
@@ -61,17 +61,27 @@ module.exports = function(backend, documentControl, getNodeCollection, getLayout
 	backend.load(
 	    name,
 	    function(loaded) {
-		var snapshot = loaded.getSnapshot();
-		if (snapshot) {
-		    var deserialized = jsonData.deserialize(snapshot);
-		    getNodeCollection().root().edgeTo(
-			deserialized.nodes.root()
-		    );
-		    getLayout().merge(deserialized.layout);
-		} else {
-		    throw new Error("Attempted to import a collection, but it has been deleted " + name);
+		try {
+		    var snapshot = loaded.getSnapshot();
+		    if (snapshot) {
+			var deserialized = jsonData.deserialize(snapshot),
+			    coll = getNodeCollection();
+
+			deserialized.nodes.all().forEach(function(n) {
+			    if (coll.has(n.id)) {
+				throw new Error("Attempted to import a document which had some of the same nodes as this document.");
+			    }
+			});
+
+			coll.merge(deserialized.nodes);
+			getLayout().merge(deserialized.layout);
+			update();
+		    } else {
+			throw new Error("Attempted to import a collection, but it has been deleted " + name);
+		    }
+		} finally {
+		    loaded.destroy();
 		}
-		loaded.destroy();
 	    }
 	);
     });

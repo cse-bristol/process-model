@@ -78,7 +78,7 @@ var d3 = require("d3"),
     shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, getNodeCollection),
     backend = require("./data/backend.js")(),
     documentControl = require("./document-controls.js")(toolbar, backend.search),
-    store = require("./data/store.js")(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout),
+    store = require("./data/store.js")(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout, update),
     modelOperations = require("./data/model-operations.js")(store.context, store.onContextChanged.add, getNodeCollection, getLayout, onNodeCollectionChanged.add);
 
 zoom.go = function() {

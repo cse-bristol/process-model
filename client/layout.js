@@ -379,27 +379,27 @@ module.exports = function(nodes) {
     };
 
     var module = {
-	position: function(name, position) {
-	    if (name && position) {
-		manualPositions.set(name, position);
+	position: function(id, position) {
+	    if (id && position) {
+		manualPositions.set(id, position);
 		return module;
 	    } else {
 		return manualPositions;
 	    }
 	},
-	collapsed: function(c) {
-	    if (c) {
-		collapsedNodes.add(c);
+	collapsed: function(id) {
+	    if (id) {
+		collapsedNodes.add(id);
 		return module;
 	    } else {
 		return collapsedNodes;
 	    }
 	},
-	size: function(name, s) {
+	size: function(id, s) {
 	    if (s === undefined) {
 		return manualSizes;
 	    } else {
-		manualSizes.set(name, s);
+		manualSizes.set(id, s);
 		return module;
 	    }
 	},
@@ -428,6 +428,21 @@ module.exports = function(nodes) {
 	    }
 
 	    return result;
+	},
+
+	/*
+	 Take all the data from the passed in layout and add it to this layout.
+	 */
+	merge: function(layout) {
+	    layout.position().forEach(function(id, position) {
+		module.position(id, position);
+	    });
+	    layout.collapsed().forEach(function(id) {
+		module.collapsed(id);
+	    });
+	    layout.size().forEach(function(id, position) {
+		module.size(id, position);
+	    });
 	}
     };
 

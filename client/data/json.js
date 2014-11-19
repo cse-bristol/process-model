@@ -83,8 +83,13 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
     
     edgeIds.forEach(function(edgeId) {
 	var e = serialized.edges[edgeId];
+
+	var target = nodeCollection.get(edgeId);
 	
-	var edge = deserialized.edgeTo(nodeCollection.get(edgeId));
+	if (!target) {
+	    throw new Error("Missing node with id " + edgeId);
+	}
+	var edge = deserialized.edgeTo(target);
 
 	if (edge.necessity) {
 	    edge.necessity(e.necessity);
