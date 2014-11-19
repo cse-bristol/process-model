@@ -272,7 +272,7 @@ g.weight-half:hover {
 #search-results {
     list-style-type: none;
     margin: 0;
-    padding: 0.2em;
+    padding: 0.1em;
     display: block;
     width: 13em;
     overflow: hidden;
@@ -280,7 +280,19 @@ g.weight-half:hover {
     white-space: nowrap;
 }
 
+.search-result {
+    padding: 0.2em;
+}
+
 .search-result:hover {
     text-decoration: underline;
     background-color: #E0E0E0;
+}
+
+.search-result-current-page {
+    background-color: pink;
+}
+
+.search-result-fabricated {
+    background-color: powderblue;
 }

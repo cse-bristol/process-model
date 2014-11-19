@@ -23,7 +23,7 @@ module.exports = function(container, searchFunction) {
     var withSearch = function(alwaysIncludeSearchText, callback) {
 	// TODO decide where to put the search box.
 	return function() {
-	    search(container, searchFunction, alwaysIncludeSearchText, callback);
+	    search(container, searchFunction, alwaysIncludeSearchText, documentName, callback);
 	};
     };
 

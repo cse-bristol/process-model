@@ -9,9 +9,11 @@ var callbacks = require("./helpers.js").callbackHandler,
 /*
  Provides a temporary search box, which will go away when the user clicks on one of the results.
 
- alwaysIncludeSearchText is a boolean which, if set true, will cause the value the user search for to always appear in the search results, even if it doesn't exist (useful for save as operations).
+ alwaysIncludeSearchText is a boolean which, if set true, will cause the value the user search for to always appear in the search results, even if it doesn't exist (useful for save as operations). If it was added in this way, it will have the class .search-result-fabricated.
+
+ currentPage will have the class .search-result-current-page.
  */
-module.exports = function(container, searchFunction, alwaysIncludeSearchText, callback) {
+module.exports = function(container, searchFunction, alwaysIncludeSearchText, currentPage, callback) {
     var form = container
 	    .append("form")
 	    .attr("id", "search-control")
@@ -58,6 +60,8 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, ca
 	}
 	
 	searchFunction(val, function(names) {
+	    var addedVal = false;
+	    
 	    if (val !== getSearchValue()) {
 		// The user has changed the text since we issued this search.
 		return;
@@ -66,6 +70,7 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, ca
 	    if (alwaysIncludeSearchText && names.indexOf(val) < 0) {
 		// Add the search text to the top of the list.
 		names = [val].concat(names);
+		addedVal = true;
 	    }
 	    
 	    var results = searchResults.selectAll("li")
@@ -86,6 +91,12 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, ca
 		    .on("click", function(d, i) {
 			callback(d);
 			hideResults(false);
+		    })
+		    .classed("search-result-current-page", function(d, i) {
+			return d === currentPage;
+		    })
+		    .classed("search-result-fabricated", function(d, i) {
+			return addedVal && d === val;
 		    });
 	});
     };
