@@ -20,7 +20,6 @@ module.exports = function(backend, documentControl, getNodeCollection, getLayout
 	context,
 	// Manual mechanism to track when we're making changes, so that we don't write out own events.
 	writing = false,
-	onContextChanged = callbacks(),
 	onOp = callbacks(),
 	setDoc = function(newDoc) {
 	    if (doc) {
@@ -45,7 +44,6 @@ module.exports = function(backend, documentControl, getNodeCollection, getLayout
 	    
 	    doc.create("json0", jsonData.serialize(nodeCollection, layout));
 	    context = doc.createContext();
-	    onContextChanged();
 	    
 	    writing = false;
 	};
@@ -142,8 +140,6 @@ module.exports = function(backend, documentControl, getNodeCollection, getLayout
 		writing = false;
 	    }
 	},
-
-	onContextChanged: onContextChanged.add,
 
 	onOp: onOp.add
     };

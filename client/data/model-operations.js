@@ -15,7 +15,7 @@ var _ = require("lodash"),
 
  Watched the context and alters the node graph and layout based on the operations it sees.
  */
-module.exports = function(writeOp, onContextChanged, onOp, getNodeCollection, getLayout, onNodeCollectionChanged, update) {
+module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCollectionChanged, update) {
     var listening = true,
 	submitOp = function(op) {
 	    if (listening) {
