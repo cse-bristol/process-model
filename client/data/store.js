@@ -18,21 +18,36 @@ var _ = require("lodash"),
 module.exports = function(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout, update) {
     var doc,
 	context,
+	// Manual mechanism to track when we're making changes, so that we don't write out own events.
+	writing = false,
 	onContextChanged = callbacks(),
+	onOp = callbacks(),
 	setDoc = function(newDoc) {
 	    if (doc) {
 		doc.destroy();
 		context = null;
 	    }
 	    doc = newDoc;
+	    doc.on("after op", function(ops, context) {
+		if (!writing) {
+		    ops.forEach(function(op) {
+			onOp(op);
+		    });
+		}
+	    });
+	    
 	},
 	/*
 	 Document must have been deleted for this to work.
 	 */
 	saveDoc = function(nodeCollection, layout) {
+	    writing = true;
+	    
 	    doc.create("json0", jsonData.serialize(nodeCollection, layout));
 	    context = doc.createContext();
 	    onContextChanged();
+	    
+	    writing = false;
 	};
     
     documentControl.onOpen(function(name) {
@@ -119,10 +134,17 @@ module.exports = function(backend, documentControl, getNodeCollection, getLayout
     });
 
     return {
-	context: function() {
-	    return context;
+	writeOp: function(op) {
+	    writing = true;
+	    try {
+		context.submitOp([op], noop);
+	    } finally {
+		writing = false;
+	    }
 	},
 
-	onContextChanged: onContextChanged.add
+	onContextChanged: onContextChanged.add,
+
+	onOp: onOp.add
     };
 };

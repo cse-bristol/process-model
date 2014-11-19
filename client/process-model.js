@@ -79,7 +79,7 @@ var d3 = require("d3"),
     backend = require("./data/backend.js")(),
     documentControl = require("./document-controls.js")(toolbar, backend.search),
     store = require("./data/store.js")(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout, update),
-    modelOperations = require("./data/model-operations.js")(store.context, store.onContextChanged.add, getNodeCollection, getLayout, onNodeCollectionChanged.add);
+    modelOperations = require("./data/model-operations.js")(store.writeOp, store.onContextChanged.add, store.onOp, getNodeCollection, getLayout, onNodeCollectionChanged.add, update);
 
 zoom.go = function() {
     zoom.event(g);

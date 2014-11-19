@@ -78,25 +78,33 @@ var serializeLayout = function(layout) {
     };
 };
 
+var deserializeEdgeDetails = function(serialized, edge) {
+    if (edge.necessity) {
+	edge.necessity(serialized.necessity);
+    }
+    if (edge.sufficiency) {
+	edge.sufficiency(serialized.sufficiency);
+    }
+};
+
+var deserializeEdge = function(serialized, fromNode, toNodeId, nodeCollection) {
+    var target = nodeCollection.get(toNodeId);
+    
+    if (!target) {
+	throw new Error("Missing node with id " + toNodeId);
+    }
+    var edge = fromNode.edgeTo(target);
+
+    deserializeEdgeDetails(serialized, edge);
+};
+
 var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) {
     var edgeIds = Object.keys(serialized.edges);
     
     edgeIds.forEach(function(edgeId) {
 	var e = serialized.edges[edgeId];
 
-	var target = nodeCollection.get(edgeId);
-	
-	if (!target) {
-	    throw new Error("Missing node with id " + edgeId);
-	}
-	var edge = deserialized.edgeTo(target);
-
-	if (edge.necessity) {
-	    edge.necessity(e.necessity);
-	}
-	if (edge.sufficiency) {
-	    edge.sufficiency(e.sufficiency);
-	}
+	deserializeEdge(e, deserialized, edgeId, nodeCollection);
     });
 
     if (serialized.dependence) {
@@ -161,10 +169,10 @@ module.exports = {
     serializeEdge: serializeEdge,
     serialize: function(nodeCollection, layout) {
 	return {
-		layout: serializeLayout(layout),
-		root: nodeCollection.root().id,
-		nodes: serializeNodes(nodeCollection.all())
-	    };
+	    layout: serializeLayout(layout),
+	    root: nodeCollection.root().id,
+	    nodes: serializeNodes(nodeCollection.all())
+	};
     },
 
     deserialize: function(json) {
@@ -176,6 +184,21 @@ module.exports = {
 	    nodes: nodeCollection,
 	    layout: layout
 	};
+    },
+
+    /*
+     Does not create the edge, just gets its properties out.
+     */
+    deserializeEdgeDetails: deserializeEdgeDetails,
+
+    /*
+     Creates the edge and sets its properties.
+     */
+    deserializeEdge: deserializeEdge,
+
+    deserializeNode: function(id, serialized, nodeCollection) {
+	var deserialized = nodeCollection.getOrCreateNode(serialized.type, id);
+	deserializeNodeDetails(serialized, deserialized, nodeCollection);
     }
 };
 

@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var helpers = require("../helpers.js"),
+var _ = require("lodash"),
+    helpers = require("../helpers.js"),
     noop = helpers.noop,
     jsonData = require("./json.js"),
     serialize = jsonData.serialize,
@@ -13,11 +14,140 @@ var helpers = require("../helpers.js"),
  Watches the node graph and layout. Makes operations out of changes to them.
 
  Watched the context and alters the node graph and layout based on the operations it sees.
-
- TODO subscribe to events.
- TODO examine layout changes.
  */
-module.exports = function(getContext, onContextChanged, getNodeCollection, getLayout, onNodeCollectionChanged) {
+module.exports = function(writeOp, onContextChanged, onOp, getNodeCollection, getLayout, onNodeCollectionChanged, update) {
+    var listening = true,
+	submitOp = function(op) {
+	    if (listening) {
+		writeOp(op);
+	    }
+	};
+
+    var updateProperty = function(o, p, op) {
+	if (o[p]) {
+	    var prop = o[p];
+
+	    if (op.od) {
+		// Ignore: we have no concept of unsetting properties in our model.
+	    }
+	    
+	    if (op.oi) {
+		prop.call(o, op.oi);
+		update();
+	    }
+	} else {
+	    throw new Error("Unknown property " + p + " on " + o);
+	}
+    };
+
+    var updateLayout = function(layout, path, op) {
+	if (path.length === 0) {
+	    // Noop: the whole layout is getting replaced, not our business.
+	    
+	} else if (path.length === 1) {
+	    updateProperty(layout, path[0], op);
+	} else {
+	    throw new Error("Unknown path for updating layout: " + path);
+	}
+    };
+
+    var updateEdge = function(edge, path, op) {
+	if (path.length === 0) {
+	    throw new Error("Adding and removing edges should be handled before we get here.");
+	} else if (path.length === 1) {
+	    updateProperty(edge, path[0], op);
+	} else {
+	    throw new Error("Unknown path for updating an edge property: " + path);
+	}
+    };
+
+    var updateEdges = function(nodeCollection, node, path, op) {
+	if (path.length === 0) {
+	    throw new Error("We don't provide a way to update all the edges on a node at once.");
+	}
+
+	var targetId = path[0],
+	    match = _.find(node.edges(), function(edge) {
+		return edge.node().id === targetId;
+	    });
+
+	if (path.length === 1) {
+	    if (op.od && match) {
+		match.disconnect();
+		update();
+	    }
+
+	    if (op.oi) {
+		if (match) {
+		    jsonData.deserializeEdgeDetails(op.oi, match);
+		} else {
+		    jsonData.deserializeEdge(op.oi, node, targetId, nodeCollection);
+		}
+		update();
+	    }
+	    
+	} else {
+	    if (match) {
+		updateEdge(match, path.slice(1), op);
+	    } else {
+		throw new Error("Attempted to update an edge which didn't exist between " + node.id + " and " + targetId);
+	    }
+	}
+    };
+
+    var updateNode = function(nodeCollection, node, path, op) {
+	if (path.length === 0) {
+	    throw new Error("Adding and removing nodes should be handled before we get here.");
+	} else if (path.length === 1) {
+	    updateProperty(node, path[0], op);
+	} else if (path[0] === "edges") {
+	    updateEdges(nodeCollection, node, path.slice(1), op);
+	    
+	} else {
+	    throw new Error("Unknown path for updating a node: " + path);
+	}
+    };
+
+    var updateNodes = function(nodeCollection, path, op) {
+	if (path.length === 0) {
+	    // Noop: we're replacing all the nodes, not our business.
+	    
+	} else if (path.length === 1) {
+	    if (op.od) {
+		// Ignore: the node will be removed automatically when the edges connecting to it go.
+	    }
+	    if (op.oi) {
+		jsonData.deserializeNode(path[0], op.oi, nodeCollection);
+		update();
+	    }
+	} else {
+	    if (!nodeCollection.has(path[0])) {
+		throw new Error("Unknown node " + path[0]);
+	    }
+	    updateNode(nodeCollection, nodeCollection.get(path[0]), path.slice(1), op);
+	}
+    };
+    
+    onOp(function(op) {
+	listening = false;
+
+	try {
+	    switch(op.p[0]) {
+	    case "nodes":
+		updateNodes(getNodeCollection(), op.p.slice(1), op);
+		break;
+	    case "layout":
+		updateLayout(getLayout(), op.p.slice(1), op);
+		break;
+	    default:
+		// We don't know how to handle this event.
+		break;
+	    }
+	} finally {
+	    listening = true;
+	}
+    });    
+    
     var hook = function(o, makePath, serialize, prop) {
 	if (o[prop]) {
 	    var wrapped = o[prop];
@@ -29,14 +159,11 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 			returnVal = wrapped.apply(o, arguments),
 			newVal = wrapped.apply(o);
 
-		    getContext().submitOp(
-			[{
-			    p: makePath().concat([prop]),
-			    od: oldVal,
-			    oi: newVal
-			}],
-			noop
-		    );
+		    submitOp({
+			p: makePath().concat([prop]),
+			od: oldVal,
+			oi: newVal
+		    });
 
 		    return returnVal;
 		} else {
@@ -54,12 +181,10 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 	    return ["nodes", node.id];
 	};
 
-	["name", "localEvidence", "dependence", "settled", "support"]
+	["name", "localEvidence", "description", "dependence", "settled", "support"]
 	    .forEach(function(p) {
 		hook(node, makePath, serializeNode, p);
 	    });
-
-	// TODO description should use the text interface
     };
 
     var hookEdge = function(edge) {
@@ -86,44 +211,32 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 	
 	coll.onNodeCreate(function(node) {
 	    hookNode(node);
-	    getContext().submitOp(
-		[{
-		    p: ["nodes", node.id],
-		    oi: serializeNode(node)
-		}],
-		noop
-	    );
+	    submitOp({
+		p: ["nodes", node.id],
+		oi: serializeNode(node)
+	    });
 	});
 
 	coll.onNodeDelete(function(node) {
-	    getContext().submitOp(
-		[{
-		    p: ["nodes", node.id],
-		    od: node
-		}],
-		noop	     
-	    );
+	    submitOp({
+		p: ["nodes", node.id],
+		od: node
+	    });
 	});
 
 	coll.onEdgeCreate(function(edge) {
-	    getContext().submitOp(
-		[{
-		    p: ["nodes", edge.parent().id, "edges", edge.node().id],
-		    oi: serializeEdge(edge)
-		}],
-		noop
-	    );
+	    submitOp({
+		p: ["nodes", edge.parent().id, "edges", edge.node().id],
+		oi: serializeEdge(edge)
+	    });
 	    hookEdge(edge);
 	});
 
 	coll.onEdgeDelete(function(edge) {
-	    getContext().submitOp(
-		[{
-		    p: ["nodes", edge.parent().id, "edges", edge.node().id],
-		    od: serializeEdge(edge)
-		}],
-		noop
-	    );
+	    submitOp({
+		p: ["nodes", edge.parent().id, "edges", edge.node().id],
+		od: serializeEdge(edge)
+	    });
 	});
     });
 };
