@@ -50,7 +50,8 @@ module.exports = d3.map({
 	node.localEvidence = function(evidence) {
 	    if (evidence !== undefined) {
 		if (node.edges().length > 0) {
-		    throw new Error("Cannot set local evidence on a node which has children");
+		    // Cannot set local evidence on a node which has children.
+		    return node;
 		}
 
 		if (evidence[0] < 0) {
