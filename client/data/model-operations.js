@@ -77,14 +77,6 @@ module.exports = function(getContext, onContextChanged, getNodeCollection, getLa
 	var coll = getNodeCollection(),
 	    layout = getLayout();
 
-	getContext().submitOp(
-	    [{
-		p: [],
-		oi: serialize(coll, layout)
-	    }],
-	    noop
-	);
-
 	coll.all().forEach(function(n) {
 	    hookNode(n);
 	    n.edges().forEach(function(e) {
