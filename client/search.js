@@ -28,8 +28,8 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
 	return search.node().value.toLowerCase().trim();
     };
 
-    var hideResults = function(delayed) {
-	var maybeTransition = delayed ? form.transition().delay(200) : form.transition().delay(10);
+    var hideResults = function(delay) {
+	var maybeTransition = delay ? form.transition().delay(delay) : form;
 	maybeTransition.remove();
     };
 
@@ -41,13 +41,13 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
 		doSearchSoonish();
 	    })
 	    .on("blur", function() {
-		hideResults(true);
+		hideResults(200);
 	    });
 
     // Having a 'submit' input allows you to press enter in the search box to send a search.
     var submit = form.append("input")
     	    .attr("type", "submit")
-    	    .style("visibility", "hidden");
+    	    .style("display", "none");
 
     var searchResults = form.append("ul")
 	    .attr("id", "search-results");    
@@ -90,7 +90,7 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
 		    })
 		    .on("click", function(d, i) {
 			callback(d);
-			hideResults(false);
+			hideResults(5);
 		    })
 		    .classed("search-result-current-page", function(d, i) {
 			return d === currentPage;
@@ -104,5 +104,9 @@ module.exports = function(container, searchFunction, alwaysIncludeSearchText, cu
     var doSearchSoonish = _.debounce(doSearch, 500);
 
     search.node().focus();
+
+    return {
+	hide: hideResults
+    };
 };
 

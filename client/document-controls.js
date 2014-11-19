@@ -14,6 +14,7 @@ var d3 = require("d3"),
 module.exports = function(container, searchFunction) {
     var documentName = null,
 	temp = false,
+	lastSearch = null,
 	onNew = callbacks(),
 	onOpen = callbacks(),
 	onSaveAs = callbacks(),
@@ -23,7 +24,10 @@ module.exports = function(container, searchFunction) {
     var withSearch = function(alwaysIncludeSearchText, callback) {
 	// TODO decide where to put the search box.
 	return function() {
-	    search(container, searchFunction, alwaysIncludeSearchText, documentName, callback);
+	    if (lastSearch) {
+		lastSearch.hide();
+	    }
+	    lastSearch = search(container, searchFunction, alwaysIncludeSearchText, documentName, callback);
 	};
     };
 
@@ -80,7 +84,7 @@ module.exports = function(container, searchFunction) {
 	})
     });
 
-    container.selectAll("div")
+    container.selectAll("div.document-control-button")
 	.data(buttons.keys())
 	.enter()
 	.append("div")

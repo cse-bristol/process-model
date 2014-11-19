@@ -257,6 +257,14 @@ g.weight-half:hover {
     position: absolute;
     top: 1em;
     left: 1em;
+
+    // Cross-browser disable text selection.
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
 }
 
 .document-control-button {
@@ -267,6 +275,7 @@ g.weight-half:hover {
     font-size: large;
     font-family: monospace;
     text-align: center;
+    vertical-align: top;
     padding: 0.2em;
     margin: 0.1em;
     opacity: 0.8;
@@ -279,6 +288,7 @@ g.weight-half:hover {
 #search-control {
     font-size: large;
     font-family: helvetica;
+    display: inline-block;
 }
 
 #search {
