@@ -27,11 +27,11 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	if (o[p]) {
 	    var prop = o[p];
 
-	    if (op.od) {
+	    if (op.od !== undefined) {
 		// Ignore: we have no concept of unsetting properties in our model.
 	    }
 	    
-	    if (op.oi) {
+	    if (op.oi !== undefined) {
 		prop.call(o, op.oi);
 		update();
 	    }
@@ -44,10 +44,48 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	if (path.length === 0) {
 	    // Noop: the whole layout is getting replaced, not our business.
 	    
-	} else if (path.length === 1) {
-	    updateProperty(layout, path[0], op);
 	} else {
-	    throw new Error("Unknown path for updating layout: " + path);
+	    switch(path[0]) {
+	    case "collapsed":
+		if (op.od !== undefined) {
+		    layout.expand(path[1]);
+		}
+		if (op.oi !== undefined) {
+		    // If the value for our id true or false?
+		    if (op.oi) {
+			layout.collapsed(path[1]);
+		    } else {
+			/*
+			 We shouldn't ever get here, because we remove an id from the map rather than settings its value to false.
+			 However, I've kept it for completeness.
+			 */
+			layout.expand(path[1]);
+		    }
+		}
+		break;
+	    case "sizes":
+		if (op.od !== undefined) {
+		    layout.removeSize(path[1], op.od);
+		}
+		if (op.oi !== undefined) {
+		    layout.size(path[1], op.oi);
+		}
+		
+		break;
+	    case "positions":
+		if (op.od !== undefined) {
+		    layout.removePosition(path[1], op.od);
+		}
+
+		if (op.oi !== undefined) {
+		    layout.position(path[1], op.oi);
+		}
+		
+		break;
+	    default:
+		throw new Error("Unknown layout property " + path[0]);
+	    }
+	    update();
 	}
     };
 
@@ -148,7 +186,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	}
     });    
     
-    var hook = function(o, makePath, serialize, prop) {
+    var hook = function(o, makePath, prop) {
 	if (o[prop]) {
 	    var wrapped = o[prop];
 	    o[prop] = function() {
@@ -183,7 +221,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 
 	["name", "localEvidence", "description", "dependence", "settled", "support"]
 	    .forEach(function(p) {
-		hook(node, makePath, serializeNode, p);
+		hook(node, makePath, p);
 	    });
     };
 
@@ -194,13 +232,67 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 
 	["necessity", "sufficiency"]
 	    .forEach(function(p) {
-		hook(edge, makePath, serializeEdge, p);
+		hook(edge, makePath, p);
 	    });
+    };
+
+    var hookLayout = function(layout) {
+	var makePath = function() {
+	    return ["layout"];
+	};
+
+	layout.onSetSize(function(id, size) {
+	    submitOp({
+		p: ["layout", "sizes", id],
+		oi: size
+	    });
+	});
+
+	layout.onRemoveSize(function(id, oldValue) {
+	    submitOp({
+		p: ["layout", "sizes", id],
+		od: oldValue
+	    });
+	});
+
+	layout.onSetPosition(function(id, position) {
+	    submitOp({
+		p: ["layout", "positions", id],
+		oi: position
+	    });
+	});
+
+	layout.onRemovePosition(function(id, oldValue) {
+	    submitOp({
+		p: ["layout", "positions", id],
+		od: oldValue
+	    });
+	});
+
+	layout.onCollapse(function(id) {
+	    /*
+	     We don't care about order, but we do care about uniqueness.
+	     JSON has no concept of a set, but a map of id -> true will do what we need.
+	     */
+	    submitOp({
+		p: ["layout", "collapsed", id],
+		oi: true
+	    });
+	});
+	
+	layout.onExpand(function(id) {
+	    submitOp({
+		p: ["layout", "collapsed", id],
+		od: true
+	    });
+	});
     };
 
     onNodeCollectionChanged(function() {
 	var coll = getNodeCollection(),
 	    layout = getLayout();
+
+	hookLayout(layout);
 
 	coll.all().forEach(function(n) {
 	    hookNode(n);

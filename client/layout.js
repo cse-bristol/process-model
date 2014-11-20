@@ -4,6 +4,8 @@
 
 var d3 = require("d3"),
     dagre = require("dagre"),
+    helpers = require("./helpers.js"),
+    callbacks = helpers.callbackHandler,
     defaultNodeWidth = 240,
     defaultNodeHeight = 70,
     nodeSidePadding = 10;
@@ -11,8 +13,15 @@ var d3 = require("d3"),
 module.exports = function(nodes) {
     var collapsedNodes = d3.set(),
 	manualPositions = d3.map(),
-	manualSizes = d3.map();
-
+	manualSizes = d3.map(),
+	
+	onSetSize = callbacks(),
+	onRemoveSize = callbacks(),
+	onSetPosition = callbacks(),
+	onRemovePosition = callbacks(),
+	onCollapse = callbacks(),
+	onExpand = callbacks();
+	
     function isNumber(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
     }
@@ -20,12 +29,12 @@ module.exports = function(nodes) {
     var cleanup = function() {
 	collapsedNodes.forEach(function(n){
 	    if (!nodes.has(n)) {
-		collapsedNodes.remove(n);
+		module.collapse(n.id);
 	    }
 	});
 	manualPositions.keys().forEach(function(n){
 	    if (!nodes.has(n)) {
-		manualPositions.remove(n);
+		module.removePosition(n.id);
 	    }
 	});
     };
@@ -140,7 +149,7 @@ module.exports = function(nodes) {
 
 		displayNode.collapsed = function(shouldCollapse) {
 		    if (shouldCollapse === false) {
-			collapsedNodes.remove(node.id);
+			module.expand(node.id);
 			return this;
 		    } else {
 			return true;
@@ -188,7 +197,7 @@ module.exports = function(nodes) {
 		
 		displayNode.collapsed = function(shouldCollapse)  {
 		    if (shouldCollapse) {
-			collapsedNodes.add(node.id);
+			module.collapsed(node.id);
 			return this;
 		    } else {
 			return false;
@@ -211,7 +220,7 @@ module.exports = function(nodes) {
 			throw "Position should be an array of [x, y]. Was " + xy;
 		    }
 
-		    manualPositions.set(node.id, xy);
+		    module.position(node.id, xy);
 		    return displayNode;
 		} else {
 		    return manualPositions.get(node.id);
@@ -219,8 +228,8 @@ module.exports = function(nodes) {
 	    };
 
 	    displayNode.autoPosition = function() {
-		manualPositions.remove(node.id);
-		manualSizes.remove(node.id);
+		module.removePosition(node.id);
+		module.removeSize(node.id);
 	    };
 
 	    displayNode.size = function(pos) {
@@ -231,7 +240,7 @@ module.exports = function(nodes) {
 			return [defaultNodeWidth, defaultNodeHeight];
 		    }
 		}
-		manualSizes.set(node.id, [
+		module.size(node.id, [
 		    pos[0] < 80 ? 80 : pos[0],
 		    pos[1] < 50 ? 50 : pos[1]
 		]);
@@ -382,27 +391,62 @@ module.exports = function(nodes) {
 	position: function(id, position) {
 	    if (id && position) {
 		manualPositions.set(id, position);
+		onSetPosition(id, position);
 		return module;
 	    } else {
 		return manualPositions;
 	    }
 	},
+	removePosition: function(id) {
+	    if (manualPositions.has(id)) {
+		var oldValue = manualPositions.get(id);
+		manualPositions.remove(id);
+		onRemovePosition(id, oldValue);
+	    }
+
+	    return module;
+	},
+	onSetPosition: onSetPosition.add,
+	onRemovePosition: onRemovePosition.add,
+	
 	collapsed: function(id) {
 	    if (id) {
 		collapsedNodes.add(id);
+		onCollapse(id);
 		return module;
 	    } else {
 		return collapsedNodes;
 	    }
 	},
+	expand: function(id) {
+	    collapsedNodes.remove(id);
+	    onExpand(id);
+	    return module;
+	},
+	onCollapse: onCollapse.add,
+	onExpand: onExpand.add,
+	
 	size: function(id, s) {
 	    if (s === undefined) {
 		return manualSizes;
 	    } else {
 		manualSizes.set(id, s);
+		onSetSize(id, s);
 		return module;
 	    }
 	},
+	removeSize: function(id) {
+	    if (manualSizes.has(id)) {
+		var oldValue = manualSizes.get(id);
+		manualSizes.remove(id);
+		onRemoveSize(id, oldValue);
+	    }
+
+	    return module;
+	},
+	onSetSize: onSetSize.add,
+	onRemoveSize: onRemoveSize.add,
+	
 	display: function() {
 	    cleanup();
 
@@ -416,7 +460,7 @@ module.exports = function(nodes) {
 
 	    if (!manualPositions.has(displayGraph.id)) {
 		/* Set the position of the root node. */
-		manualPositions.set(displayGraph.id, [0, 0]);
+		module.position(displayGraph.id, [0, 0]);
 	    }
 
 	    var layoutRoots = result.nodes.filter(function(n){

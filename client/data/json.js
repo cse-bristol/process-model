@@ -6,6 +6,26 @@ var d3 = require("d3"),
     nodeCollectionFactory = require("../nodes/node-collection.js"),
     layoutFactory = require("../layout.js");
 
+var serializeD3Map = function(d3Map) {
+    var result = {};
+
+    d3Map.forEach(function(key, value) {
+	result[key] = value;
+    });
+
+    return result;
+};
+
+var serializeD3Set = function(d3Set) {
+    var result = {};
+
+    d3Set.values().forEach(function(key) {
+	result[key] = true;
+    });
+    
+    return result;
+};
+
 var serializeEdge = function(edge) {
     var e = {
     };
@@ -72,9 +92,9 @@ var serializeNodes = function(nodes) {
 
 var serializeLayout = function(layout) {
     return {
-	collapsed: layout.collapsed().values(),
-	positions: layout.position().entries(),
-	sizes: layout.size().entries()
+	collapsed: serializeD3Set(layout.collapsed()),
+	positions: serializeD3Map(layout.position()),
+	sizes: serializeD3Map(layout.size())
     };
 };
 
@@ -132,14 +152,20 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
 
 
 var deserializeLayoutAndData = function(o, nodeCollection, layout) {
-    o.layout.collapsed.forEach(function(c){
-	layout.collapsed(c);
+    Object.keys(o.layout.collapsed).forEach(function(id) {
+	if (o.layout.collapsed[id]) {
+	    layout.collapsed(id);
+	} else {
+	    layout.expand(id);
+	}
     });
-    o.layout.positions.forEach(function(e){
-	layout.position(e.key, e.value);
+    
+    Object.keys(o.layout.positions).forEach(function(id) {
+	layout.position(id, o.layout.positions[id]);
     });
-    o.layout.sizes.forEach(function(e) {
-	layout.size(e.key, e.value);
+
+    Object.keys(o.layout.sizes).forEach(function(id) {
+	layout.size(id, o.layout.sizes[id]);
     });
 
     /*
