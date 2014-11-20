@@ -197,11 +197,13 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 			returnVal = wrapped.apply(o, arguments),
 			newVal = wrapped.apply(o);
 
-		    submitOp({
-			p: makePath().concat([prop]),
-			od: oldVal,
-			oi: newVal
-		    });
+		    if (oldVal !== newVal) {
+			submitOp({
+			    p: makePath().concat([prop]),
+			    od: oldVal,
+			    oi: newVal
+			});
+		    }
 
 		    return returnVal;
 		} else {
