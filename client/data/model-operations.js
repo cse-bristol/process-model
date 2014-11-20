@@ -8,7 +8,11 @@ var _ = require("lodash"),
     jsonData = require("./json.js"),
     serialize = jsonData.serialize,
     serializeNode = jsonData.serializeNode,
-    serializeEdge = jsonData.serializeEdge;
+    serializeEdge = jsonData.serializeEdge,
+    /*
+     Chosen by experimentation to be quite fast, but not so fast that scrolling the scroll wheel or clicking and dragging will trigger multiple events.
+     */
+    delay = 300;
 
 /*
  Watches the node graph and layout. Makes operations out of changes to them.
@@ -188,7 +192,21 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
     
     var hook = function(o, makePath, prop) {
 	if (o[prop]) {
-	    var wrapped = o[prop];
+	    var wrapped = o[prop],
+		path = makePath().concat([prop]),
+		/*
+		 If a property changes multiple time rapidly, we'd like to squash them all into one commit since it's probably just someone clicking and dragging or scrolling the scroll wheel.
+		*/
+		delayedSubmit = _.debounce(
+		    function(newVal) {
+			submitOp({
+			    p: path,
+			    oi: newVal
+			});
+		    },
+		    delay
+		);
+	    
 	    o[prop] = function() {
 		var args = arguments;
 
@@ -198,11 +216,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 			newVal = wrapped.apply(o);
 
 		    if (oldVal !== newVal) {
-			submitOp({
-			    p: makePath().concat([prop]),
-			    od: oldVal,
-			    oi: newVal
-			});
+			delayedSubmit(newVal);
 		    }
 
 		    return returnVal;
@@ -243,29 +257,31 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	    return ["layout"];
 	};
 
+	var delayedSubmitOp = _.debounce(submitOp, 300);
+	
 	layout.onSetSize(function(id, size) {
-	    submitOp({
+	    delayedSubmitOp({
 		p: ["layout", "sizes", id],
 		oi: size
 	    });
 	});
 
 	layout.onRemoveSize(function(id, oldValue) {
-	    submitOp({
+	    delayedSubmitOp({
 		p: ["layout", "sizes", id],
 		od: oldValue
 	    });
 	});
 
 	layout.onSetPosition(function(id, position) {
-	    submitOp({
+	    delayedSubmitOp({
 		p: ["layout", "positions", id],
 		oi: position
 	    });
 	});
 
 	layout.onRemovePosition(function(id, oldValue) {
-	    submitOp({
+	    delayedSubmitOp({
 		p: ["layout", "positions", id],
 		od: oldValue
 	    });
