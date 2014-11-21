@@ -48,6 +48,7 @@ var d3 = require("d3"),
     files = require("./files.js"),
     shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, model.getNodes),
     fileMenu = require("multiuser-file-menu")(
+	"process-models",
 	toolbar,
 	jsonData.serialize,
 	jsonData.deserialize,
