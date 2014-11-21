@@ -63,8 +63,18 @@ module.exports = function() {
 		}
 	    });
 
+	    // We don't want to keep the manual position of the root node of the inserted document.
+	    if (model.layout.position().has(
+		model.nodes.root().id)
+	       )
+	    {
+		model.layout.removePosition(model.nodes.root().id);
+	    }
+
 	    nodes.merge(model.nodes);
 	    layout.merge(model.layout);
+
+
 	}
     };
 };

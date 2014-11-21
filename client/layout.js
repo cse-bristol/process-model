@@ -29,12 +29,12 @@ module.exports = function(nodes) {
     var cleanup = function() {
 	collapsedNodes.forEach(function(n){
 	    if (!nodes.has(n)) {
-		module.collapse(n.id);
+		module.collapsed(n);
 	    }
 	});
 	manualPositions.keys().forEach(function(n){
 	    if (!nodes.has(n)) {
-		module.removePosition(n.id);
+		module.removePosition(n);
 	    }
 	});
     };

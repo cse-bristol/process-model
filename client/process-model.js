@@ -54,7 +54,11 @@ var d3 = require("d3"),
 	jsonData.deserialize,
 	model.get,
 	model.set,
-	model.freshModel),
+	model.freshModel,
+	function(toInsert) {
+	    model.merge(toInsert);
+	    update();
+	}),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.onSet, update);
 
