@@ -19,7 +19,7 @@ var _ = require("lodash"),
 
  Watched the context and alters the node graph and layout based on the operations it sees.
  */
-module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCollectionChanged, update) {
+module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onModelChanged, update) {
     var listening = true,
 	submitOp = function(op) {
 	    if (listening) {
@@ -190,10 +190,10 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	}
     });    
     
-    var hook = function(o, makePath, prop) {
+    var hook = function(o, path, prop) {
 	if (o[prop]) {
+	    path = path.concat([prop]);
 	    var wrapped = o[prop],
-		path = makePath().concat([prop]),
 		/*
 		 If a property changes multiple time rapidly, we'd like to squash them all into one commit since it's probably just someone clicking and dragging or scrolling the scroll wheel.
 		*/
@@ -231,24 +231,20 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	/*
 	 I've chosen not to hook up the chooseType function in here. This means that a node changes identity when it changes type, which is probably ok since it has no interesting properties on it.
 	 */   
-	var makePath = function() {
-	    return ["nodes", node.id];
-	};
-
 	["name", "localEvidence", "description", "dependence", "settled", "support"]
 	    .forEach(function(p) {
-		hook(node, makePath, p);
+		hook(node, ["nodes", node.id], p);
 	    });
     };
 
     var hookEdge = function(edge) {
-	var makePath = function() {
-	    return ["nodes", edge.parent().id, "edges", edge.node().id];
-	};
-
 	["necessity", "sufficiency"]
 	    .forEach(function(p) {
-		hook(edge, makePath, p);
+		hook(
+		    edge,
+		    ["nodes", edge.parent().id, "edges", edge.node().id],
+		    p
+		);
 	    });
     };
 
@@ -306,7 +302,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onNodeCol
 	});
     };
 
-    onNodeCollectionChanged(function() {
+    onModelChanged(function() {
 	var coll = getNodeCollection(),
 	    layout = getLayout();
 

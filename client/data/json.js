@@ -193,11 +193,11 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
 module.exports = {
     serializeNode: serializeNode,
     serializeEdge: serializeEdge,
-    serialize: function(nodeCollection, layout) {
+    serialize: function(model) {
 	return {
-	    layout: serializeLayout(layout),
-	    root: nodeCollection.root().id,
-	    nodes: serializeNodes(nodeCollection.all())
+	    layout: serializeLayout(model.layout),
+	    root: model.nodes.root().id,
+	    nodes: serializeNodes(model.nodes.all())
 	};
     },
 

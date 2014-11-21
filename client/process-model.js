@@ -3,10 +3,8 @@
 /*global parent, require*/
 
 var update = function() {
-    if (!nodeCollection) {
-	setNodeCollectionAndLayout(
-	    freshNodeCollectionAndLayout()
-	);
+    if (model.empty()) {
+	model.set(model.freshModel());
     }
     
     draw();
@@ -29,36 +27,9 @@ var d3 = require("d3"),
     g = svg.append("g"),
     helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler,
-    createNodeCollection = require("./nodes/node-collection.js"),
     createLayout = require("./layout.js"),
-    nodeCollection,
-    layout,
-    getNodeCollection = function() {
-	return nodeCollection;
-    },
-    getLayout = function() {
-	return layout;
-    },
-    setNodeCollectionAndLayout = function(val) {
-	val.nodes.build();
-	nodeCollection = val.nodes;
-	layout = val.layout;
-	
-	onNodeCollectionChanged();
-	update();
-    },
-    freshNodeCollectionAndLayout = function() {
-	var nodes = createNodeCollection();
-	nodes.root(
-	    nodes.getOrCreateNode("process")
-	);
-	return {
-	    nodes: nodes,
-	    layout: createLayout(nodes)
-	};
-    },
-    onNodeCollectionChanged = callbacks(),
-    selection = require("./selection.js")(onNodeCollectionChanged.add, getNodeCollection),
+    model = require("./model.js")(),
+    selection = require("./selection.js")(model.onSet, model.getNodes),
     transitions = require("./transition-switch.js")(),
     jsonData = require("./data/json.js"),
     perimetaDeserialize = require("./data/perimeta-xml.js"),
@@ -75,11 +46,19 @@ var d3 = require("d3"),
 	    textControls.update();
 	}),
     files = require("./files.js"),
-    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, getNodeCollection),
-    backend = require("./data/backend.js")(),
-    documentControl = require("./document-controls.js")(toolbar, backend.search),
-    store = require("./data/store.js")(backend, documentControl, getNodeCollection, getLayout, setNodeCollectionAndLayout, freshNodeCollectionAndLayout, update),
-    modelOperations = require("./data/model-operations.js")(store.writeOp, store.onOp, getNodeCollection, getLayout, onNodeCollectionChanged.add, update);
+    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, model.getNodes),
+    fileMenu = require("multiuser-file-menu")(
+	toolbar,
+	jsonData.serialize,
+	jsonData.deserialize,
+	model.get,
+	model.set,
+	model.freshModel),
+
+    modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.onSet, update);
+
+fileMenu.menu.onInsert(update);
+model.onSet(update);
 
 zoom.go = function() {
     zoom.event(g);
@@ -95,43 +74,45 @@ zoom.out = function() {
 };
 
 require("./help.js")(helpLink, shortcutKeys.universalKeys());
-require("./nodes/draw-process-node.js")(drawNodes, getNodeCollection, transitions, update);
+require("./nodes/draw-process-node.js")(drawNodes, model.getNodes, transitions, update);
 zoom(svg);
 svg.on("dblclick.zoom", null);
 
 var draw = function() {
-    var display = layout.display();
+    var display = model.getLayout().display();
     
     drawNodes.draw(display.nodes);
     drawEdges.draw(display.edges);
 };
 
 var updateExportLink = function(){
-    documentControl.updateExportLink(
+    fileMenu.menu.updateExportLink(
 	"data:application/json,"
 	    + encodeURIComponent(
 		JSON.stringify(
-		    jsonData.serialize(nodeCollection, layout)
+		    jsonData.serialize(model.get())
 		)
 	    )
     );
 };
 
 var fromJson = function(fileName, content){
-    setNodeCollectionAndLayout(
+    model.set(
 	jsonData.deserialize(
 	    JSON.parse(content)));
 };
 fromJson.extensions = ["json"];
 
 var fromXML = function(fileName, content) {
-    setNodeCollectionAndLayout({
-	nodes: perimetaDeserialize(content),
-	layout: createLayout(getNodeCollection)
+    var nodes = perimetaDeserialize(content);
+    
+    model.set({
+	nodes: nodes,
+	layout: createLayout(nodes)
     });
 };
 fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
 
-var queryString = require("./query-string.js")(documentControl);
+var queryString = require("./query-string.js")(fileMenu.menu);
