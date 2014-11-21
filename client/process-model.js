@@ -119,5 +119,3 @@ var fromXML = function(fileName, content) {
 fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
-
-var queryString = require("./query-string.js")(fileMenu.menu);
