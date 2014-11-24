@@ -8,7 +8,7 @@ var update = function() {
     }
     
     draw();
-    updateExportLink();
+    exportButton.update();
     textControls.update();
 
 }, withUpdate = function(f) {
@@ -47,22 +47,22 @@ var d3 = require("d3"),
 	}),
     files = require("./files.js"),
     shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, model.getNodes),
+
     fileMenu = require("multiuser-file-menu")(
 	"process-models",
-	toolbar,
 	jsonData.serialize,
 	jsonData.deserialize,
 	model.get,
 	model.set,
-	model.freshModel,
-	function(toInsert) {
-	    model.merge(toInsert);
-	    update();
-	}),
+	model.freshModel
+    ),
 
-    modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.onSet, update);
+    modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.onSet, update),
+    exportButton = require("./export-button.js")(fileMenu.standard.getTitle, fileMenu.standard.onTitleChange, jsonData.serialize, model.get),
+    insertButton = require("./insert-button.js")(fileMenu.store.loadSnapshot, model.merge, update);
 
-fileMenu.menu.onInsert(update);
+fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec]);
+
 model.onSet(update);
 
 zoom.go = function() {
@@ -88,17 +88,6 @@ var draw = function() {
     
     drawNodes.draw(display.nodes);
     drawEdges.draw(display.edges);
-};
-
-var updateExportLink = function(){
-    fileMenu.menu.updateExportLink(
-	"data:application/json,"
-	    + encodeURIComponent(
-		JSON.stringify(
-		    jsonData.serialize(model.get())
-		)
-	    )
-    );
 };
 
 var fromJson = function(fileName, content){
