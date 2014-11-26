@@ -1,8 +1,5 @@
-build: build-client build-server;
-
-build-client: ; cd client; npm install; cd ..; mkdir -p client/bin; browserify -d client/process-model.js -o bin/main.js
-build-server: ; cd server; npm install; cd ..
+build: ; npm install; mkdir -p bin; browserify -d js/process-model.js -o bin/main.js
 
 clean: ; rm -rf ./bin/*
 
-tests: ; node ./client/test.js
+tests: ; node ./js/test.js
