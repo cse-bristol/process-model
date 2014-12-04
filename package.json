@@ -9,7 +9,10 @@
 	"browserify": "5.9.1"
     },
     "dependencies": {
-	"d3": "3.4.11",
+	/*
+	  Warning: this must be the same version of the version of d3 used by multiuser-file-menu. Otherwise, events will not be passed between them.
+	*/
+	"d3": "3.4.13",
 	"lodash": "2.4.1",
 	"dagre": "0.4.6",
 	"xmldom": "0.1.16",
