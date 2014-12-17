@@ -69,7 +69,7 @@ module.exports = function(text) {
 		 We'll make an extra leaf node to hold that evidence.
 		 */
 		
-		var evidenceNode = nodeCollection.getOrCreate("process");
+		var evidenceNode = nodeCollection.getOrCreateNode("process");
 		evidenceNode.name(node.name() + "/evidence");
 		evidenceNode.localEvidence(evidence);
 		
@@ -163,7 +163,7 @@ module.exports = function(text) {
      Create all the nodes with just their type and id.
     */
     Array.prototype.forEach.call(nodeElements, function(n){
-	nodeCollection.getOrCreate(n.parentNode.tagName, n.getAttribute("id"));
+	nodeCollection.getOrCreateNode(n.parentNode.tagName, n.getAttribute("id"));
     });
 
     /*
@@ -175,7 +175,7 @@ module.exports = function(text) {
      Fill in details about each node.
     */
     Array.prototype.forEach.call(nodeElements, function(n){
-	loadNodeDetails(n, nodeCollection.get(n.getAttribute("id"), nodeCollection));
+	loadNodeDetails(n, nodeCollection.get(n.getAttribute("id")), nodeCollection);
     });
     
     nodeCollection.root(findRootNode(nodeCollection));
