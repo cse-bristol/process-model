@@ -58,8 +58,18 @@ var d3 = require("d3"),
     ),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.onSet, update),
-    exportButton = require("./export-button.js")(fileMenu.standard.getTitle, fileMenu.standard.onTitleChange, jsonData.serialize, model.get),
-    insertButton = require("./insert-button.js")(fileMenu.store.loadSnapshot, model.merge, update);
+    exportButton = require("./export-button.js")(
+	fileMenu.standard.getTitle,
+	fileMenu.standard.onTitleChange,
+	jsonData.serialize,
+	model.get,
+	fileMenu.spec.button
+    ),
+    insertButton = require("./insert-button.js")(
+	fileMenu.store.loadSnapshot,
+	model.merge,
+	update,
+	fileMenu.spec.button);
 
 fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec]);
 

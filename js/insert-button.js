@@ -2,10 +2,10 @@
 
 /*global module, require*/
 
-module.exports = function(loadModel, merge, update) {
-    return {
-	text: "Insert",
-	f: function(name) {
+module.exports = function(loadModel, merge, update, makeButton) {
+    return makeButton(
+	"Insert",
+	function(name) {
 	    loadModel(
 		name,
 		function(toInsert) {
@@ -16,8 +16,13 @@ module.exports = function(loadModel, merge, update) {
 		    throw new Error("Attempted to import a collection, but it has been deleted " + name);
 		});
 	},
-	onlineOnly: true,
-
-	search: {}
-    };
+	{
+	    onlineOffline: {
+		online: true,
+		offline: false
+	    },
+	    
+	    search: {}
+	}
+    );
 };
