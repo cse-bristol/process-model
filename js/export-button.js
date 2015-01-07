@@ -10,7 +10,9 @@ var d3 = require("d3"),
 module.exports = function(getTitle, onTitleChange, serialize, getModel, makeButton) {
     var exportLinkChanged = callbacks(),
 	setDownloadAttr = function(button) {
-	    button.attr("download", getTitle() + ".json");	    
+	    var title = getTitle();
+	    
+	    button.attr("download", title ? title : "untitled process-model" + ".json");	    
 	};
 
     return {
@@ -35,6 +37,11 @@ module.exports = function(getTitle, onTitleChange, serialize, getModel, makeButt
 					)
 				    ));
 		    });
+
+		    /*
+		     This is really a link disguised as a button, so we don't want the confirmation check mark.
+		     */
+		    button.select(".confirmation").remove();
 		}
 	    }),
 	
