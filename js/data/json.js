@@ -127,6 +127,10 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
 	deserializeEdge(e, deserialized, edgeId, nodeCollection);
     });
 
+    if (serialized.name) {
+	deserialized.name(serialized.name);
+    }
+
     if (serialized.dependence) {
 	deserialized.dependence(serialized.dependence);
     }
