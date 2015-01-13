@@ -69,9 +69,10 @@ var d3 = require("d3"),
 	fileMenu.store.loadSnapshot,
 	model.merge,
 	update,
-	fileMenu.spec.button);
+	fileMenu.spec.button),
+    layoutButton = require("./reset-layout-button.js")(fileMenu.spec.button, model.getLayout, update);
 
-fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec]);
+fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec, layoutButton]);
 
 model.onSet(update);
 
