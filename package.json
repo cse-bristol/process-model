@@ -9,7 +9,7 @@
 	"browserify": "5.9.1"
     },
     "dependencies": {
-	"d3": "3.4.13",
+	"d3": "3.5.3",
 	"lodash": "2.4.1",
 	"dagre": "0.4.6",
 	"xmldom": "0.1.16",

@@ -38,12 +38,20 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
     };
 
     var drawMoveHandle = function(nodes, newNodes) {
-	var ifNotTextInput = function(c) {
+	var tryDrag = function(c) {
 	    var target = document.elementFromPoint(
 		d3.event.sourceEvent.clientX, 
 		d3.event.sourceEvent.clientY);
 
-	    if (!target || target.tagName.toLowerCase() !== "input") {
+	    if (target && target.tagName.toLowerCase() === "input") {
+		// Inside a text input
+
+	    } else if (d3.event && d3.event.sourceEvent && d3.event.sourceEvent.button === 2) {
+		// Right-mouse button
+		d3.event.sourceEvent.preventDefault();
+		d3.event.sourceEvent.stopPropagation();
+		
+	    } else {
 		c();
 	    }
 	};
@@ -56,21 +64,25 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		    };
 		})
 		.on("dragstart", function(d){
-		    ifNotTextInput(function(){
-			d3.event.sourceEvent.stopPropagation();
-			transitions.enabled(false);
-		    });
+		    tryDrag(
+			function() {
+			    d3.event.sourceEvent.stopPropagation();
+			    transitions.enabled(false);
+			}
+		    );
 		})
 		.on("drag", function(d){
-		    ifNotTextInput(function(){
-			var x = d3.event.x,
-			    y = d3.event.y;
-
-			d.position([x, y]);
-			update();
-		    });
+		    tryDrag(
+			function() {
+			    var x = d3.event.x,
+				y = d3.event.y;
+			    
+			    d.position([x, y]);
+			    update();
+			}
+		    );
 		})
-		.on("dragend", function(d){
+		.on("dragend", function(d) {
 		    transitions.enabled(true);
 		});
 
