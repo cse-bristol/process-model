@@ -18,6 +18,7 @@ module.exports = function() {
 	built = false,
 	onNodeCreate = callbacks(),
 	onNodeDelete = callbacks(),
+	onNodeChooseType = callbacks(),
 	onEdgeCreate = callbacks(),
 	onEdgeDelete = callbacks(),
 	onNavigate = callbacks(),
@@ -143,6 +144,8 @@ module.exports = function() {
 
 	    var replacement = getOrCreateNode(type);
 	    replacement.name(node.name());
+
+	    onNodeChooseType(node, replacement);
 	    
 	    edgesToNode(node).forEach(function(e) {
 		e.parent().edgeTo(replacement);
@@ -164,6 +167,7 @@ module.exports = function() {
 
 	onNodeCreate: onNodeCreate.add,
 	onNodeDelete: onNodeDelete.add,
+	onNodeChooseType: onNodeChooseType.add,
 	onEdgeCreate: onEdgeCreate.add,
 	onEdgeDelete: onEdgeDelete.add,
 	onNavigate: onNavigate.add

@@ -21,6 +21,37 @@ module.exports = function(nodes) {
 	onRemovePosition = callbacks(),
 	onCollapse = callbacks(),
 	onExpand = callbacks();
+
+    nodes.onNodeChooseType(function(old, replacement) {
+	/*
+	 When we choose a node's type, we remove it and put in a new node with a new id.
+	 
+	 This code ensures that any layout applied to the old node is transferred.
+	*/
+	
+	if (collapsedNodes.has(old.id)) {
+	    collapsedNodes.remove(old.id);
+	    collapsedNodes.add(replacement.id);
+	}
+
+	if (manualPositions.has(old.id)) {
+	    manualPositions.set(
+		replacement.id,
+		manualPositions.get(old.id)
+	    );
+
+	    manualPositions.remove(old.id);
+	}
+
+	if (manualSizes.has(old.id)) {
+	    manualSizes.set(
+		replacement.id,
+		manualSizes.get(old.id)
+	    );
+
+	    manualSizes.remove(old.id);
+	}
+    });
 	
     function isNumber(n) {
 	return !isNaN(parseFloat(n)) && isFinite(n);
