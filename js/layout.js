@@ -251,7 +251,13 @@ module.exports = function(nodes) {
 			throw "Position should be an array of [x, y]. Was " + xy;
 		    }
 
+		    // Set the position permenantly, ready for the next layout update.
 		    module.position(node.id, xy);
+
+		    // Set the position temporarily, in case we are attempting to redraw this node without performing a full layout update.
+		    displayNode.x = xy[0];
+		    displayNode.y = xy[1];
+		    
 		    return displayNode;
 		} else {
 		    return manualPositions.get(node.id);
@@ -263,8 +269,8 @@ module.exports = function(nodes) {
 		module.removeSize(node.id);
 	    };
 
-	    displayNode.size = function(pos) {
-		if (pos === undefined) {
+	    displayNode.size = function(widthHeight) {
+		if (widthHeight === undefined) {
 		    if (manualSizes.has(node.id)) {
 			return manualSizes.get(node.id);
 		    } else {
@@ -272,8 +278,8 @@ module.exports = function(nodes) {
 		    }
 		}
 		module.size(node.id, [
-		    pos[0] < 80 ? 80 : pos[0],
-		    pos[1] < 50 ? 50 : pos[1]
+		    widthHeight[0] < 80 ? 80 : widthHeight[0],
+		    widthHeight[1] < 50 ? 50 : widthHeight[1]
 		]);
 		return displayNode;
 	    };
