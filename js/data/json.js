@@ -156,21 +156,31 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
 
 
 var deserializeLayoutAndData = function(o, nodeCollection, layout) {
-    Object.keys(o.layout.collapsed).forEach(function(id) {
-	if (o.layout.collapsed[id]) {
-	    layout.collapsed(id);
-	} else {
-	    layout.expand(id);
-	}
-    });
-    
-    Object.keys(o.layout.positions).forEach(function(id) {
-	layout.position(id, o.layout.positions[id]);
-    });
+    if (o.layout) {
 
-    Object.keys(o.layout.sizes).forEach(function(id) {
-	layout.size(id, o.layout.sizes[id]);
-    });
+	if (o.layout.collapsed) {
+	    Object.keys(o.layout.collapsed).forEach(function(id) {
+		if (o.layout.collapsed[id]) {
+		    layout.collapsed(id);
+		} else {
+		    layout.expand(id);
+		}
+	    });
+	}
+
+	if (o.layout.positions) {
+	    Object.keys(o.layout.positions).forEach(function(id) {
+		layout.position(id, o.layout.positions[id]);
+	    });
+	}
+
+	if (o.layout.sizes) {
+	    Object.keys(o.layout.sizes).forEach(function(id) {
+		layout.size(id, o.layout.sizes[id]);
+	    });
+	}
+
+    }
 
     /*
      Create nodes with just the type and id first.
@@ -183,7 +193,7 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
     Object.keys(o.nodes).forEach(function(id) {
 	deserializeNodeDetails(o.nodes[id], nodeCollection.get(id), nodeCollection);
     });
-    
+
     nodeCollection.root(nodeCollection.get(o.root));
 };
 
