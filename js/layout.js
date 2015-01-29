@@ -68,6 +68,11 @@ module.exports = function(nodes) {
 		module.removePosition(n);
 	    }
 	});
+	manualSizes.keys().forEach(function(n){
+	    if (!nodes.has(n)) {
+		module.removeSize(n);
+	    }
+	});
     };
 
     var nodesToKeep = function() {
