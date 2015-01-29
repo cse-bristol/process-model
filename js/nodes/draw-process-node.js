@@ -52,7 +52,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		    target = findDragTarget(),
 		    newNode;
 
-		if (target && target.datum().name() !== oldNode.name()) {
+		if (target && target.datum().id !== oldNode.id) {
 		    newNode = target.datum();
 		} else {
 		    if (oldNode.allowedChildren.empty()) {
