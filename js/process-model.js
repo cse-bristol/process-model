@@ -119,3 +119,5 @@ var fromXML = function(fileName, content) {
 fromXML.extensions = ["xml"];
 
 files.drop(svg, [fromJson, fromXML]);
+
+fileMenu.queryString.fromURL();
