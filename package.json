@@ -5,6 +5,12 @@
     "keywords": ["process model", "systems thinking", "directed acyclic graph"],
     "url": "https://github.com/cse-bristol/process-model",
     "license": "MIT",
+
+    "repository": {
+	"type": "git",
+	"url": "git://github.com/cse-bristol/process-model.git"
+    },
+    
     "devDependencies": {
 	"browserify": "5.9.1"
     },
