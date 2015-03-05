@@ -20,7 +20,7 @@ module.exports = function(text) {
 		.replace(
 		    urlRegex,
 		    function(match) {
-			return '<a href="' + match + '">' + match + '</a>';
+			return '<a contenteditable="false" href="' + match + '">' + match + '</a>';
 		    }
 		);
 	},
