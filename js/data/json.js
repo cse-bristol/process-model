@@ -135,7 +135,7 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
 	deserialized.dependence(serialized.dependence);
     }
     
-    if (serialized.localEvidence) {
+    if (serialized.evidence) {
 	deserialized.localEvidence(serialized.evidence);
     }
 
