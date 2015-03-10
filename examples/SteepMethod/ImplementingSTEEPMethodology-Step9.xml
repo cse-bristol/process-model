@@ -1,0 +1,2746 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmamDocument xmlns="http://www.cen.bris.ac.uk/civil/cmam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cen.bris.ac.uk/civil/cmam cmam-model.xsd" editedInVersion="2.1.7Beta">
+  <model name="ImplementingSTEEPMethodology-Step9" desc="The ninth step in implementing the STEEP methodology incorperates learning from the Bristol &lt;Enabling devision making architecture model&gt;. &#xA;This model becomes the starting model for implementing the STEEP methodology." learningRate="1.0" necessityPower="1.0" propagationAlgorithm="Juniper" normalizationMethod="Yager's Method" pairwiseCombinationMethod="Minimum of pairs" />
+  <aspect id="0" name="Overview" colour="-1" />
+  <process>
+    <node id="1" name="Implementing the STEEP methodology">
+      <location x="1485" y="15" nodeWidth="84" nodeHeight="80" />
+      <desc>The complete documentation set for the STEEP methodology can be found on the STEEP website at http://smartsteep.eu/resources
+
+The methodology as described here is designed for deployment on the STEEP collaborative stakeholder engagement platform as an aid to implementation. 
+
+Without getting too recursive, the transformational system at this stage is bootstrapping itself and the two processes to address for now are &lt;Animating the methodology&gt; and &lt;Deciding the system boundary&gt;. This will lead to the next stage.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.09501254</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="3" name="Enrolling stakeholders ">
+      <location x="370" y="175" nodeWidth="84" nodeHeight="80" />
+      <desc>Largely addressed by &lt;Creating a sense of ownership&gt;</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="7" name="Deciding system boundary ">
+      <location x="670" y="170" nodeWidth="84" nodeHeight="80" />
+      <desc>This provides the initial scope for implementation. Basic considerations are time, geographic extent and focus e.g. energy planning in Bristol for next 20 years</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.49</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="24" name="Deciding transformation goal">
+      <location x="555" y="170" nodeWidth="84" nodeHeight="80" />
+      <desc>See sub-processes</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.49</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="25" name="Animating the methodology">
+      <location x="140" y="175" nodeWidth="84" nodeHeight="80" />
+      <desc>This is crucial. There must be some animating force that initially drives the implementation of the STEEP methodology. This platform goes a certain way towards supporting this process but eventually must be owned by the stakeholders.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.3782947</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="26" name="Appreciating theoretical foundations">
+      <location x="140" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>See sub-processes</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.2401</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="27" name="Being aware of the GCD">
+      <location x="5" y="680" nodeWidth="84" nodeHeight="80" />
+      <desc>Awareness of the 9 Apsects of the Generic Constitutive Definition (GCD) of Problem Structuirng Methods (PSM) will help adapting the STEEP methodology as required:
+
+1	Improvement Activity	A structured approach to systemic intervention, designed to lead to improvements in a problematic real-world situation 
+2	Systemic Approach	The problem structuring approach used systems ideas supported by appropriate systems modelling (amongst other requirements)
+3	Adaptation/
+Creativity	Creativity must have gone into how the problem structuring approach was adapted or elements combined for the particular problem situation
+4	Methodological Lessons	Use of the approach led to methodological lessons
+5	Worldviews	Recognition that problems are construct of an individual’s mind, they do not exist independently of human thought and are defined by an individual’s “worldview”
+6	Messiness	The problem context in which the problem structuring approach was used was recognised as messy following definitions such as contained in this paper
+7	Interactive/
+Iterative/
+Therapeutic	The intervention has come about through sharing of “perceptions, persuasion and debate” in a participative group setting using an interactive and iterative approach. The facilitator adopted a stance that was “interactive/therapeutic, not expert”
+8	Subjectivity	In the approach taken it has been recognised that the stakeholders of the problem situation are not “divorced from the problem” 
+9	Limits	The approach dealt with conceptual limitations of modelling language used
+
+See:
+Yearworth, M., &amp; White, L. (2014). The non-codified use of problem structuring methods and the need for a generic constitutive definition. European Journal of Operational Research, 237(3), 932-945. doi: 10.1016/j.ejor.2014.02.015</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="28" name="Understanding nature of wicked/messy problems">
+      <location x="100" y="680" nodeWidth="84" nodeHeight="80" />
+      <desc>Baased on 
+Rittel, H.W.J., &amp; Webber, M.M. (1973). Dilemmas in a General Theory of Planning. Policy Sciences, 4(2), 155-169. 
+and others, for example see
+Yearworth, M. (2015). Sustainability as a “super wicked” problem; opportunities and limits for engineering methodology. Paper presented at the 7th International Conference on Sustainable Development in Building and Environment (SuDBE 2015), Reading, UK. 
+
+1.	No definitive formulation
+2.	No stopping rule
+3.	Solutions are not right or wrong, there is no immediate or ultimate test of a solution, but can only be viewed as good or bad
+4.	Solutions are ‘one-shot’, there can be no trial-and-error (experiments); every intervention counts significantly, they are essentially unique
+5.	No enumerable, exhaustively describable, set of solutions
+6.	Can be considered as symptoms of other problems
+7.	Can be contested at the level of explanation, there is likely to be conflicting evidence/data
+8.	Aim is intervention, not knowledge gathering for its own sake</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="29" name="Knowing about soft systems ">
+      <location x="195" y="680" nodeWidth="84" nodeHeight="80" />
+      <desc>Best reference to use here would be
+Checkland, P., &amp; Holwell, S. (2004). "Classic" OR and "soft" OR - an asymmetric complementarity. In M. Pidd (Ed.), Systems Modelling: Theory and Practice. Chichester: John Wiley &amp; Sons, Ltd.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="30" name="Tool/platform support">
+      <location x="35" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>the recommended approach to providing tool support for the STEEP methodology is to use the STEEP collaborative stakeholder engagement platform, although this isn't necessary to be succesful. The process can work without any tool support.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="31" name="Appreciating basics about systems thinking">
+      <location x="290" y="680" nodeWidth="84" nodeHeight="80" />
+      <desc>A suituable source to be recommended</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="32" name="Facilitating the process">
+      <location x="140" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>It is unclear at the moment whether &lt;animating the methodology&gt; can ever be completely succesful without someone enacting the specific role of facilitator. It is an area of ongoing research e.g. see
+Franco, L.A. (2007). Assessing the impact of problem structuring methods in multi-organizational settings: An empirical investigation. Journal of the Operational Research Society, 58(6), 760-768. 
+Morton, A., Ackermann, F., &amp; Belton, V. (2007). Problem structuring without workshops? Experiences with distributed interaction within a PSM process. Journal of the Operational Research Society, 58(5), 547-556. doi: 10.1057/palgrave.jors.2602210
+Shaw, D., Westcombe, M., Hodgkin, J., &amp; Montibeller, G. (2004). Problem structuring methods for large group interventions. Journal of the Operational Research Society, 55(5), 453-463. doi: 10.1057/palgrave.jors.2601712
+Yearworth, M. (2015). Sustainability as a “super wicked” problem; opportunities and limits for engineering methodology. Paper presented at the 7th International Conference on Sustainable Development in Building and Environment (SuDBE 2015), Reading, UK.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.2401</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="33" name="Maintaining stakeholder ownership">
+      <location x="255" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>See sub-processes</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="35" name="Creating a sense of ownership">
+      <location x="370" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>Crucial! Without this the whole methodology implementation stalls.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="36" name="Understanding overall purpose of system">
+      <location x="470" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>The methodology brings about a conceptual system to understand how a transformation is to be achieved. Achieving the transformational goal can be thought of as the purpose of this conceptual system.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="37" name="Developing a root definition">
+      <location x="635" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>This is the mechanism by which a transformational goal is derived and expressed based on Soft Systems Methodology (SSM). See
+Checkland, P., &amp; Scholes, J. (1999). Soft Systems Methodology in Action: Including a 30-year retrospective. Chichester: Wiley.
+
+for a practical guide.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="39" name="Appreciating worldviews">
+      <location x="480" y="430" nodeWidth="84" nodeHeight="80" />
+      <desc>See 
+White, L., Yearworth, M., &amp; Burger, K. (2015). Understanding PSM Interventions through Sense-making and the Mangle of Practice Lens. Paper presented at the 15th International Conference on Group Decision and Negotiation (GDN 2015), Warsaw, Poland. 
+
+For an analysis which demonstrates how this  works on a workshop setting.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="40" name="Implementing engagement strategies">
+      <location x="255" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>These must be ongoing throughtout the period of implementation of the STEEP methodology</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="41" name="Building shared mental models of the transformation">
+      <location x="805" y="170" nodeWidth="84" nodeHeight="80" />
+      <desc>This is the basic core of the modelling methodology</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.50483768</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="42" name="System modelling">
+      <location x="875" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>The actual process of building conceptual systems models using the HPM approach</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.2401</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="43" name="Understanding the HPM approach">
+      <location x="750" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>Understanding the HPM approach. Further details can be found at
+http://smartsteep.eu/resources
+
+A system can represented by a network of “blobs” and “links”
+Hierarchy offers us a way of managing complexity
+System represented as a hierarchical arrangement of system elements 
+Each level the same but expressed in more detail – decomposition
+Decomposition is the simple link
+ Step 1 in the modelling language we will use. There is only one kind of link – a decomposition
+
+A system can represented by a network of “blobs” and “links”
+The “blob” is conceived as a transformational entity, a process
+Anything can be a process
+
+ Step 2 in the common language. There is only one form of blob  - a process</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.2401</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="44" name="Knowing when to stop">
+      <location x="965" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>Appreciating that system modelling using processes needs to go on for as long as it takes to build an understanding of the problem situation, and until the stakeholders run out of process answers to 'how' questions and start to run into issues and options. The beginning of the IBIS/EDEN process.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="45" name="Appreciating the need for gerund form">
+      <location x="750" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>Described by gerunds - in English these are words ending in –ing. 
+They have no subject, and the agent (performer) is not specified
+Originating from Latin grammar, gerund can be translated as “(which is) to be carried out” using the active present (or continuous) form.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="46" name="Understanding the how/why dialectic">
+      <location x="865" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>Using the soft systems paradigm our system model is an epistemic device that will be used to decide how to intervene in a messy problem situation
+The system model is a conceptual schema for enacting a transformation, which can be thought of as its purpose
+Eliciting hierarchical system structure starts with a top level process and then proceeds through repeated questioning of how?
+Modelling continues until there is no longer a process answer to the how? questions and issues/options need to be resolved</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="48" name="Appreciating the Holon concept">
+      <location x="1065" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>A holon is a conceptual, abstract, representation of a whole, which is also a part
+Used as an intellectual device to think about the world 
+Using conceptual models that consist of processes, described by gerunds, structured into a hierarchical arrangement by decomposition and representing the minimum processes in a system required to achieve a purpose</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="49" name="Evidencing process performance using Italian Flag notation">
+      <location x="1000" y="170" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.41503</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="50" name="Understanding Italian Flags and Interval Numbers">
+      <location x="1000" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>Messy problem context suggests we have an existing view of a system
+Motivation for intervention is recognition amongst stakeholders it is failing in some way  
+Need a means to express the likelihood ‘success being achieved’ i.e. way of flagging issues and knowing when things improve
+We use estimates of process performance using interval numbers
+
+Simplest approach to judging process performance
+Within a group of experts/process owners
+Based on a process of debate to decide between
+Performing well, good,…
+Don’t know, unknown, need more information…
+Not performing well, poor, …</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="51" name="Debating evidence and entering evidence into model">
+      <location x="1160" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>Exactly that</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="52" name="Improving sense-making with the model">
+      <location x="1300" y="295" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.49</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="53" name="Dealing with possible inconsistencies">
+      <location x="1250" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>This is described more fully in
+Yearworth, M., Lowe, D.A., Schien, D., &amp; Walworth, T. (2015). From deciding to acting:  hierarchical process modelling for problem structuring. Paper presented at the Calculating and Communicating Uncertainty (CCU2015), London, UK. 
+
+Likely to be not much of an issue unless actually working with the PeriMeta software, or any other algorithm that implements evidence propagation. See
+Marashi, S.E., Davis, J.P., &amp; Hall, J.W. (2008). Combination methods and conflict handling in evidential theories. International Journal of Uncertainty Fuzziness and Knowledge-Based Systems, 16(3), 337-369. doi: 10.1142/s0218488508005315</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="54" name="Being clear about HPM as a PSM">
+      <location x="1350" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>This means that it is understood that we are really using the model as an epistemic device to aid problem understanding. How do we achieve the stated transformation. The evidence points towards processes that are performing poorly or there is lack of information. These become the focus for action i.e. red=&gt;fix and white=&gt;find-out more.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="57" name="Deciding options using IBIS/EDEN">
+      <location x="1485" y="160" nodeWidth="84" nodeHeight="80" />
+      <desc>See sub-processes</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.56203</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="58" name="Understanding IBIS/EDEN">
+      <location x="1435" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>Issues Based Information Systems (IBIS)/Evidential Discourse in ENgineering (EDEN)
+Type of information system designed to support cooperatives confronted by complex problems and needing to arrive at a plan of action
+Rests on a model of problem solving by cooperatives as an argumentative process
+Starts from an unstructured problem situation or topic, named as a trigger phrase, from which a discourse develops
+Issues are brought up and disputed
+Arguments are constructed for/against until the issue is settled
+
+Different types of information exchanges occur
+Between participants
+With experts specifically consulted
+Factual literature and outputs from modelling
+Sub-cooperatives
+Makes the argumentation visible i.e. provides documentation/reporting
+
+
+Issues: a point of discussion to be resolved about the performance or state of knowledge about a process
+Options: a possible intervention to resolve the issue
+Arguments: support or refute an option
+Appear as elements in the process map under processes in the order 
+Process &lt;-Issues &lt;-Options &lt;-Arguments
+
+This uses the EDEN/IBIS capabilities of the modelling approach. Described fully in 
+Marashi, E., &amp; Davis, J.P. (2006). An argumentation-based method for managing complex issues in design of infrastructural systems. Reliability Engineering &amp; System Safety, 91(12), 1535-1545. doi: 10.1016/j.ress.2006.01.013
+Marashi, E., &amp; Davis, J. (2007). A Systems-Based Approach for Supporting Discourse in Decision Making. Computer-Aided Civil and Infrastructure Engineering, 22, 511-526. 
+Davis, J.P., &amp; Hall, J.W. (2003). A software-supported process for assembling evidence and handling uncertainty in decision-making. Decision Support Systems, 35(3), 415-433. doi: 10.1016/s0167-9236(02)00117-3
+Yearworth, M., Schien, D., &amp; Burger, K. (2014). D2.1 R1 Energy Master Plan Process Modelling STEEP PROJECT (314277) - Systems Thinking for Comprehensive City Efficient Energy Planning (pp. 70): University of Bristol.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="59" name="Arriving at a list of options">
+      <location x="1550" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>See sub-processes</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.343</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="60" name="Debating and capturing issues">
+      <location x="1455" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="61" name="Debating and capturing options">
+      <location x="1550" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="62" name="Debating and capturing arguments">
+      <location x="1655" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="66" name="Intervening">
+      <location x="2400" y="155" nodeWidth="84" nodeHeight="80" />
+      <desc>This is the top-level process for implementing actions - taking action to improve inthe problem situation</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.21919959</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="67" name="Deciding feasibility of action using PESTEL analysis">
+      <location x="2270" y="290" nodeWidth="84" nodeHeight="80" />
+      <desc>This is described fully in STEEP deliverable D2.3 based on the use of the SPeAR PESTEL analysis software from Arup. PESTEL analysis could be used without tool support, or other feasibility assessment tools could be used here instead.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="69" name="Monitoring and evaluation of interventions">
+      <location x="2450" y="285" nodeWidth="84" nodeHeight="80" />
+      <desc>This process will have to be there, but little  detail is provided here.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.49</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="70" name="Designing monitoring and evaluation">
+      <location x="2400" y="410" nodeWidth="84" nodeHeight="80" />
+      <desc>How will the projects that this process launches be assessed for success. Knowing that assessing project success is itself a messy problem then this process must decide amongst stakeholders what counts as sucess and how that might be measured on an ogoing and post project basis. See
+Ika, L.A. (2009). Project success as a topic in project management journals. Project Management Journal, 40(4), 6-19. doi: 10.1002/pmj.20137</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="71" name="Launching intervention projects">
+      <location x="2785" y="285" nodeWidth="84" nodeHeight="80" />
+      <desc>The STEEP methodology is largely about problem structuring and says little about how interventions are to be commisioned. The focus is on achieving a shared understanding of the problem situation and finding actions to improve that all stakeholders can agree on. The methodology exits at this point with the launch of projects.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="72" name="Implementing measurement processes">
+      <location x="2510" y="410" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="73" name="Evaluating the STEEP methodology">
+      <location x="2925" y="140" nodeWidth="84" nodeHeight="80" />
+      <desc>Separate from evaluation of outcomes of interventions this process is designed to evaluate the methodology itself and contribute to methodological learning i.e. how to improve our methods.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="75" name="Agreeing action plan">
+      <location x="2360" y="290" nodeWidth="84" nodeHeight="80" />
+      <desc>Agreeing an Action Plan that is i) Desirable, ii) Feasible, iii) Ethical</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.01</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="80" name="Enabling a decision making architecture">
+      <location x="1975" y="145" nodeWidth="84" nodeHeight="80" />
+      <desc>This sub-process (sub-system) was developed by the Bristol team in response to the challenges facing the City Council posed by achieving the transformational goal in an enterprise zone with little control over decision making. 
+
+Some processes are already included in previous Step versions of this model, particularly around stakeholder engagement, as the lessons learned here were made early and incorperated into STEEP deliverables D4.1 and D4.2. However, another view on this process is that it exists to mitigate a mismatch between stakeholding and decision making, which shouldn't exist (definition of stakeholding) but nonetheless reflects the complexity of working in multi-agency settings. Further investigation is needed, along with literature review e.g.
+Alberto Franco, L. (2009). Problem structuring methods as intervention tools: Reflections from their use with multi-organisational teams. Omega, 37(1), 193-203. 
+Franco, L.A. (2008). Facilitating collaboration with problem structuring methods: A case study of an inter-organisational construction partnership. Group Decision and Negotiation, 17(4), 267-286. 
+Ackermann, F., Franco, L.A., Gallupe, B., &amp; Parent, M. (2005). GSS for multi-organizational collaboration: Reflections on process and content. Group Decision and Negotiation, 14(4), 307-331. 
+
+
+Further reflections on this situation and ways forward analysed using Geels' transition viewpoint can be found in
+Freeman, R., &amp; Yearworth, M. (201x). Systemic Issues in Planning a City-Centre Low-Carbon Enterprise Zone. In Review - Urban Studies.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.29614214</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="81" name="Demonstrating financial viability of options ">
+      <location x="1685" y="520" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory, see Bristol modelling in D2.1 for an example.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="82" name="Demonstrating technical feasibility of options">
+      <location x="1900" y="530" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory. Based on model developed in Bristol and shown in D2.1</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="83" name="Demonstrating viability and credibility of vision">
+      <location x="1775" y="290" nodeWidth="84" nodeHeight="80" />
+      <desc>The modelling in Bristol indicated that this was essential.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.2401</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="84" name="Establishing clear criteria to meet vision">
+      <location x="1920" y="410" nodeWidth="84" nodeHeight="80" />
+      <desc>The stakeholders need to do this.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="85" name="Gaining showcase examples">
+      <location x="1805" y="500" nodeWidth="84" nodeHeight="80" />
+      <desc>This will undoubtedly help in demonstrating viability of interventions.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="86" name="Influencing market-driven decision making">
+      <location x="1875" y="285" nodeWidth="84" nodeHeight="80" />
+      <desc>The intention here is to respect the inherent market-driven nature of decision making and find ways within that of influencing decision making in a positive direction. Again, this assumes that stakeholding and decision making are somehow disconnected.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="87" name="Designing the stakeholder engagement strategy">
+      <location x="375" y="575" nodeWidth="84" nodeHeight="80" />
+      <desc>How does this happen when there is only the CSEP driving the process? Otherwise, who does this?</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="88" name="Managing stakeholder expectations">
+      <location x="495" y="645" nodeWidth="84" nodeHeight="80" />
+      <desc>Ongoing to avoid the problem of eroding the transformational goal of the system</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="89" name="Managing conflict and reaching accommodation">
+      <location x="565" y="530" nodeWidth="84" nodeHeight="80" />
+      <desc>Making an aspect of any PSM process explicit</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="90" name="Mapping stakeholders">
+      <location x="625" y="695" nodeWidth="84" nodeHeight="80" />
+      <desc>Identifying potential stakeholders needs to happen. This related to animating the methodology, who does this if driven by the CSEP? Self-identification? Again, an open research question.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="91" name="Filling knowledge and skills gaps">
+      <location x="395" y="670" nodeWidth="84" nodeHeight="80" />
+      <desc>Micro analysis of Bristol group model building workshops has pointed us towards the importance of this process. The full gamut of PESTEL constraints needs to be represented by the stakeholders engaged in this process. See
+White, L., Yearworth, M., &amp; Burger, K. (2015). Understanding PSM Interventions through Sense-making and the Mangle of Practice Lens. Paper presented at the 15th International Conference on Group Decision and Negotiation (GDN 2015), Warsaw, Poland.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="92" name="Enabling organisational readiness">
+      <location x="1975" y="290" nodeWidth="84" nodeHeight="80" />
+      <desc>Are the agencies that need to make interventions in a position to actually carry them out. Do they have the necessary skills and experience. Is their organisation ready?</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="94" name="Understanding existing decision making processes">
+      <location x="2090" y="290" nodeWidth="84" nodeHeight="80" />
+      <desc>How are decisions made now? Understanding this will help make new decisions. Not understanding this is a serious hindrance.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.276115</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="95" name="Understanding business models">
+      <location x="2040" y="430" nodeWidth="84" nodeHeight="80" />
+      <desc>if business models are not understood then existing decision making processes are going to be poorly understood, if at all.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="96" name="Understanding benefits">
+      <location x="2140" y="430" nodeWidth="84" nodeHeight="80" />
+      <desc>How do benefits acrue?</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.7</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="97" name="Understanding obligations">
+      <location x="2095" y="520" nodeWidth="84" nodeHeight="80" />
+      <desc>What obligations exist. Not clear at the moment if this is obligations of the stakeholders, or some otehr decision makers e.g. property developers that are not part of this process.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="98" name="Understanding the decision making factors and deciders">
+      <location x="2225" y="535" nodeWidth="84" nodeHeight="80" />
+      <desc>Again, another assumption here is that decision makers are not teh stakeholders engaged in this process.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="99" name="Creating the approrpriate financial environment">
+      <location x="2660" y="290" nodeWidth="84" nodeHeight="80" />
+      <desc>This process, moved from &lt;Enabling decision making architecture&gt;, to &lt;Intervening&gt; enables projects to be launched. It is the final hurdle to be crossed before a project can be resourced.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.1709512</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="100" name="Funding development phases">
+      <location x="2605" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="101" name="Raising capital">
+      <location x="2625" y="505" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="102" name="Reducing operational costs">
+      <location x="2745" y="515" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="103" name="Tapping in to funding models that address local objectives">
+      <location x="2770" y="410" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.04</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="104" name="Creating finance mechanisms">
+      <location x="2690" y="615" nodeWidth="84" nodeHeight="80" />
+      <desc>Self explanatory</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <issue>
+    <node id="64" name="Access to further training material">
+      <location x="925" y="545" nodeWidth="84" nodeHeight="80" />
+      <colour>-5384449</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </issue>
+  <issue>
+    <node id="65" name="Translating measurements into Italian Flags">
+      <location x="1160" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>See training material at http://smartsteep.eu/resources for approaches to this</desc>
+      <colour>-5384449</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </issue>
+  <issue>
+    <node id="68" name="Other types of analysis required?">
+      <location x="2270" y="410" nodeWidth="84" nodeHeight="80" />
+      <colour>-5384449</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </issue>
+  <issue>
+    <node id="79" name="Is it possible for the CSEP to provide this?">
+      <location x="280" y="550" nodeWidth="84" nodeHeight="80" />
+      <desc>It's not clear whether it will ever be possible for the animation of the methodology to happen without human facilitation. This is a research question. Literature review needs to continue and research carried out once the CSEP is available to use.</desc>
+      <colour>-5384449</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </issue>
+  <issue>
+    <node id="93" name="Adequate skills &amp; experience">
+      <location x="1975" y="640" nodeWidth="84" nodeHeight="80" />
+      <desc>It's not clear if this is the same set of skills &amp; experience (and hence people) as the &lt;Filling knowledge and skills gap process&gt;. Depends on whether decision makers are considered to be a different group of people from stakeholders. They shouldn't be.</desc>
+      <colour>-5384449</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </issue>
+  <option preferredOption="true">
+    <node id="34" name="Use the STEEP collaborative stakeholder engagement platform">
+      <location x="35" y="415" nodeWidth="84" nodeHeight="80" />
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="38" name="Use CATWOE">
+      <location x="635" y="415" nodeWidth="84" nodeHeight="80" />
+      <desc>See STEEP deliverable D2.1 for a complete description
+Yearworth, M., Schien, D., &amp; Burger, K. (2014). D2.1 R1 Energy Master Plan Process Modelling STEEP PROJECT (314277) - Systems Thinking for Comprehensive City Efficient Energy Planning (pp. 70): University of Bristol.</desc>
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="56" name="Strategies to resolve">
+      <location x="1250" y="540" nodeWidth="84" nodeHeight="80" />
+      <desc>This requires an understanding that inconsistency is a result of 
+System Structure?
+Evidence?
+Necessity/Sufficiency conditions?
+In Step 6 as an example, we address inconsistency by changing necessity and sufficiency values. Note that they are back at default values for PeriMeta.</desc>
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="77" name="Use 3 e's">
+      <location x="2400" y="520" nodeWidth="84" nodeHeight="80" />
+      <desc>Efficiency
+Efficacy 
+Effectiveness</desc>
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <option preferredOption="true">
+    <node id="78" name="Use appropriate method(s)">
+      <location x="2925" y="265" nodeWidth="84" nodeHeight="80" />
+      <desc>STEEP deliverable D2.5 
+Yearworth, M. (2014). D2.5 Evaluation STEEP PROJECT (314277) - Systems Thinking for Comprehensive City Efficient Energy Planning (pp. 56): University of Bristol.
+
+Shows how this can be done. This is based on basic work on evaluation from
+Pawson, R., &amp; Tilley, N. (1997). Realistic Evaluation. London: Sage.
+
+and specialist PSM evaluation methods from 
+Midgley, G., Cavana, R.Y., Brocklesby, J., Foote, J.L., Wood, D.R.R., &amp; Ahuriri-Driscoll, A. (2013). Towards a new framework for evaluating systemic problem structuring methods. European Journal of Operational Research, 229(1), 143-154. doi: 10.1016/j.ejor.2013.01.047
+Ormerod, R. (2013). The mangle of OR practice: towards more informative case studies of ‘technical’ projects. Journal of the Operational Research Society. doi: doi:10.1057/jors.2013.78</desc>
+      <colour>-2163767</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </option>
+  <link parentNodeId="1" childNodeId="24">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="3">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="25">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="7">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="26" childNodeId="27">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="26" childNodeId="28">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="26" childNodeId="29">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="25" childNodeId="30">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="26" childNodeId="31">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="25" childNodeId="32">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="25" childNodeId="33">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="32" childNodeId="26">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>1.0</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="30" childNodeId="34">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="33" childNodeId="35">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="3" childNodeId="35">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>1.0</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="24" childNodeId="36">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="24" childNodeId="37">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="7" childNodeId="37">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="7" childNodeId="36">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="37" childNodeId="38">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="36" childNodeId="35">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="37" childNodeId="35">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="36" childNodeId="39">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="37" childNodeId="39">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="33" childNodeId="40">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="41">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="41" childNodeId="42">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="41" childNodeId="43">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="43" childNodeId="45">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="43" childNodeId="46">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="43" childNodeId="44">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="42" childNodeId="45">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="42" childNodeId="46">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="42" childNodeId="44">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="43" childNodeId="48">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="42" childNodeId="48">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="49">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="49" childNodeId="50">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="49" childNodeId="51">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="41" childNodeId="52">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="49" childNodeId="52">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="52" childNodeId="53">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="52" childNodeId="54">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="53" childNodeId="56">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="57">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="57" childNodeId="58">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="57" childNodeId="59">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="59" childNodeId="60">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="59" childNodeId="61">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="59" childNodeId="62">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="45" childNodeId="64">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="46" childNodeId="64">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="44" childNodeId="64">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="48" childNodeId="64">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="51" childNodeId="65">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="66">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="67" childNodeId="68">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="66" childNodeId="67">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="66" childNodeId="69">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="69" childNodeId="70">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="66" childNodeId="71">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="69" childNodeId="72">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="73">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="66" childNodeId="75">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="70" childNodeId="77">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="73" childNodeId="78">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="32" childNodeId="79">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="80">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="80" childNodeId="83">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="83" childNodeId="81">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="83" childNodeId="82">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="83" childNodeId="84">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="83" childNodeId="85">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="80" childNodeId="86">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="33" childNodeId="87">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="36" childNodeId="89">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="37" childNodeId="89">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="3" childNodeId="90">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="3" childNodeId="91">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="80" childNodeId="92">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="92" childNodeId="93">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="80" childNodeId="94">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="94" childNodeId="95">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="94" childNodeId="96">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="94" childNodeId="97">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="94" childNodeId="98">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="96" childNodeId="98">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="66" childNodeId="99">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="99" childNodeId="100">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="99" childNodeId="101">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="99" childNodeId="102">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="99" childNodeId="103">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="99" childNodeId="104">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="33" childNodeId="88">
+    <linkAspect aspectId="0">
+      <necessity>0.3</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <label>
+    <labeltext bold="false" italic="false" underline="false" alignment="1" fontface="SansSerif" fontsize="12" textcolour="-16777216" backgroundcolour="-52">The STEEP Methodology
+4th March 2015
+Dr Mike Yearworth
+University of Bristol
+
+Will appear in STEEP deliverable D2.1R2</labeltext>
+    <location x="1425" y="650" width="160" height="80" />
+  </label>
+</cmamDocument>
+

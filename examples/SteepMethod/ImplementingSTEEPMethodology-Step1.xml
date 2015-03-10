@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cmamDocument xmlns="http://www.cen.bris.ac.uk/civil/cmam" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cen.bris.ac.uk/civil/cmam cmam-model.xsd" editedInVersion="2.1.7Beta">
+  <model name="ImplementingSTEEPMethodology-Step1" desc="The first stage in implementing the STEEP methodology addresses the codependence of deciding the transformational goal and enrolling the stakeholders. The scope is thus defined by the setting of system boundary. Crucial to making this happen and for the subsequent steps in implementation is the need to animate the process. At this stage before anything has started we know that the &lt;Animating the methodology&gt; process is not performing well [0.0, 0.0]. Also we know nothing about the system boundary [0.0, 1.0]. Necessity valaues have been set to 1.0, we can be categorical about non-performance at this stage. " learningRate="1.0" necessityPower="1.0" propagationAlgorithm="Juniper" normalizationMethod="Yager's Method" pairwiseCombinationMethod="Minimum of pairs" />
+  <aspect id="0" name="Overview" colour="-1" />
+  <process>
+    <node id="1" name="Implementing the STEEP Methodology">
+      <location x="410" y="10" nodeWidth="84" nodeHeight="80" />
+      <desc>The complete documentation set for the STEEP methodology can be found on the STEEP website at http://smartsteep.eu/resources
+
+The methodology as described here is designed for deployment on the STEEP collaborative stakeholder engagement platform as an aid to implementation. 
+
+Without getting too recursive, the transformational system at this stage is bootstrapping itself and the two processes to address for now are &lt;Animating the methodology&gt; and &lt;Deciding the system boundary&gt;. This will lead to the next stage.</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="3" name="Enrolling stakeholders ">
+      <location x="515" y="145" nodeWidth="84" nodeHeight="80" />
+      <desc>Further detail is provided in the next stage</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="7" name="Deciding system boundary ">
+      <location x="460" y="295" nodeWidth="84" nodeHeight="80" />
+      <desc>This provides the initial scope for implementation. Basic considerations are time, geographic extent and focus e.g. energy planning in Bristol for next 20 years</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="24" name="Deciding transformation goal">
+      <location x="410" y="145" nodeWidth="84" nodeHeight="80" />
+      <desc>Further detail is provided in the next stage</desc>
+      <colour>-2302756</colour>
+      <graphExpanded>true</graphExpanded>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <noEvidence />
+        </localFOM>
+        <propFOM>
+          <sn>0.0</sn>
+          <sp>1.0</sp>
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>false</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <process>
+    <node id="25" name="Animating the methodology">
+      <location x="300" y="145" nodeWidth="84" nodeHeight="80" />
+      <desc>This is crucial. There must be some animating force that initially drives the implementation of the STEEP methodology. This platform goes a certain way towards supporting this process but eventually must be owned by the stakeholders.</desc>
+      <colour>-2302756</colour>
+      <nodeAspect aspectId="0">
+        <localFOM>
+          <sn>0.0</sn>
+          <sp>0.0</sp>
+        </localFOM>
+        <propFOM>
+          <noEvidence />
+        </propFOM>
+        <localFOMWeight>1.0</localFOMWeight>
+        <propFOMWeight>1.0</propFOMWeight>
+        <localFOMDirect>true</localFOMDirect>
+        <dependancy>
+          <single>0.0</single>
+        </dependancy>
+      </nodeAspect>
+    </node>
+  </process>
+  <link parentNodeId="1" childNodeId="24">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="3">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="24" childNodeId="7">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="3" childNodeId="7">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+  <link parentNodeId="1" childNodeId="25">
+    <linkAspect aspectId="0">
+      <necessity>1.0</necessity>
+      <sufficiency>0.4</sufficiency>
+      <importance>1.0</importance>
+      <jointlySufficient>false</jointlySufficient>
+      <jointlyNecessary>false</jointlyNecessary>
+    </linkAspect>
+  </link>
+</cmamDocument>
+
