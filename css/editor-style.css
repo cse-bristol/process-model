@@ -1,0 +1,7 @@
+/* Override the styles from the zenpen-editor where appropriate. */
+
+blockquote {
+    border-color: deepskyblue;
+    background: #DDD;
+    margin-left: 0;
+}

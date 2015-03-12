@@ -1,10 +1,10 @@
 "use strict";
 
-/*global require, module */
+/*global require, module, zeditor */
 
 var d3 = require("d3");
 
-module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, onFocus, onLoseFocus, plaintext) {
+module.exports = function(selection, newSelection, x, y, width, height, name, contentFunction, onChange, toolbar, plaintext) {
     var newForeign = newSelection
 	    .append("foreignObject")
 	    .classed("svg-editable-text", true)
@@ -19,16 +19,27 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 	    .append("xhtml:div")
 	    .attr("contenteditable", "true")
 	    .attr("tabindex", 0)
-	    .classed(name, "true")
-	    .on("input", function(d, i) {
-		onChange(d, i, d3.select(this).html());
-	    })
+	    .classed(name, "true");
+
+    if (plaintext) {
+	newInput
+	    .classed("plaintext", true)
 	    .on("mousedown", function(d, i) {
-		// If this event bubbles up, the d3 drag behaviours will get hold of it and make trouble.
 		d3.event.stopPropagation();
+		toolbar.hide();
 	    })
-	    .on("focus", onFocus)
-	    .on("blur", onLoseFocus);
+	    .on("input", function(d, i) {
+		onChange(
+		    d3.select(this).text()
+		);
+	    });
+	
+    } else {
+	toolbar(
+	    newInput,
+	    onChange
+	);
+    }
 
     var input = foreign.selectAll("." + name)
 	.attr("name", name)
@@ -37,9 +48,4 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 	    return (w - 5) + "px";
 	})
 	.html(contentFunction);
-
-    if (plaintext) {
-	newInput
-	    .classed("plaintext", true);
-    }
 };

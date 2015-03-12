@@ -34,14 +34,14 @@ var d3 = require("d3"),
     jsonData = require("./data/json.js"),
     perimetaDeserialize = require("./data/perimeta-xml.js"),
     helpLink = d3.select("#help"),
-    textControls = require("./text-toolbar.js")(body, svg, transitions),
+    textControls = require("zenpen-toolbar")(body),
     messages = require("./messages.js")(body, update),
     drawNodes = require("./nodes/draw-node.js")(g, transitions, textControls,
 						withUpdate(selection.selected),
 						update),
     drawEdges = require("./draw-edge.js")(g, transitions, update),
     zoom = d3.behavior.zoom()
-	.on("zoom", function(){
+	.on("zoom", function() {
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	    textControls.update();
 	}),

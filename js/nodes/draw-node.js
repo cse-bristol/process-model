@@ -170,12 +170,9 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 			d3.select(this).classed("name-error", true);
 		    }
 		},
-		function() {},
-		function onLoseFocus(d, i) {
-		    update();
-		},
-		// plaintext
-		true);
+		toolbar,
+		true
+	    );
 	};
 
     var drawNodeDescription = function(nodes, newNodes) {
@@ -203,11 +200,9 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	    function onChange(d, i, val) {
 		d.description(val);
 	    },
-	    toolbar.focus,
-	    function onLoseFocus(d, i) {
-		toolbar.blur.call(this, d, i);
-		update();
-	    });
+	    toolbar,
+	    false
+	);
     },
 
 	drawExpandContract = function(g) {

@@ -15,14 +15,6 @@
     width: 99vw;
 }
 
-#help {
-    position: fixed;
-    top: 0.2em;
-    right: 0.4em;
-    font-size: xx-large;
-    text-decoration: none;
-}
-
 g.process-node {
     cursor: move;
 }
@@ -63,6 +55,7 @@ text {
 
 .node-description {
     font-size: small;
+    height: 100%;
 }
 
 .process-node rect.node-box-process {
