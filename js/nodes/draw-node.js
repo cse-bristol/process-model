@@ -131,6 +131,28 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	drawResizeHandle = function(nodes, newNodes) {
 	    newNodes.append("g")
 		.classed("resize-handle", true)
+		.on("click", function(d, i) {
+		    if (!d3.event.defaultPrevented) {
+
+			var thing = 			    
+			    d3.select(this.parentNode)
+				.select(".node-description")
+				.node();
+
+			/*
+			 Resize my node to fit the description box.
+			 */
+			d.size([
+			    d.size()[0],
+			    
+			    d3.select(this.parentNode)
+				.select(".node-description")
+				.node()
+				.scrollHeight + 45
+			]);
+			update();
+		    }
+		})
 		.call(dragResize)
 		.append("text")
 		.text("⇘");
