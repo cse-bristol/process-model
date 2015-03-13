@@ -3,6 +3,7 @@
 /*global require, module*/
 
 var d3 = require("d3"),
+    _ = require("lodash"),
     combineEvidence = require("../combine-evidence.js"),
     helpers = require("../helpers.js"),
     clamp = helpers.clamp,
@@ -111,7 +112,11 @@ module.exports = d3.map({
 
 	node.dependence = function(dependence) {
 	    if (dependence !== undefined) {
-		localDep = clamp(0, dependence, 1);
+		if (_.isNumber(dependence) && !_.isNaN(dependence)) {
+		    localDep = clamp(0, dependence, 1);
+		} else {
+		    throw new Error("Dependence must be a number " + dependence);
+		}
 	    }
 	    
 	    return localDep;
