@@ -68,6 +68,13 @@ module.exports = function(container, transitions, update) {
 
 	var edgePaths = edgeGroups.selectAll("path")
 		.data(function(d, i){
+		    if (d.path && d.path.length > 0) {
+			/*
+			 Make our paths start just next to the node junction or the dependency arc.
+			 */
+			d.path[0][0] += d.parent().type === "process" ? 5 : 4;
+		    }
+		    
 		    return [d];
 		});
 
