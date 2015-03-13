@@ -4,8 +4,7 @@
 
 var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
-    allowedTypes = require("./allowed-types.js"),
-    twoPI = Math.PI * 2;
+    allowedTypes = require("./allowed-types.js");
 
 module.exports = function(drawNodes, getNodeCollection, transitions, update) {
     var junctionRadius = 5;
@@ -67,39 +66,6 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	    })
 	    .on("dragend", function(d, i) {
 		modifyIndex = undefined;
-		update();
-	    });
-
-    var dragDependency = d3.behavior.drag()
-	    .on("dragstart", function(d, i) {
-		d3.event.sourceEvent.stopPropagation();
-	    })
-	    .on("drag", function(d, i) {
-		d = d.data;
-
-		// I've got to find the quadrant
-		
-		// Identify the position of the mouse cursor relative to the centre of the circle.
-		var bbox = this.parentNode.getBBox(),
-		    xOffset = d3.event.x - (bbox.x + (bbox.width / 2)),
-		    yOffset = d3.event.y - (bbox.y + (bbox.height / 2)),
-
-		    // Inverse tan's range is annoying, so we correct for that here.
-		    quadrantCorrection = xOffset >= 0 ?
-			(yOffset >= 0 ? 0.5 : 1)
-		    : (yOffset >= 0 ? 0.5 : 0),
-		    
-		    // Identify the angle relative to vertical.
-		    angle = Math.atan(xOffset / yOffset),
-		    
-		    // Calculate the fraction of the circle which the angle covers.
-		    fraction = (angle / twoPI) + quadrantCorrection;
-
-		d.node.dependence(1 - fraction);
-
-		drawNodes.redrawNode(d3.select(this.parentNode.parentNode));
-	    })
-	    .on("dragend", function(d, i) {
 		update();
 	    });
 
@@ -240,8 +206,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		}
 
 		update();
-	    })
-	    .call(dragDependency);
+	    });
 
 	dependenceArc
 	    .attr("d", arc);
