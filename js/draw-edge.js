@@ -72,7 +72,7 @@ module.exports = function(container, transitions, update) {
 			/*
 			 Make our paths start just next to the node junction or the dependency arc.
 			 */
-			d.path[0][0] += d.parent().type === "process" ? 5 : 4;
+			d.path[0][0] += d.parent().type === "process" ? 7 : 5;
 		    }
 		    
 		    return [d];

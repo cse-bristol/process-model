@@ -6,8 +6,8 @@ var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
     allowedTypes = require("./allowed-types.js"),
     circleFraction = require("../circle-fraction.js"),
-    junctionRadius = 4,
-    dependencyArcRadius = 5;
+    junctionRadius = 5,
+    dependencyArcRadius = 7;
 
 module.exports = function(drawNodes, getNodeCollection, transitions, update) {
     var findDragTarget = function() {
