@@ -3,9 +3,84 @@
 /*global require, module*/
 
 var d3 = require("d3"),
-    onScroll = require("./helpers.js").onScroll;
+    onScroll = require("./helpers.js").onScroll,
+    empty = d3.select(),
+    twoPI = Math.PI * 2,
+    necessityHalfType = "necessity-half",
+    sufficiencyHalfType = "sufficiency-half";
 
 module.exports = function(container, transitions, update) {
+
+    /*
+     Given an SVG element and a d3 event, works out how far anti-clockwise from the centre the mouse cursor is relative to the centre of the element.
+
+     Ranges from 0 to 1.
+     */
+    var circleFraction = function(element, event) {
+	var bbox = element.getBBox(),
+	    xOffset = event.x - (bbox.x + (bbox.width / 2)),
+	    yOffset = event.y - (bbox.y + (bbox.height / 2)),
+
+	    // Inverse tan's range is annoying, so we correct for that here.
+	    quadrantCorrection = xOffset >= 0 ?
+		(yOffset >= 0 ? 0.5 : 1)
+	    : (yOffset >= 0 ? 0.5 : 0),
+	    
+	    // Identify the angle relative to vertical.
+	    angle = Math.atan(xOffset / yOffset);
+	
+	// Calculate the fraction of the circle which the angle covers.
+	return (angle / twoPI) + quadrantCorrection;
+    };
+
+    var dragNecessitySufficiency = d3.behavior.drag()
+	    .on("dragstart", function(d, i) {
+		d3.event.sourceEvent.stopPropagation();
+	    })
+	    .on("drag", function(d, i) {
+		var toChange = d.target,
+		    fraction = circleFraction(this.parentNode, d3.event);
+
+		/*
+		 Scale the fraction up by two because we're working with hemicircles instead of circles.
+
+		 Handle the two quadrants of the circle which are outside our current arc.
+		 */
+		switch (d.type) {
+		case necessityHalfType:
+		    if (fraction < 0.25) {
+			fraction = 0;
+		    } else if (fraction < 0.5) {
+			fraction = 1;
+		    } else {
+			// Flip the direction - necessity increases as we go clockwise.
+			fraction = 2 * (1 - fraction);
+		    }
+		    toChange.necessity(fraction);
+		    break;
+		case sufficiencyHalfType:
+		    if (fraction > 0.75) {
+			fraction = 0;
+		    } else if (fraction > 0.5) {
+			fraction = 1;
+		    } else {
+			fraction *= 2;
+		    }
+		    
+		    toChange.sufficiency(fraction);
+		    break;
+		default:
+		    throw new Error("Unknown type of necessity/sufficiency circle segment: " + d.type);
+		}
+		
+		drawEdges(
+		    d3.select(this.parentNode.parentNode),
+		    empty
+		);
+	    })
+	    .on("dragend", function(d, i) {
+		update();
+	    });
     
     var drawPathsForEdges = function(edgeGroups) {
 	var colourScale = d3.scale.linear()
@@ -102,34 +177,49 @@ module.exports = function(container, transitions, update) {
 	    });
 
 	var weightHalfs = weights.selectAll("g.weight-half")
-		.data(function(d, i){
-		    var necessity = d.canModify() ? d.necessity() : 0,
-			antiNecessity = 1 - necessity,
-			sufficiency = d.canModify() ? d.sufficiency() : 0,
-			antiSufficiency = 1 - sufficiency;
+		.data(
+		    function(d, i){
+			var necessity = d.canModify() ? d.necessity() : 0,
+			    antiNecessity = 1 - necessity,
+			    sufficiency = d.canModify() ? d.sufficiency() : 0,
+			    antiSufficiency = 1 - sufficiency;
 
-		    var pieData = pie([
-			{type: "necessity", color: "red", target: d, value: necessity},
-			{type: "anti-necessity", color: "lightgray", target: d, value: antiNecessity},
-			{type: "anti-sufficiency", color: "lightgray", target: d, value: antiSufficiency},
-			{type: "sufficiency", color: "green", target: d, value: sufficiency}
-		    ]);
+			var pieData = pie([
+			    {type: "necessity", color: "red", target: d, value: necessity},
+			    {type: "anti-necessity", color: "lightgray", target: d, value: antiNecessity},
+			    {type: "anti-sufficiency", color: "lightgray", target: d, value: antiSufficiency},
+			    {type: "sufficiency", color: "green", target: d, value: sufficiency}
+			]),
 
-		    return [
-			[pieData[0], pieData[1]],
-			[pieData[2], pieData[3]]
-		    ];
-		});
+			    necessityHalf = [pieData[0], pieData[1]],
+			    sufficiencyHalf = [pieData[2], pieData[3]];
+
+			necessityHalf.type = necessityHalfType;
+			necessityHalf.target = d;
+			sufficiencyHalf.type = sufficiencyHalfType;
+			sufficiencyHalf.target = d;
+
+			return [necessityHalf, sufficiencyHalf];
+		    }, function(d, i) {
+			return d.type;
+		    }
+		);
 
 	weightHalfs.exit().remove();
 	weightHalfs.enter()
 	    .append("g")
-	    .classed("weight-half", true);
+	    .classed("weight-half", true)
+	    .call(dragNecessitySufficiency);
 
 	var weightingsPath = weightHalfs.selectAll("path")
-		.data(function(d, i){
-		    return d;
-		});
+		.data(
+		    function(d, i) {
+			return d;
+		    },
+		    function(d, i) {
+			return d.data.type;
+		    }
+		);
 
 	weightingsPath.exit().remove();
 	weightingsPath.enter()
@@ -173,6 +263,22 @@ module.exports = function(container, transitions, update) {
 	    });
     };
 
+    var drawEdges = function(edges, newEdges) {
+	newEdges
+	    .append("g")
+	    .classed("edge", true);
+
+	edges
+	    .classed("selected", function(d, i) {
+		return d.selected;
+	    });
+
+	drawPathsForEdges(edges);
+	drawEndsForEdges(edges);
+
+	markNecessitySufficiencyForEdges(edges);	
+    };
+
     return {
 	draw: function(edgeData) {
 	    var edges = container.selectAll("g.edge")
@@ -180,19 +286,7 @@ module.exports = function(container, transitions, update) {
 
 	    edges.exit().remove();
 
-	    edges.enter()
-		.append("g")
-		.classed("edge", true);
-
-	    edges
-		.classed("selected", function(d, i) {
-		    return d.selected;
-		});
-
-	    drawPathsForEdges(edges);
-	    drawEndsForEdges(edges);
-
-	    markNecessitySufficiencyForEdges(edges);
+	    drawEdges(edges, edges.enter());
 	}
     };
 };
