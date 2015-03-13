@@ -4,11 +4,12 @@
 
 var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
-    allowedTypes = require("./allowed-types.js");
+    allowedTypes = require("./allowed-types.js"),
+    circleFraction = require("../circle-fraction.js"),
+    junctionRadius = 4,
+    dependencyArcRadius = 5;
 
 module.exports = function(drawNodes, getNodeCollection, transitions, update) {
-    var junctionRadius = 5;
-
     var findDragTarget = function() {
 	var target = document.elementFromPoint(
 	    d3.event.sourceEvent.clientX, 
@@ -66,6 +67,22 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	    })
 	    .on("dragend", function(d, i) {
 		modifyIndex = undefined;
+		update();
+	    });
+
+    var dragDependency = d3.behavior.drag()
+	    .on("dragstart", function(d, i) {
+		d3.event.sourceEvent.stopPropagation();
+	    })
+	    .on("drag", function(d, i) {
+		var toChange = d.data.node,
+		    fraction = circleFraction(this.parentNode, d3.event);
+
+		toChange.dependence(1 - fraction);
+
+		drawNodes.redrawNode(d3.select(this.parentNode.parentNode));
+	    })
+	    .on("dragend", function(d, i) {
 		update();
 	    });
 
@@ -134,9 +151,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 
 	junctions.enter()
 	    .append("g")
-	    .classed("handle", true)
-	    .attr("draggable", true)
-	    .call(dragNode);
+	    .classed("handle", true);
 
 	junctions
 	    .style("visibility", function(d, i){
@@ -161,12 +176,14 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	    .enter()
 	    .append("circle")
 	    .attr("r", junctionRadius)
-	    .style("fill", "white");
+	    .style("fill", "white")
+	    .call(dragNode);
     };
 
     var drawDependencyArc = function(junctions) {
 	var arc = d3.svg.arc()
-		.outerRadius(junctionRadius),
+		.innerRadius(junctionRadius)
+		.outerRadius(dependencyArcRadius),
 	    pie = d3.layout.pie()
 		.sort(null)
 		.value(function(d, i){
@@ -206,7 +223,8 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		}
 
 		update();
-	    });
+	    })
+	    .call(dragDependency);
 
 	dependenceArc
 	    .attr("d", arc);
@@ -372,6 +390,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 
 	drawIntervalParts(nodeDisplay.selectAll("g.interval"));
 	var junctions = drawEdgeJunctionGroup(nodeDisplay);
+	drawSimpleJunction(junctions);
 	drawDependencyArc(junctions);
     });
 
