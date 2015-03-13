@@ -57,7 +57,7 @@ var d3 = require("d3"),
 	model.freshModel
     ),
 
-    modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.onSet, update),
+    modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
     exportButton = require("./export-button.js")(
 	fileMenu.standard.getTitle,
 	fileMenu.standard.onTitleChange,

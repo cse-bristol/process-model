@@ -19,7 +19,7 @@ var _ = require("lodash"),
 
  Watched the context and alters the node graph and layout based on the operations it sees.
  */
-module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onModelChanged, update) {
+module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel, onModelChanged, update) {
     var listening = true,
 	submitOp = function(op) {
 	    if (listening) {
@@ -174,16 +174,31 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, onModelCh
 	listening = false;
 
 	try {
-	    switch(op.p[0]) {
-	    case "nodes":
-		updateNodes(getNodeCollection(), op.p.slice(1), op);
-		break;
-	    case "layout":
-		updateLayout(getLayout(), op.p.slice(1), op);
-		break;
-	    default:
-		// We don't know how to handle this event.
-		break;
+	    if (op.p.length === 0) {
+		if (op.oi) {
+		    // Replace the whole model.
+		    
+		    setModel(
+			jsonData.deserialize(op.oi)
+		    );
+		    
+		} else {
+		    // This document has been deleted. We have no representation of a deleted document, so we'll leave it be.
+		}
+		
+	    } else {
+		
+		switch(op.p[0]) {
+		case "nodes":
+		    updateNodes(getNodeCollection(), op.p.slice(1), op);
+		    break;
+		case "layout":
+		    updateLayout(getLayout(), op.p.slice(1), op);
+		    break;
+		default:
+		    // We don't know how to handle this event.
+		    break;
+		}
 	    }
 	} finally {
 	    listening = true;
