@@ -337,6 +337,10 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	registerType: function(key, value) {
 	    types.set(key, value);
 	},
+
+	redrawNode: function(nodeSelection) {
+	    drawNodes(nodeSelection, empty);
+	},
 	
 	draw: function(nodeData) {
 	    var nodes = container.selectAll("g.process-node")

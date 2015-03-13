@@ -24,8 +24,53 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	return null;
     };
 
+    var modifyIndex,
+	dragEvidence = d3.behavior.drag()
+	    .on("dragstart", function(d, i) {
+		d3.event.sourceEvent.stopPropagation();
+	    })
+	    .on("drag", function(d, i) {
+		var evidence = d.node.localEvidence().slice(0),
+		    scale = d.node.innerWidth(),
+		    newWidth = d3.event.x;
+
+		if (!modifyIndex) {
+		    switch (d.type) {
+		    case "failure":
+			modifyIndex = 0;
+			break;
+		    case "success":
+			modifyIndex = 1;
+			break;
+		    case "uncertainty":
+			/*
+			 Choose which bit of evidence to modify based on where the cursor was when we started the drag action.
+			 */
+			if (d3.event.x > this.x.baseVal.value + (this.width.baseVal.value / 2)) {
+			    modifyIndex = 1;
+			} else {
+			    modifyIndex = 0;
+			}
+			
+			break;
+		    default:
+			throw new Error("Unsupported evidence part: " + d.type);
+		    }
+		}
+
+		evidence[modifyIndex] = newWidth / scale;
+
+		d.node.localEvidence(evidence);
+
+		drawNodes.redrawNode(d3.select(this.parentNode.parentNode));
+	    })
+	    .on("dragend", function(d, i) {
+		modifyIndex = undefined;
+		update();
+	    });
+
     var dragNode = d3.behavior.drag()
-	    .on("dragstart", function(d){
+	    .on("dragstart", function(d) {
 		/* Nothing else should get this click now. */
 		d3.event.sourceEvent.stopPropagation();
 	    })
@@ -146,7 +191,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		return d.data.color;
 	    })
 	    .attr("stroke-width", 0.4)
-	    .call(onScroll, function(d, i, change){
+	    .call(onScroll, function(d, i, change) {
 		var toChange = d.data.node;
 
 		if(toChange.isLeaf() || toChange.collapsed()) {
@@ -282,7 +327,8 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 
 	    parts.enter()
 		.append("rect")
-		.attr("height", "15px");
+		.attr("height", "15px")
+		.call(dragEvidence);
 
 	    parts
 		.attr("class", function(d, i){
