@@ -208,26 +208,20 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		return d.data.color;
 	    })
 	    .attr("stroke-width", 0.4)
-	    .call(onScroll, function(d, i, change) {
-		var toChange = d.data.node;
-
-		if(toChange.isLeaf() || toChange.collapsed()) {
-		    return;
-		}
-
-		switch(d.data.type) {
-		case "dependence":
-		case "independence":
-		    toChange.dependence(toChange.dependence() + change);
-		    break;
-		}
-
-		update();
-	    })
 	    .call(dragDependency);
 
 	dependenceArc
 	    .attr("d", arc);
+
+	junctions.call(onScroll, function(d, i, change) {
+	    if(d.isLeaf() || d.collapsed()) {
+		return;
+	    }
+
+	    d.dependence(d.dependence() + change);
+
+	    update();
+	});
     };
 
     var toggleableText = function(nodeDisplay, clazz, text, colouring, toggle) {
