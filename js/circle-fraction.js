@@ -2,7 +2,8 @@
 
 /*global module*/
 
-var tau = Math.PI * 2;
+var tau = Math.PI * 2,
+    halfPi = Math.PI / 2;
 
 /*
  Given an SVG element and a d3 event, works out how far anti-clockwise from the centre the mouse cursor is relative to the centre of the element.
@@ -20,8 +21,10 @@ module.exports = function(element, event) {
 	: (yOffset >= 0 ? 0.5 : 0),
 	
 	// Identify the angle relative to vertical.
-	angle = Math.atan(xOffset / yOffset);
-    
+	angle = yOffset === 0 ?
+	    Math.sign(xOffset) * halfPi
+	    : Math.atan(xOffset / yOffset);
+
     // Calculate the fraction of the circle which the angle covers.
     return (angle / tau) + quadrantCorrection;
 };
