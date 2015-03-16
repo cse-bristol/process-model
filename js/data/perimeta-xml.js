@@ -3,7 +3,9 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    DOMParser = require('xmldom').DOMParser,
+    xmldom = require('xmldom'),
+    DOMParser = xmldom.DOMParser,
+    XMLSerializer = new xmldom.XMLSerializer(),
     nodeCollectionFactory = require("../nodes/node-collection.js"),
     urlRegex = require('url-regex')();
 
@@ -16,13 +18,14 @@ module.exports = function(text) {
 	 Turns our imported XML into some HTML like stuff.
 	 */
 	webify = function(text) {
-	    return text.split("\n").join("<br/>")
-		.replace(
-		    urlRegex,
-		    function(match) {
-			return '<a contenteditable="false" href="' + match + '">' + match + '</a>';
-		    }
-		);
+	    return text;
+	    // return text.split("\n").join("<br/>")
+	    // 	.replace(
+	    // 	    urlRegex,
+	    // 	    function(match) {
+	    // 		return '<a target="_parent" contenteditable="false" href="' + match + '">' + match + '</a>';
+	    // 	    }
+	    // 	);
 	},
 	
 	loadDependence = function(d) {
@@ -188,6 +191,20 @@ module.exports = function(text) {
 	links = doc.getElementsByTagName("link"),
 	nodeCollection = nodeCollectionFactory();
 
+    // Array.prototype.forEach.call(nodeElements, function(n) {
+    // 	var desc = n.getElementsByTagName("desc")[0],
+    // 	    name = n.getAttribute("name").replace(/\//g, "|").replace(/ /g, "_");
+
+    // 	if (!desc) {
+    // 	    desc = doc.createElement("desc");
+    // 	    n.appendChild(desc);
+    // 	}
+	
+    // 	desc.appendChild(
+    // 	    doc.createTextNode('\nhttp://tools.smartsteep.eu/wiki/SteepMethod#' + name)
+    // 	);
+    // });
+    
     /*
      Create all the nodes with just their type and id.
      */
@@ -206,7 +223,26 @@ module.exports = function(text) {
     Array.prototype.forEach.call(nodeElements, function(n){
 	loadNodeDetails(n, nodeCollection.get(n.getAttribute("id")), nodeCollection);
     });
-    
+
     nodeCollection.root(findRootNode(nodeCollection));
+
+    var stuff = "";
+    var printThings = function(node, depth) {
+	var header = "";
+	for (var i = 0; i < depth; i++) {
+	    header += "=";
+	}
+
+	stuff += header + " " + node.name() + " " + header + "\n\n";
+	stuff += node.description() + "\n\n";
+
+	node.edges().forEach(function(e) {
+	    printThings(e.node(), depth + 1);
+	});
+    };
+    
+    printThings(nodeCollection.root(), 1);
+    console.log(stuff);
+
     return nodeCollection;
 };
