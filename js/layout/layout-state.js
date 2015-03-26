@@ -92,10 +92,15 @@ module.exports = function(nodes) {
 	},
 	
 	setSize: function(id, size) {
-	    size = [
-		size[0] < minWidth ? minWidth : size[0],
-		size[1] < minHeight ? minHeight : size[1]
-	    ];
+	    if (size) {
+		/*
+		 If we're not clearing the size entirely, ensurely that it's not too small that we'll be stuck.
+		 */
+		size = [
+		    size[0] < minWidth ? minWidth : size[0],
+		    size[1] < minHeight ? minHeight : size[1]
+		];
+	    }
 	    
 	    manualSizes.set(id, size);
 	    onSetSize(id, size);

@@ -56,9 +56,13 @@ module.exports = function(container, getNodeCollection, getLayout, transitions, 
 			    d3.select(this),
 			    function(g) {
 				var x = d3.event.x,
-				    y = d3.event.y;
+				    y = d3.event.y,
+				    layout = getLayout();
 
-				getLayout().position(d.id, [x, y]);
+				layout.setPosition(d.id, [x, y]);
+				d.x = x;
+				d.y = y;
+				
 				drawNodes(g, empty);
 			    }
 			);
