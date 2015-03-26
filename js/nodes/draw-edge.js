@@ -6,7 +6,8 @@ var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
     empty = d3.select(),
     circleFraction = require("../circle-fraction.js"),
-    labelSize = 10;
+    labelSize = 10,
+    endSize = 3;
 
 module.exports = function(container, getNodeCollection, transitions, update) {
     var circle,
@@ -109,7 +110,7 @@ module.exports = function(container, getNodeCollection, transitions, update) {
 	transitions.maybeTransition(
 	    edges.select("circle.edge-end"))
     	    .attr("r", function(d, i) {
-		return d.canModify ? 2 : 0;
+		return d.canModify ? endSize : 0;
 	    })
 	    .attr("cx", function(d, i){
 		return d.path[d.path.length - 1][0];
@@ -125,7 +126,9 @@ module.exports = function(container, getNodeCollection, transitions, update) {
 	    .attr("width", labelSize)
 	    .attr("height", labelSize);
 
-	var labels = edges.select("g.edge-label")
+	var labels = edges.select("g.edge-label");
+
+	transitions.maybeTransition(labels)
 		.attr("transform", function(d, i) {
 		    return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
 		});
