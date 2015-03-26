@@ -1,0 +1,18 @@
+#model {
+    height: 96vh;
+    width: 99vw;
+}
+
+#toolbar {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+}
+
+#help {
+    text-decoration: none;
+    font-size: xx-large;
+    position: fixed;
+    right: 0.3em;
+    top: 0.2em;
+}

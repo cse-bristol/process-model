@@ -1,0 +1,38 @@
+.edge {
+    pointer-events: none;
+}
+
+.edge-label {
+    pointer-events: auto;
+}
+
+.edge circle {
+    cursor: pointer;    
+    fill: green;
+    stroke: #708090;
+    pointer-events: auto;
+}
+
+.edge circle:hover {
+    fill: darkred;
+}
+
+.edge-path {
+    stroke-linecap: round;
+}
+
+g.weight-half {
+    cursor: pointer;
+    
+   transform: scale(1);
+    -webkit-transform: scale(1);
+    -ms-transform: scale(1);
+    -o-transform: scale(1);
+}
+
+g.weight-half:hover {
+    transform: scale(1.8);
+    -webkit-transform: scale(1.8);
+    -ms-transform: scale(1.8);
+    -o-transform: scale(1.8);
+}

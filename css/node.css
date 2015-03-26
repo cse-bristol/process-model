@@ -1,0 +1,102 @@
+/*
+Styles about nodes.
+ */
+g.process-node {
+    cursor: move;
+}
+
+.process-node rect {
+    stroke: #708090;
+    fill: white;
+}
+
+.node-name {
+    overflow: hidden;
+    white-space: nowrap;
+}
+
+.node-description {
+    font-size: small;
+    height: 100%;
+}
+
+.process-node rect.node-box-process {
+    fill: #C0C0C0;
+}
+
+.process-node rect.node-box-issue {
+    fill: #6699EE;
+}
+
+.process-node rect.node-box-option {
+    fill: #55CC55;
+}
+
+.process-node rect.node-box-argument {
+    fill: #9966EE;
+}
+
+g.node-choice-process rect {
+    fill: #C0C0C0;
+}
+
+g.node-choice-issue rect {
+    fill: #6699EE;
+}
+
+g.node-choice-option rect {
+    fill: #55CC55;
+}
+
+g.node-choice-argument rect {
+    fill: #9966EE;
+}
+
+g.node-choice {
+    cursor: pointer;
+}
+
+g.toggleable-text {
+    cursor: pointer;
+}
+
+g.node-type text {
+    font-family: monospace;
+    fill: maroon;
+}
+
+g.node-choice text {
+    font-family: monospace;
+    fill: maroon;
+}
+
+g.expander {
+    cursor: pointer;
+    font-family: monospace;
+}
+
+.resize-handle {
+    cursor: se-resize;
+    font-family: monospace;
+}
+
+.handle {
+    cursor: pointer;
+    stroke: #708090;
+}
+
+rect.success {
+    fill: green;
+}
+
+rect.uncertainty {
+    fill: white;
+}
+
+rect.failure {
+    fill: red;
+}
+
+rect.conflict {
+    fill: #27408B;
+}
