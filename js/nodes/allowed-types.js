@@ -27,5 +27,7 @@ module.exports = function(node, nodeCollection) {
 	    allowed = intersection(allowed, e.parent().allowedChildren);
 	});
 
+    allowed.remove("undecided");
+
     return allowed;
 };
