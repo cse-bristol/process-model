@@ -5,7 +5,9 @@
 var d3 = require("d3"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
-    directions = ["LR", "TB", "RL", "BT"];
+    directions = ["LR", "TB", "RL", "BT"],
+    minWidth = 50,
+    minHeight = 50;
 
 /*
  Contains information about the position, size and collapsed status of nodes in the current document.
@@ -90,6 +92,11 @@ module.exports = function(nodes) {
 	},
 	
 	setSize: function(id, size) {
+	    size = [
+		size[0] < minWidth ? minWidth : size[0],
+		size[1] < minHeight ? minHeight : size[1]
+	    ];
+	    
 	    manualSizes.set(id, size);
 	    onSetSize(id, size);
 	},

@@ -95,9 +95,12 @@ module.exports = function(container, getNodeCollection, getLayout, transitions, 
 	    })
 	    .on("drag", function(d){
 		var x = d3.event.x,
-		    y = d3.event.y;
+		    y = d3.event.y,
+		    layout = getLayout();
 
-		getLayout().size(d.id, [x, y]);
+		layout.setSize(d.id, [x, y]);
+		d.resize(layout.getSize(d.id));
+		
 		drawNodes(
 		    d3.select(this.parentElement),
 		    empty

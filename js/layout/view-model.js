@@ -5,7 +5,7 @@
 var nodeSidePadding = 10;
 
 /*
- Immutable objects representing the display properties of our model.
+ Simple bags of properties representing the display properties of our model.
  */
 module.exports = {
     edge: function(edge, path, collapsed) {
@@ -34,16 +34,26 @@ module.exports = {
 	    name: node.name(),
 	    description: node.description(),
 	    isLeaf: node.isLeaf(),
-	    size: size,
 	    x: x,
 	    y: y,
-	    innerWidth: size[0] - (2 * nodeSidePadding),
-	    center: [
-		size[0] / 2,
-		size[1] / 2
-	    ],
+	    resize: function(newSize) {
+		n.size = newSize;
+		
+		n.innerWidth = n.size[0] - (2 * nodeSidePadding);
+		n.center = [
+		    n.size[0] / 2,
+		    n.size[1] / 2
+		];
+	    },
 	    sidePadding: nodeSidePadding
 	};
+
+	/*
+	 When resizing a node, we should call this to make sure that some things inside it get put in the right place.
+
+	 This is because we redraw the node individually and quickly, without recreating its view-model, up until the point when the resize finishes completely.
+	 */
+	n.resize(size);
 
 	switch (node.type) {
 	case "process":
