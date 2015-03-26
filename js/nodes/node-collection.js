@@ -14,16 +14,15 @@ var _ = require("lodash"),
  */
 module.exports = function() {
     var nodesById = d3.map(),
-
+	nodesWithoutParents = d3.set(),
+    
 	onNodeCreate = callbacks(),
 	onNodeDelete = callbacks(),
 	onNodeChooseType = callbacks(),
 	onEdgeCreate = callbacks(),
 	onEdgeDelete = callbacks(),
-	onNavigate = callbacks(),
+	onNavigate = callbacks();
 	
-	nodesWithoutParents = d3.set();
-
     var edgesToNode = function(nodeId) {
 	var edges = [],
 	    stack = nodesWithoutParents.values().map(function(id) {
