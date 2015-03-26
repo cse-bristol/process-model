@@ -52,37 +52,32 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    switch(path[0]) {
 	    case "collapsed":
 		if (op.od !== undefined) {
-		    layout.expand(path[1]);
+		    /*
+		     We only ever store 'true' for collapsed nodes, so if we deleted a value, that node must be expanded.
+		    */
+		    layout.setCollapsed(path[1], false);
 		}
 		if (op.oi !== undefined) {
-		    // If the value for our id true or false?
-		    if (op.oi) {
-			layout.collapsed(path[1]);
-		    } else {
-			/*
-			 We shouldn't ever get here, because we remove an id from the map rather than settings its value to false.
-			 However, I've kept it for completeness.
-			 */
-			layout.expand(path[1]);
-		    }
+		    layout.setCollapsed(path[1], op.oi);
+
 		}
 		break;
 	    case "sizes":
 		if (op.od !== undefined) {
-		    layout.removeSize(path[1], op.od);
+		    layout.setSize(path[1], null);
 		}
 		if (op.oi !== undefined) {
-		    layout.size(path[1], op.oi);
+		    layout.setSize(path[1], op.oi);
 		}
 		
 		break;
 	    case "positions":
 		if (op.od !== undefined) {
-		    layout.removePosition(path[1], op.od);
+		    layout.setPosition(path[1], null);
 		}
 
 		if (op.oi !== undefined) {
-		    layout.position(path[1], op.oi);
+		    layout.setPosition(path[1], op.oi);
 		}
 		
 		break;
@@ -271,49 +266,51 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	var delayedSubmitOp = _.debounce(submitOp, 300);
 	
 	layout.onSetSize(function(id, size) {
-	    delayedSubmitOp({
-		p: ["layout", "sizes", id],
-		oi: size
-	    });
-	});
+	    if (size) {
+		delayedSubmitOp({
+		    p: ["layout", "sizes", id],
+		    oi: size
+		});
 
-	layout.onRemoveSize(function(id, oldValue) {
-	    delayedSubmitOp({
-		p: ["layout", "sizes", id],
-		od: oldValue
-	    });
+	    } else {
+		delayedSubmitOp({
+		    p: ["layout", "sizes"],
+		    od: id
+		});
+	    }
 	});
 
 	layout.onSetPosition(function(id, position) {
-	    delayedSubmitOp({
-		p: ["layout", "positions", id],
-		oi: position
-	    });
+	    if (position) {
+	    
+		delayedSubmitOp({
+		    p: ["layout", "positions", id],
+		    oi: position
+		});
+	    } else {
+		delayedSubmitOp({
+		    p: ["layout", "positions"],
+		    od: id
+		});		
+	    }
 	});
 
-	layout.onRemovePosition(function(id, oldValue) {
-	    delayedSubmitOp({
-		p: ["layout", "positions", id],
-		od: oldValue
-	    });
-	});
-
-	layout.onCollapse(function(id) {
+	layout.onSetCollapsed(function(id, collapsed) {
 	    /*
 	     We don't care about order, but we do care about uniqueness.
 	     JSON has no concept of a set, but a map of id -> true will do what we need.
 	     */
-	    submitOp({
-		p: ["layout", "collapsed", id],
-		oi: true
-	    });
-	});
-	
-	layout.onExpand(function(id) {
-	    submitOp({
-		p: ["layout", "collapsed", id],
-		od: true
-	    });
+	    if (collapsed) {
+		submitOp({
+		    p: ["layout", "collapsed", id],
+		    oi: true
+		});
+	    } else {
+		submitOp({
+		    p: ["layout", "collapsed", id],
+		    od: true
+		});
+	    }
 	});
     };
 

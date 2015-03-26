@@ -4,7 +4,7 @@
 
 var d3 = require("d3"),
     nodeCollectionFactory = require("../nodes/node-collection.js"),
-    layoutFactory = require("../layout.js");
+    layoutFactory = require("../layout/layout-state.js");
 
 var serializeD3Map = function(d3Map) {
     var result = {};
@@ -189,12 +189,10 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
 	var serialized = o.nodes[id],
 	    node = nodeCollection.getOrCreateNode(serialized.type, id);
     });
-
+    
     Object.keys(o.nodes).forEach(function(id) {
 	deserializeNodeDetails(o.nodes[id], nodeCollection.get(id), nodeCollection);
     });
-
-    nodeCollection.root(nodeCollection.get(o.root));
 };
 
 /*
@@ -210,7 +208,6 @@ module.exports = {
     serialize: function(model) {
 	return {
 	    layout: serializeLayout(model.layout),
-	    root: model.nodes.root().id,
 	    nodes: serializeNodes(model.nodes.all())
 	};
     },

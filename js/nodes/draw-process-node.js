@@ -14,6 +14,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	var target = document.elementFromPoint(
 	    d3.event.sourceEvent.clientX, 
 	    d3.event.sourceEvent.clientY);
+	
 	while (target.parentNode) {
 	    var targetSelection = d3.select(target);
 	    if (targetSelection.classed("process-node")) {
@@ -31,11 +32,11 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		d3.event.sourceEvent.stopPropagation();
 	    })
 	    .on("drag", function(d, i) {
-		var evidence = d.node.localEvidence().slice(0),
-		    scale = d.node.innerWidth(),
+		var evidence = d.node.evidence.slice(0),
+		    scale = d.node.innerWidth,
 		    newWidth = d3.event.x;
 
-		if (!modifyIndex) {
+		if (modifyIndex === undefined || modifyIndex === null) {
 		    switch (d.type) {
 		    case "failure":
 			modifyIndex = 0;
@@ -44,6 +45,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 			modifyIndex = 1;
 			break;
 		    case "uncertainty":
+		    case "conflict":			
 			/*
 			 Choose which bit of evidence to modify based on where the cursor was when we started the drag action.
 			 */
@@ -61,7 +63,11 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 
 		evidence[modifyIndex] = newWidth / scale;
 
-		d.node.localEvidence(evidence);
+		var node = getNodeCollection().get(d.node.id);
+
+		node.localEvidence(evidence);
+
+		d.node.evidence = node.p();
 
 		drawNodes.redrawNode(d3.select(this.parentNode.parentNode));
 	    })
@@ -75,11 +81,14 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		d3.event.sourceEvent.stopPropagation();
 	    })
 	    .on("drag", function(d, i) {
-		var toChange = d.data.node,
+		var toChange = getNodeCollection()
+			.get(d.data.node.id),
+		    
 		    fraction = circleFraction(this.parentNode, d3.event);
 
 		toChange.dependence(1 - fraction);
-
+		d.data.node.dependence = toChange.dependence();
+		
 		drawNodes.redrawNode(d3.select(this.parentNode.parentNode));
 	    })
 	    .on("dragend", function(d, i) {
@@ -91,9 +100,10 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		/* Nothing else should get this click now. */
 		d3.event.sourceEvent.stopPropagation();
 	    })
-	    .on("drag", function(d){
+	    .on("drag", function(d) {
 		/* Highlight things we're dragging over to aid the user. */
 		var target = findDragTarget();
+		
 		if (target === d.previousDragTarget) {
 		    return;
 		} else {
@@ -106,16 +116,22 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		    d.previousDragTarget = target;
 		}
 	    })
-	    .on("dragend", function(d, i){
+	    .on("dragend", function(d, i) {
 		/* See if we're over an existing different node. 
 		 If so, make an edge to it.
 		 Otherwise, we'll make an edge to a new node. */
-		var oldNode = d,
+		var nodes = getNodeCollection(),
+		    oldNode = nodes.get(d.id),
 		    target = findDragTarget(),
 		    newNode;
 
+		if (d.collapsed) {
+		    return;
+		}
+
 		if (target && target.datum().id !== oldNode.id) {
-		    newNode = target.datum();
+		    newNode = nodes.get(target.datum().id);
+		    
 		} else {
 		    if (oldNode.allowedChildren.empty()) {
 			throw new Error("Nodes of type " + oldNode.type + " cannot have children.");
@@ -124,13 +140,10 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 			    oldNode.allowedChildren.values()[0] :
 			    "undecided";
 		    
-		    newNode = getNodeCollection().getOrCreateNode(newNodeType);
+		    newNode = nodes.getOrCreateNode(newNodeType);
 		}
 
 		try {
-		    if (oldNode.collapsed()) {
-			return;
-		    }
 		    oldNode.edgeTo(newNode); 
 		    update();
 		} finally {
@@ -140,66 +153,57 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		}
 	    });
 
-    var drawEdgeJunctionGroup = function(nodes) {
+    var drawEdgeJunctionGroup = function(nodes, newNodes, callback) {
+	var newJunctions = newNodes
+		.append("g")
+		.classed("handle", true)
+		.attr("draggable", true)
+		.call(dragNode);
+
 	var junctions = nodes
-		.selectAll("g.handle")
-		.data(function(d, i){
-		    return [d];
+		.select("g.handle")
+		.style("visibility", function(d, i) {
+		    return d.collapsed ? "hidden" : "visible";
+		})
+		.attr("transform", function(d, i) {
+		    return "translate(" + d.size[0] + "," + d.center[1] + ")";
 		});
 
-	junctions.exit().remove();
-
-	junctions.enter()
-	    .append("g")
-	    .classed("handle", true);
-
-	junctions
-	    .style("visibility", function(d, i){
-		return d.collapsed() ? "hidden" : "visible";
-	    })
-	    .attr("transform", function(d, i) {
-		return "translate(" + d.size()[0] + "," + d.center()[1] + ")";
-	    });
-
-	return junctions;
+	callback(junctions, newJunctions);
     };
 
-    var drawSimpleJunction = function(junctions) {
-	var circles = junctions.selectAll("circle")
-		.data(function(d, i) {
-		    return [d];
-		});
-
-	circles.exit().remove();
-
-	circles
-	    .enter()
-	    .append("circle")
+    var drawSimpleJunction = function(junctions, newJunctions) {
+	newJunctions.append("circle")
 	    .attr("r", junctionRadius)
 	    .style("fill", "white")
 	    .call(dragNode);
     };
 
-    var drawDependencyArc = function(junctions) {
+    var drawDependencyArc = function(junctions, newJunctions) {
 	var arc = d3.svg.arc()
 		.innerRadius(junctionRadius)
 		.outerRadius(dependencyArcRadius),
 	    pie = d3.layout.pie()
 		.sort(null)
-		.value(function(d, i){
+		.value(function(d, i) {
 		    return d.value;
 		});
 
 	var dependenceArc = junctions.selectAll("path")
-		.data(function(d, i){
-		    var dependence = d.collapsed() ? 0 : d.dependence(),
-			independence = 1 - dependence;
-		    
-		    return pie([
-			{type: "dependence", color: "black", node: d, value: dependence},
-			{type: "independence", color: "white", node: d, value: independence}
-		    ]);
-		});
+		.data(
+		    function(d, i) {
+			var dependence = d.collapsed ? 0 : d.dependence,
+			    independence = 1 - dependence;
+
+			return pie([
+			    {type: "dependence", color: "black", node: d, value: dependence},
+			    {type: "independence", color: "white", node: d, value: independence}
+			]);
+		    },
+		    function(d, i) {
+			return d.data.type;
+		    }
+		);
 	
 	dependenceArc.exit().remove();
 	dependenceArc.enter()
@@ -214,75 +218,65 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	    .attr("d", arc);
 
 	junctions.call(onScroll, function(d, i, change) {
-	    if(d.isLeaf() || d.collapsed()) {
-		return;
-	    }
+	    var node = getNodeCollection()
+		    .get(d.id);
 
-	    d.dependence(d.dependence() + change);
+	    node.dependence(d.dependence + change);
 
 	    update();
 	});
     };
 
-    var toggleableText = function(nodeDisplay, clazz, text, colouring, toggle) {
-	var issueSettled = nodeDisplay.selectAll("g." + clazz)
-		.data(function(d, i) {
-		    return [d];
-		});
-
-	issueSettled.exit().remove();
-
-	issueSettled.enter().append("g")
+    var toggleableText = function(nodes, newNodes, clazz, text, colouring, toggle) {
+	newNodes.append("g")
 	    .classed(clazz, true)
-	    .classed("toggleable-text", true);
+	    .classed("toggleable-text", true)
+	    .append("text")
+	    .style("text-anchor", "middle")
+	    .on("click", function(d, i) {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
 
-	var issueSettledText = issueSettled
-		.selectAll("text")
-		.data(function(d, i) {
-		    return [d];
-		});
-
-	issueSettledText.exit().remove();
-
-	issueSettledText.enter().append("text")
-	    .style("text-anchor", "middle");
-
-	issueSettledText
+		toggle(
+		    getNodeCollection().get(d.id)
+		);
+		
+		update();
+	    });
+	
+	nodes.select("g." + clazz)
+	    .select("text")
 	    .attr("x", function(d, i) {
-		return d.center()[0];
+		return d.center[0];
 	    })
 	    .attr("y", function(d, i) {
-		return d.size()[1] - 10;
+		return d.size[1] - 10;
 	    })
 	    .attr("width", function(d, i) {
-		return d.innerWidth();
+		return d.innerWidth;
 	    })
 	    .text(function(d, i) {
 		return text(d);
 	    })
 	    .attr("fill", function(d, i) {
 		return colouring(d);
-	    })
-	    .on("click", function(d, i) {
-		d3.event.preventDefault();
-		d3.event.stopPropagation();
-
-		toggle(d);
-		update();
 	    });
     };
 
-    drawNodes.registerType("undecided", function(newNodes, nodeDisplay) {
-	var typeOptions = nodeDisplay.selectAll("g.node-choice")
-		.data(function(d, i) {
-		    return allowedTypes(d, getNodeCollection())
-			.values()
-			.map(function(option) {
-			    return {node: d, option: option};
-			});
-		}, function (d, i) {
-		    return d.node + "/" + d.option;
-		});
+    drawNodes.registerType("undecided", function(nodes, newNodes) {
+	var typeOptions = nodes.selectAll("g.node-choice")
+		.data(
+		    function(d, i) {
+			return allowedTypes(d, getNodeCollection())
+			    .values()
+			    .map(function(option) {
+				return {nodeId: d.id, nodeSize: d.size, option: option};
+			    });
+		    },
+		    function (d, i) {
+			return d.nodeId + "-" + d.option;
+		    }
+		);
 
 	typeOptions.exit().remove();
 
@@ -292,7 +286,12 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		    d3.select(this).classed("node-choice-" + d.option, true);
 		})
 		.on("click", function(d, i) {
-		    getNodeCollection().chooseNodeType(d.node, d.option);
+		    var nodeCollection = getNodeCollection();
+		    nodeCollection.chooseNodeType(
+			nodeCollection.get(d.nodeId),
+			d.option
+		    );
+
 		    update();
 		});
 
@@ -310,117 +309,152 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
-		return "translate(" + (5 + (i * 25)) + "," + (d.node.size()[1]- 24) + ")";
+		return "translate(" + (5 + (i * 25)) + "," + (d.nodeSize[1]- 24) + ")";
 	    });
     });
 
-    drawNodes.registerType("process", function(newNodes, nodeDisplay) {
+    drawNodes.registerType("process", function(nodes, newNodes) {
 	var drawIntervalParts = function(g) {
 	    g.attr("transform", function(d, i) {
-		return "rotate(180," +  (d.size()[0] / 2) + ", 0)translate(" + 0 + "," + (4 - d.size()[1])  + ")";
+		return "rotate(180," +  (d.size[0] / 2) + ", 0)translate(" + 0 + "," + (4 - d.size[1])  + ")";
 	    });
 
 
 	    /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
 	    var parts = g.selectAll("rect")
-    		    .data(function(d, i){
-			var p = d.p(),
-			    lower = Math.min(p[0], p[1]),
-			    upper = Math.max(p[0], p[1]),
-			    conflict = p[0] > p[1],
-			    gap = upper - lower;
-			return [
-			    {node: d, type: "failure", width: lower, x: 0},
-			    {node: d, type: "conflict", width: conflict ? gap : 0, x: lower},
-			    {node: d, type: "uncertainty", width: conflict ? 0 : gap, x: lower},
-			    {node: d, type: "success", width: 1 - upper, x: upper}
-			];
-		    });
+    		    .data(
+			function(viewNode, i) {
+			    var p = viewNode.evidence,
+				lower = Math.min(p[0], p[1]),
+				upper = Math.max(p[0], p[1]),
+				conflict = p[0] > p[1],
+				gap = upper - lower;
+
+
+			    var intervalData = [
+				{node: viewNode, type: "failure", width: lower, x: 0},
+				{node: viewNode, type: "conflict", width: conflict ? gap : 0, x: lower},
+				{node: viewNode, type: "uncertainty", width: conflict ? 0 : gap, x: lower},
+				{node: viewNode, type: "success", width: 1 - upper, x: upper}
+			    ];
+
+			    intervalData.forEach(function(d) {
+				d.nodeInnerWidth = viewNode.innerWidth;
+				d.nodeSidePadding = viewNode.sidePadding;
+			    });
+
+			    return intervalData;
+			},
+			function(d, i) {
+			    return d.node.id + "/" + d.type;
+			}
+		    );
 
 	    parts.enter()
 		.append("rect")
 		.attr("height", "15px")
-		.call(dragEvidence);
-
-	    parts
-		.attr("class", function(d, i){
+		.call(dragEvidence)
+	    	.attr("class", function(d, i) {
 		    return d.type;
 		})
-		.attr("x", function(d, i){
-		    return (d.node.sidePadding() + (d.node.innerWidth() * d.x)) + "px";
-		})
-		.attr("width", function(d, i){
-		    return (d.node.innerWidth() * d.width) + "px";
-		});
+		.call(onScroll, function(d, i, change){
+		    if (!d.node.isLeaf || d.node.collapsed) {
+			return;
+		    }
 
-	    parts.call(onScroll, function(d, i, change){
-		if (!d.node.isLeaf() || d.node.collapsed()) {
-		    return;
-		}
-
-		var newEvidence = d.node.localEvidence();
-		
-		switch(d.type) {
-		case "failure":
-		    newEvidence[0] += change;
-		    break;
-
-		case "uncertainty":
-		    newEvidence[0] -= change / 2;
-		    newEvidence[1] += change / 2;
-		    break;
+		    var evidence = d.node.evidence;
 		    
-		case "success":
-		    newEvidence[1] -= change;
-		}
+		    switch(d.type) {
+		    case "failure":
+			evidence[0] += change;
+			break;
 
-		d.node.localEvidence(newEvidence);
-		update();
-	    });
+		    case "uncertainty":
+		    case "conflict":
+			evidence[0] -= change / 2;
+			evidence[1] += change / 2;
+			break;
+			
+		    case "success":
+			evidence[1] -= change;
+		    }
+
+		    var node = getNodeCollection().get(d.node.id);
+		    node.localEvidence(evidence);
+		    d.node.evidence = node.localEvidence();
+
+		    update();
+		});	    
+
+	    parts
+		.attr("x", function(d, i) {
+		    return (d.nodeSidePadding + (d.nodeInnerWidth * d.x)) + "px";
+		})
+		.attr("width", function(d, i) {
+		    return (d.nodeInnerWidth * d.width) + "px";
+		});
 	};
 
 	newNodes.append("g")
 	    .classed("interval", "true");
 
-	drawIntervalParts(nodeDisplay.selectAll("g.interval"));
-	var junctions = drawEdgeJunctionGroup(nodeDisplay);
-	drawSimpleJunction(junctions);
-	drawDependencyArc(junctions);
+	drawIntervalParts(nodes.select("g.interval"));
+
+	drawEdgeJunctionGroup(
+	    nodes,
+	    newNodes,
+            function(junctions, newJunctions) {
+		drawSimpleJunction(junctions, newJunctions);
+		drawDependencyArc(junctions, newJunctions);
+            });
+
     });
 
-    drawNodes.registerType("issue", function(newNodes, nodeDisplay) {
-	var junctions = drawEdgeJunctionGroup(nodeDisplay);
-	drawSimpleJunction(junctions);
+    drawNodes.registerType("issue", function(nodes, newNodes) {
+	drawEdgeJunctionGroup(
+	    nodes,
+	    newNodes,	    
+	    drawSimpleJunction
+	);
 
-	toggleableText(nodeDisplay, 
-		       "issue-settled-display", 
-		       function text(d) {
-			   return d.settled() ? "Settled" : "Open";
-		       }, 
-		       function colouring(d) {
-			   return d.settled() ? "green" : "red";
-		       },
-		       function toggle(d) {
-			   d.settled(!d.settled());
-		       });
+	toggleableText(
+	    nodes,
+	    newNodes,
+	    "issue-settled-display", 
+	    function text(d) {
+		return d.settled ? "Settled" : "Open";
+	    }, 
+	    function colouring(d) {
+		return d.settled ? "green" : "red";
+	    },
+	    function toggle(node) {
+		node.settled(!node.settled());
+	    }
+	);
     });
 
-    drawNodes.registerType("option", function(newNodes, nodeDisplay) {
-	var junctions = drawEdgeJunctionGroup(nodeDisplay);
-	drawSimpleJunction(junctions);
+    drawNodes.registerType("option", function(nodes, newNodes) {
+	drawEdgeJunctionGroup(
+	    nodes,
+	    newNodes,	    
+	    drawSimpleJunction
+	);
     });
 
-    drawNodes.registerType("argument", function(newNodes, nodeDisplay) {
-	toggleableText(nodeDisplay, 
-		       "issue-settled-display", 
-		       function text(d) {
-			   return d.support() ? "Supports" : "Refutes";
-		       }, 
-		       function colouring(d) {
-			   return d.support() ? "yellow" : "cyan";
-		       },
-		       function toggle(d) {
-			   d.support(!d.support());
-		       });
+    drawNodes.registerType("argument", function(nodes, newNodes) {
+	toggleableText(
+	    nodes,
+	    newNodes,
+	    "issue-settled-display", 
+	    function text(d) {
+		return d.support ? "Supports" : "Refutes";
+	    }, 
+	    function colouring(d) {
+		return d.support ? "yellow" : "cyan";
+	    },
+	    function toggle(node) {
+		node.support(!node.support());
+	    }
+	);
     });
 };

@@ -86,7 +86,7 @@ var tryKeys = function(key, event, keyHandlers, update, nodeContainer, property)
 };
 
 
-module.exports = function(selection, helpLink, zoom, update, getNodeCollection) {
+module.exports = function(helpLink, zoom, update, getNodeCollection) {
     var universalKeys = [
 	{
 	    key: "+",
@@ -111,6 +111,11 @@ module.exports = function(selection, helpLink, zoom, update, getNodeCollection) 
     document.addEventListener(
 	"keydown", 
 	function(e) {
+	    /*
+	     TODO: redo the selection handler.
+	     */
+	    return;
+	    
 	    var current = selection.selected(),
 		nodeContainer = getNodeCollection();
 

@@ -20,7 +20,7 @@ module.exports = function(text) {
 		.replace(
 		    urlRegex,
 		    function(match) {
-			return '<a contenteditable="false" href="' + match + '">' + match + '</a>';
+			return '<a contenteditable="false" target="_top" href="' + match + '">' + match + '</a>';
 		    }
 		);
 	},
@@ -149,40 +149,6 @@ module.exports = function(text) {
 	    });
 	},
 
-	findRootNode = function(nodeCollection) {
-	    var candidates = nodeCollection.all();
-
-	    if (candidates.length === 0 ) {
-		throw new Error("No nodes created");
-	    } else if (candidates.length === 1) {
-		return candidates[0];
-	    }
-
-	    var nodesWithoutParents = candidates.slice(0);
-	    candidates.forEach(function(n){
-		var len = n.edges().length;
-		for (var i = 0; i < len; i++) {
-		    var toRemove = n.edges()[i].node(),
-			indexToRemove = nodesWithoutParents.indexOf(toRemove);
-		    if (indexToRemove >= 0) {
-			nodesWithoutParents.splice(indexToRemove, 1);
-		    }
-		}
-	    });
-
-	    if (nodesWithoutParents.length === 0) {
-		throw new Error("Founds nodes, but no possible root node. We must have introduced a cyclic dependency");
-	    } else if (nodesWithoutParents.length === 1) {
-		return nodesWithoutParents[0];
-	    }
-
-	    nodesWithoutParents.sort(function(a, b){
-		return b.countDescendents() - a.countDescendents();
-	    });
-
-	    return nodesWithoutParents[0];
-	},
-	
 	doc = new DOMParser().parseFromString(text, "text/xml"),
 	nodeElements = doc.getElementsByTagName("node"),
 	links = doc.getElementsByTagName("link"),
@@ -207,6 +173,5 @@ module.exports = function(text) {
 	loadNodeDetails(n, nodeCollection.get(n.getAttribute("id")), nodeCollection);
     });
     
-    nodeCollection.root(findRootNode(nodeCollection));
     return nodeCollection;
 };

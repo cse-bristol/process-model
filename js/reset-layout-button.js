@@ -14,15 +14,15 @@ module.exports = function(makeButton, getLayout, refresh) {
 	    var layout = getLayout();
 	    
 	    layout.position().forEach(function(id, position) {
-		layout.removePosition(id);
+		layout.setPosition(id, null);
 	    });
 	    
 	    layout.size().forEach(function(id, size) {
-		layout.removeSize(id);
+		layout.setSize(id, null);
 	    });
 	    
 	    layout.collapsed().forEach(function(id) {
-		layout.expand(id);
+		layout.setCollapsed(id, false);
 	    });
 
 	    refresh();

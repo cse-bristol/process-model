@@ -3,7 +3,7 @@
 /*global module, require*/
 
 var nodeCollectionFactory = require("./nodes/node-collection.js"),
-    layoutFactory = require("./layout.js"),
+    layoutFactory = require("./layout/layout-state.js"),
     helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler;
 
@@ -16,9 +16,8 @@ module.exports = function() {
 	layout,
 	freshModel = function() {
 	    var nodes = nodeCollectionFactory();
-	    nodes.root(
-		nodes.getOrCreateNode("process")
-	    );
+	    nodes.getOrCreateNode("process");
+	    
 	    return {
 		nodes: nodes,
 		layout: layoutFactory(nodes)
@@ -42,7 +41,6 @@ module.exports = function() {
 	},
 
 	set: function(model) {
-	    model.nodes.build();
 	    nodes = model.nodes;
 	    layout = model.layout;
 	    onSet();
@@ -63,18 +61,8 @@ module.exports = function() {
 		}
 	    });
 
-	    // We don't want to keep the manual position of the root node of the inserted document.
-	    if (model.layout.position().has(
-		model.nodes.root().id)
-	       )
-	    {
-		model.layout.removePosition(model.nodes.root().id);
-	    }
-
 	    nodes.merge(model.nodes);
 	    layout.merge(model.layout);
-
-
 	}
     };
 };

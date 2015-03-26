@@ -6,36 +6,13 @@ var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js"),
     empty = d3.select();
 
-module.exports = function(container, transitions, toolbar, clickHandler, update) {
+module.exports = function(container, getNodeCollection, getLayout, transitions, toolbar, update) {
     var types = d3.map(),
 
 	filterByType = function(nodeSelection, type) {
 	    return nodeSelection.filter(function(d, i) {
 		return d.type === type;
 	    });
-	},
-
-	drawURLLink = function(nodes, newNodes) {
-	    var newG = newNodes.append("g")
-		    .classed("node-link", true)
-		    .attr("transform", "translate(0,15)");
-	    
-	    newG.append("a")
-		.append("text")
-		.attr("y", 15)
-		.attr("x", 2)
-		.text("⌖");
-	    
-
-	    var g = nodes.selectAll(".node-link")
-		    .style("visibility", function(d, i) {
-			return d.name().slice(0, 4).toLowerCase() === "http" ? "visible" : "hidden";
-		    });
-	    
-	    g.selectAll("a")
-		.attr("xlink:href", function(d, i) {
-		    return d.name();
-		});
 	},
 
 	drawMoveHandle = function(nodes, newNodes) {
@@ -81,7 +58,7 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 				var x = d3.event.x,
 				    y = d3.event.y;
 
-				d.position([x, y]);
+				getLayout().position(d.id, [x, y]);
 				drawNodes(g, empty);
 			    }
 			);
@@ -96,7 +73,11 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	    newNodes.on("contextmenu", function(d, i){
 		d3.event.stopPropagation();
 		d3.event.preventDefault();
-		d.autoPosition();
+
+		var l = getLayout();
+		l.setSize(d.id, null);
+		l.setPosition(d.id, null);
+		
 		update();
 	    });
 	},
@@ -104,8 +85,8 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	dragResize = d3.behavior.drag()
     	    .origin(function(d){
 		return {
-		    x: d.size()[0],
-		    y: d.size()[1]
+		    x: d.size[0],
+		    y: d.size[1]
 		};
 	    })
 	    .on("dragstart", function(d){
@@ -115,8 +96,8 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	    .on("drag", function(d){
 		var x = d3.event.x,
 		    y = d3.event.y;
-		
-		d.size([x, y]);
+
+		getLayout().size(d.id, [x, y]);
 		drawNodes(
 		    d3.select(this.parentElement),
 		    empty
@@ -134,22 +115,20 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		.on("click", function(d, i) {
 		    if (!d3.event.defaultPrevented) {
 
-			var thing = 			    
-			    d3.select(this.parentNode)
-				.select(".node-description")
-				.node();
-
 			/*
 			 Resize my node to fit the description box.
 			 */
-			d.size([
-			    d.size()[0],
-			    
-			    d3.select(this.parentNode)
-				.select(".node-description")
-				.node()
-				.scrollHeight + 45
-			]);
+			getLayout().size(
+			    d.id,
+			    [
+				d.size[0],
+				d3.select(this.parentNode)
+				    .select(".node-description")
+				    .node()
+				    .scrollHeight + 45				
+			    ]
+			);
+
 			update();
 		    }
 		})
@@ -157,9 +136,9 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		.append("text")
 		.text("⇘");
 
-	    nodes.selectAll("g.resize-handle")
+	    nodes.select("g.resize-handle")
 		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size()[0] - 8) + "," + (d.size()[1] - 0.5) + ")";
+		    return "translate(" + (d.size[0] - 8) + "," + (d.size[1] - 0.5) + ")";
 		});
 
 	},
@@ -169,7 +148,7 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		    .classed("name", true)
 		    .attr("transform", "translate(20, 5)");
 
-	    var nameGroups = nodes.selectAll("g.name");
+	    var nameGroups = nodes.select("g.name");
 
 	    svgEditableText(
 		nameGroups,
@@ -177,20 +156,17 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		0,
 		0, 
 		function(d, i) {
-		    return (d.size()[0] - 35);
+		    return (d.size[0] - 35);
 		},
 		21,
 		"node-name",
 		function content(d, i) {
-		    return d.name();
+		    return d.name;
 		},
 		function onChange(d, i, val) {
-		    try {
-			d.name(val);
-			d3.select(this).classed("name-error", false);
-		    } catch (err) {
-			d3.select(this).classed("name-error", true);
-		    }
+		    getNodeCollection()
+			.get(d.id)
+			.name(val);
 		},
 		toolbar,
 		true
@@ -202,7 +178,7 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		.classed("description", true)
 		.attr("transform", "translate(20, 26)");
 
-	var descriptionGroups = nodes.selectAll("g.description");
+	var descriptionGroups = nodes.select("g.description");
 
 	svgEditableText(
 	    descriptionGroups,
@@ -210,60 +186,54 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	    0,
 	    0, 
 	    function(d, i) {
-		return (d.size()[0] - 35);
+		return (d.size[0] - 35);
 	    },
 	    function(d, i) {
-		return (d.size()[1] - 40);
+		return (d.size[1] - 40);
 	    },
 	    "node-description",
 	    function content(d, i) {
-		return d.description();
+		return d.description;
 	    },
 	    function onChange(d, i, val) {
-		d.description(val);
+		getNodeCollection()
+		    .get(d.id)
+		    .description(val);
 	    },
 	    toolbar,
 	    false
 	);
     },
 
-	drawExpandContract = function(g) {
-	    var expander = g.selectAll("g.expander")
-		    .data(function(d, i){
-			return [d]; 
-		    });
-
-	    expander.exit().remove();
-
-	    var newG = expander.enter().append("g")
+	drawExpandContract = function(nodes, newNodes) {
+	    var newExpanders = newNodes.append("g")
 		    .classed("expander", true)
-    		    .on("click", function(d, i){
-			d.collapsed(!d.collapsed());
+    		    .on("click", function(d, i) {
+			getLayout().setCollapsed(d.id, !d.collapsed);
+			
 			update();
 		    });
-	    
-	    newG
-		.append("rect")
+
+	    newExpanders
+	    	.append("rect")
 		.attr("width", 15)
 		.attr("height", 15);
 
-	    newG.append("text")
+	    newExpanders
+		.append("text")
 		.attr("x", 7.5)
 		.attr("y", 13)
 		.attr("width", 15)
 		.attr("height", 15)
 		.attr("text-anchor", "middle");
-
-	    expander.style("visibility", function(d, i){
-		return !d.collapsed() && d.isLeaf() ? "hidden" : "visible";
-	    });
-
-	    expander.selectAll("text")
-		.data(function(d, i){
-		    return [d];
+	    
+	    nodes.select("g.expander")
+		.style("visibility", function(d, i) {
+		    return (!d.collapsed && d.isLeaf) ? "hidden" : "visible";
 		})
-		.text(function(d, i){
-		    return d.collapsed() ? "+" : String.fromCharCode("8259");
+		.select("text")
+		.text(function(d, i) {
+		    return d.collapsed ? "+" : String.fromCharCode("8259");
 		});
 	},
 
@@ -281,9 +251,9 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		    return d.type[0].toUpperCase();
 		});
 
-	    displayNodes.selectAll("g.node-type")
+	    displayNodes.select("g.node-type")
 		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size()[0] - d.sidePadding() - 2) + "," + 13 + ")";
+		    return "translate(" + (d.size[0] - d.sidePadding - 2) + "," + 13 + ")";
 		});
 	},
 
@@ -293,21 +263,18 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		.classed("node-box", true)
 		.each(function(d, i) {
 		    d3.select(this).classed("node-box-" + d.type, true);
-		})
-		.on("click", function(d, i) {
-		    clickHandler(d);
 		});
 
 	    nodes
 		.classed("selected", function(d, i) {
 		    return d.selected;
 		})
-		.selectAll("rect.node-box")
+		.select("rect.node-box")
 		.attr("width", function(d, i) {
-		    return d.size()[0] + "px";
+		    return d.size[0] + "px";
 		})
 		.attr("height", function(d, i) {
-		    return d.size()[1] + "px";
+		    return d.size[1] + "px";
 		});
 
 	    drawNodeName(nodes, newNodes);
@@ -317,8 +284,7 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 		return "translate(" + (d.x) + "," + d.y + ")";
 	    });
 	    
-	    drawExpandContract(nodes);
-	    drawURLLink(nodes, newNodes);
+	    drawExpandContract(nodes, newNodes);
 
 	    drawMoveHandle(nodes, newNodes);
 	    drawResizeHandle(nodes, newNodes);
@@ -327,8 +293,8 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 
 	    types.entries().forEach(function(e) {
 		e.value(
-		    filterByType(newNodes, e.key),
-		    filterByType(nodes, e.key)
+		    filterByType(nodes, e.key),
+		    filterByType(newNodes, e.key)		    
 		);
 	    });
 	};
@@ -346,7 +312,7 @@ module.exports = function(container, transitions, toolbar, clickHandler, update)
 	    var nodes = container.selectAll("g.process-node")
 		    .data(
 			nodeData,
-			function(d, i){
+			function(d, i) {
 			    return d.id;
 			}
 		    );

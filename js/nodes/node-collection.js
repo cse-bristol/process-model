@@ -10,43 +10,25 @@ var _ = require("lodash"),
     makeNode = require("./abstract-node.js");
 
 /*
- A graph of process nodes starting from a particular root node.
+ A graph of process nodes. Nodes in the graph are not required to be connected.
  */
 module.exports = function() {
     var nodesById = d3.map(),
-	// Unconnected nodes will not be culled from a collection until this is set to true.
-	built = false,
+
 	onNodeCreate = callbacks(),
 	onNodeDelete = callbacks(),
 	onNodeChooseType = callbacks(),
 	onEdgeCreate = callbacks(),
 	onEdgeDelete = callbacks(),
 	onNavigate = callbacks(),
-	root;
-
-    var removeUnreachable = function() {
-	var findUnreachableAccum = function(node, unreached) {
-	    unreached.remove(node.id);
-	    node.edges().forEach(function(e){
-		findUnreachableAccum(e.node(), unreached);
-	    });
-	};
-
-	var unreached = d3.set(nodesById.keys());
-	findUnreachableAccum(root, unreached);
 	
-	unreached.forEach(function(n) {
-	    onNodeDelete(n);
-	    nodesById.get(n).edges().forEach(function(e) {
-		onEdgeDelete(e);
-	    });
-	    nodesById.remove(n);
-	});
-    };
+	nodesWithoutParents = d3.set();
 
-    var edgesToNode = function(node) {
+    var edgesToNode = function(nodeId) {
 	var edges = [],
-	    stack = [root],
+	    stack = nodesWithoutParents.values().map(function(id) {
+		return nodesById.get(id);
+	    }),
 	    seen = d3.set();
 
 	while (stack.length > 0) {
@@ -54,7 +36,7 @@ module.exports = function() {
 	    if (!seen.has(current.id)) {
 		seen.add(current.id);
 		current.edges().forEach(function(e){
-		    if (e.node().id === node.id) {
+		    if (e.node().id === nodeId) {
 			edges.push(e);
 		    } else {
 			stack.push(e.node());
@@ -86,6 +68,8 @@ module.exports = function() {
 	}
 	onNodeCreate(node);
 	nodesById.set(node.id, node);
+	nodesWithoutParents.add(node.id);
+	
 	return node;
     };
 
@@ -93,45 +77,30 @@ module.exports = function() {
 	all: _.bind(nodesById.values, nodesById),
 	has: _.bind(nodesById.has, nodesById),
 	get: _.bind(nodesById.get, nodesById),
-	clean: removeUnreachable,
-	root: function(newRoot) {
-	    if (newRoot) {
-		if (built) {
-		    throw new Error("Cannot change the root node once the collection has been built.");
-		}
 
-		root = newRoot;
-		
-		return m;
-	    }
-	    
-	    return root;
-	},
-
-	/*
-	 Call this when you have finished initializing a collection and are ready to initialize it.
-	 */
-	build: function() {
-	    if (built) {
-		throw new Error("Tried to build a collection which has already finished building.");
-	    }
-	    
-	    built = true;
-	    removeUnreachable();
-	    if (!root) {
-		throw new Error("Tried to build a collection which has no root node.");
-	    }
-	},
-	
 	edgesToNode: function(node) {
 	    if (!nodesById.has(node.id)) {
 		throw new Error("Node not present in this node collection " + node);
 	    }
 
-	    return edgesToNode(node);
+	    return edgesToNode(node.id);
+	},
+
+	nodesWithoutParents: function() {
+	    return nodesWithoutParents;
 	},
 	
 	getOrCreateNode: getOrCreateNode,
+
+	deleteNode: function(id) {
+	    edgesToNode(id).forEach(function(e) {
+		e.disconnect();
+	    });
+	    nodesWithoutParents.remove(id);
+	    nodesById.remove(id);
+
+	    onNodeDelete(id);
+	},
 
 	chooseNodeType: function(node, type) {
 	    if (!nodesById.has(node.id)) {
@@ -139,7 +108,7 @@ module.exports = function() {
 	    }
 
 	    if (node.type !== "undecided") {
-		throw new Error("Attempted to choose the type of ndoe " + node.name() + " but it already has type " + node.type);
+		throw new Error("Attempted to choose the type of node " + node.name() + " but it already has type " + node.type);
 	    }
 
 	    var replacement = getOrCreateNode(type);
@@ -147,14 +116,19 @@ module.exports = function() {
 
 	    onNodeChooseType(node, replacement);
 	    
-	    edgesToNode(node).forEach(function(e) {
+	    edgesToNode(node.id).forEach(function(e) {
 		e.parent().edgeTo(replacement);
 		e.disconnect();
 	    });
 
+	    m.deleteNode(node.id);
+
 	    return replacement;
 	},
 
+	/*
+	 Adds all the nodes from another node collection to this one, retaining the edges between them.
+	 */
 	merge: function(toMerge) {
 	    toMerge.all()
 		.forEach(function(node) {
@@ -162,7 +136,9 @@ module.exports = function() {
 		    onNodeCreate(node);
 		});
 
-	    root.edgeTo(toMerge.root());
+	    toMerge.nodesWithoutParents().forEach(function(id) {
+		nodesWithoutParents.add(id);
+	    });
 	},
 
 	onNodeCreate: onNodeCreate.add,
@@ -172,6 +148,18 @@ module.exports = function() {
 	onEdgeDelete: onEdgeDelete.add,
 	onNavigate: onNavigate.add
     };
+
+    onEdgeCreate.add(function(e) {
+	nodesWithoutParents.remove(e.node().id);
+    });
+
+    onEdgeDelete.add(function(e) {
+	var remainingEdges = edgesToNode(e.node().id);
+
+	if (remainingEdges.length === 0) {
+	    nodesWithoutParents.add(e.node().id);
+	}
+    });
 
     return m;
 };

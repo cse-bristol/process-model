@@ -27,26 +27,26 @@ var d3 = require("d3"),
     g = svg.append("g"),
     helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler,
-    createLayout = require("./layout.js"),
     model = require("./model.js")(),
-    selection = require("./selection.js")(model.onSet, model.getNodes),
+    layoutStateFactory = require("./layout/layout-state.js"),
+    positionGraph = require("./layout/position-graph.js"),
     transitions = require("./transition-switch.js")(),
     jsonData = require("./data/json.js"),
     perimetaDeserialize = require("./data/perimeta-xml.js"),
     helpLink = d3.select("#help"),
     textControls = require("zenpen-toolbar")(body),
-    messages = require("./messages.js")(body, update),
-    drawNodes = require("./nodes/draw-node.js")(g, transitions, textControls,
-						withUpdate(selection.selected),
-						update),
-    drawEdges = require("./draw-edge.js")(g, transitions, update),
+    drawNodes = require("./nodes/draw-node.js")(
+	g, model.getNodes, model.getLayout, transitions, textControls,
+	update
+    ),
+    drawEdges = require("./nodes/draw-edge.js")(g, model.getNodes, transitions, update),
     zoom = d3.behavior.zoom()
 	.on("zoom", function() {
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 	    textControls.update();
 	}),
     files = require("./files.js"),
-    shortcutKeys = require("./keys.js")(selection, helpLink, zoom, update, model.getNodes),
+    shortcutKeys = require("./keys.js")(helpLink, zoom, update, model.getNodes),
 
     fileMenu = require("multiuser-file-menu")(
 	"process-models",
@@ -94,8 +94,11 @@ zoom(svg);
 svg.on("dblclick.zoom", null);
 
 var draw = function() {
-    var display = model.getLayout().display();
-    
+    var display = positionGraph(
+	model.getNodes(),
+	model.getLayout()
+    );
+
     drawNodes.draw(display.nodes);
     drawEdges.draw(display.edges);
 };
@@ -112,7 +115,7 @@ var fromXML = function(fileName, content) {
     
     model.set({
 	nodes: nodes,
-	layout: createLayout(nodes)
+	layout: layoutStateFactory(nodes)
     });
 };
 fromXML.extensions = ["xml"];

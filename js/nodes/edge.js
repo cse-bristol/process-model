@@ -21,7 +21,7 @@ module.exports = function(from, to, onNavigate) {
 	    return from;
 	},
 	
-	/* Removes the edge. Tests if any nodes are now unreachable from the root node, and removes them too. */
+	/* Removes the edge. */
 	disconnect: function() {
 	    from.removeEdge(edge);
 	},

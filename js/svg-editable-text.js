@@ -11,7 +11,7 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 	    .attr("x", x)
 	    .attr("y", y);
 
-    var foreign = selection.selectAll(".svg-editable-text")
+    var foreign = selection.select(".svg-editable-text")
 	    .attr("width", width)
 	    .attr("height", height);
 
@@ -30,6 +30,8 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 	    })
 	    .on("input", function(d, i) {
 		onChange(
+		    d,
+		    i,
 		    d3.select(this).text()
 		);
 	    });
@@ -41,11 +43,11 @@ module.exports = function(selection, newSelection, x, y, width, height, name, co
 	);
     }
 
-    var input = foreign.selectAll("." + name)
-	.attr("name", name)
-	.style("width", function(d, i) {
-	    var w = width instanceof Function ? width(d, i) : width;
-	    return (w - 5) + "px";
-	})
-	.html(contentFunction);
+    var input = foreign.select("." + name)
+	    .attr("name", name)
+	    .style("width", function(d, i) {
+		var w = width instanceof Function ? width(d, i) : width;
+		return (w - 5) + "px";
+	    })
+	    .html(contentFunction);
 };
