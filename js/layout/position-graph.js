@@ -255,10 +255,47 @@ module.exports = function(nodes, layoutState) {
 		});
 		
 	    } else {
-		path.push([
-		    (start[0] + end[0]) / 2,
-		    (start[1] + end[1]) / 2
-		]);
+		if (end[0] < start[0]) {
+		    /*
+		     Add extra control points to give us an S-shape.
+
+		     Worked out on a fairly ad-hoc basis, but seems to give mostly good results.
+		     */
+		    var xScale = end[0] - start[0],
+			yScale = end[1] - start[1],
+			xOffset = xScale / 5,
+			yOffset = yScale / 10,
+			midY = (start[1] + end[1]) / 2;
+		    
+		    path.push([
+			start[0] - xOffset,
+			start[1] + yOffset
+		    ]);
+		    
+		    path.push([
+			start[0] - xOffset,
+			midY
+		    ]);
+
+		    path.push([
+			end[0] + xOffset,
+			midY
+		    ]);
+		    
+		    path.push([
+			end[0] + xOffset,
+			end[1] - yOffset
+		    ]);
+		    
+		} else {
+		    /*
+		     Add an extra control point to give us a nice curve.
+		     */
+		    path.push([
+			(start[0] + end[0]) / 2,
+			end[1]
+		    ]);
+		}
 	    }
 
 	    path.push(end);
