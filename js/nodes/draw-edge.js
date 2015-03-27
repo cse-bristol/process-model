@@ -9,7 +9,7 @@ var d3 = require("d3"),
     labelSize = 10,
     endSize = 3;
 
-module.exports = function(container, getNodeCollection, transitions, update) {
+module.exports = function(container, defs, getNodeCollection, transitions, update) {
     var circle,
 	dragNecessitySufficiency = d3.behavior.drag()
 	    .on("dragstart", function(d, i) {
@@ -76,7 +76,10 @@ module.exports = function(container, getNodeCollection, transitions, update) {
     var drawPaths = function(edges, newEdges) {
 	newEdges.append("path")
 	    .classed("edge-path", true)
-	    .attr("fill", "none");
+	    .attr("fill", "none")
+	    .attr("mask", function(d, i) {
+		return "url(#cut-" + d.parentId + ")";
+	    });
 
 
 	transitions.maybeTransition(
@@ -129,9 +132,9 @@ module.exports = function(container, getNodeCollection, transitions, update) {
 	var labels = edges.select("g.edge-label");
 
 	transitions.maybeTransition(labels)
-		.attr("transform", function(d, i) {
-		    return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
-		});
+	    .attr("transform", function(d, i) {
+		return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
+	    });
 
 	drawNecessitySufficiency(labels);
     };
@@ -236,6 +239,49 @@ module.exports = function(container, getNodeCollection, transitions, update) {
 
     return {
 	draw: function(edgeData) {
+	    var junctionMasks = defs.selectAll("mask.junction-mask")
+		    .data(
+			edgeData,
+			function(d, i) {
+			    return d.parentId;
+			}
+		    );
+
+	    junctionMasks.exit().remove();
+
+	    var newMasks = junctionMasks.enter().append("mask")
+		    .classed("junction-mask", true)
+		    .attr("id", function(d, i) {
+			return "cut-" + d.parentId;
+		    });
+
+	    newMasks.append("rect")
+		.classed("background-mask", true)
+		.attr("x", "-5000%")
+		.attr("y", "-5000%")
+		.attr("width", "10000%")
+		.attr("height", "10000%")
+		.attr("fill", "white")
+		.attr("stroke", "none");
+
+	    newMasks
+		.append("circle")
+		.attr("r", function(d, i) {
+		    return getNodeCollection()
+			.get(d.parentId)
+			.type === "process" ? 7 : 5;
+		})
+		.attr("fill", "black")
+		.attr("stroke", "none");
+
+	    junctionMasks.select("circle")
+		.attr("cx", function(d, i) {
+		    return d.path[0][0];
+		})
+		.attr("cy", function(d, i) {
+		    return d.path[0][1];
+		});
+	    
 	    var edges = container.selectAll("g.edge")
 		    .data(
 			edgeData,

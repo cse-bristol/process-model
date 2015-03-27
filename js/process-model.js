@@ -25,6 +25,7 @@ var d3 = require("d3"),
 	.attr("id", "toolbar"),
     svg = d3.select("svg#model"),
     g = svg.append("g"),
+    defs = g.append("defs"),
     helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler,
     model = require("./model.js")(),
@@ -36,10 +37,10 @@ var d3 = require("d3"),
     helpLink = d3.select("#help"),
     textControls = require("zenpen-toolbar")(body),
     drawNodes = require("./nodes/draw-node.js")(
-	g, model.getNodes, model.getLayout, transitions, textControls,
+	g, defs, model.getNodes, model.getLayout, transitions, textControls,
 	update
     ),
-    drawEdges = require("./nodes/draw-edge.js")(g, model.getNodes, transitions, update),
+    drawEdges = require("./nodes/draw-edge.js")(g, defs, model.getNodes, transitions, update),
     zoom = d3.behavior.zoom()
 	.on("zoom", function() {
 	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
