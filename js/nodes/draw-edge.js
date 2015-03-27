@@ -274,7 +274,8 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 		.attr("fill", "black")
 		.attr("stroke", "none");
 
-	    junctionMasks.select("circle")
+	    transitions.maybeTransition(
+		junctionMasks.select("circle"))
 		.attr("cx", function(d, i) {
 		    return d.path[0][0];
 		})
