@@ -161,22 +161,22 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
 	if (o.layout.collapsed) {
 	    Object.keys(o.layout.collapsed).forEach(function(id) {
 		if (o.layout.collapsed[id]) {
-		    layout.collapsed(id);
+		    layout.setCollapsed(id, true);
 		} else {
-		    layout.expand(id);
+		    layout.setCollapsed(id, false);
 		}
 	    });
 	}
 
 	if (o.layout.positions) {
 	    Object.keys(o.layout.positions).forEach(function(id) {
-		layout.position(id, o.layout.positions[id]);
+		layout.setPosition(id, o.layout.positions[id]);
 	    });
 	}
 
 	if (o.layout.sizes) {
 	    Object.keys(o.layout.sizes).forEach(function(id) {
-		layout.size(id, o.layout.sizes[id]);
+		layout.setSize(id, o.layout.sizes[id]);
 	    });
 	}
 
