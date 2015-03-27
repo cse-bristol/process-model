@@ -13,10 +13,12 @@ g.process-node {
 .node-name {
     overflow: hidden;
     white-space: nowrap;
+    font-family: sans-serif;    
 }
 
 .node-description {
     font-size: small;
+    font-family: sans-serif;
     height: 100%;
 }
 
