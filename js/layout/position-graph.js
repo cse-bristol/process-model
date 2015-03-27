@@ -138,7 +138,8 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 		    size,
 		    val.x + offset[0] - (size[0] / 2),
 		    val.y + offset[1] - (size[1] / 2),
-		    layoutState.isCollapsed(id)
+		    layoutState.isCollapsed(id),
+		    layoutState.getOrientationCoords()
 		)
 	    );
 	});
@@ -237,15 +238,8 @@ module.exports = function(nodes, layoutState) {
 	    var path = [],
 		fromViewModel = nodeViewModels.get(e.fromId),
 		toViewModel = nodeViewModels.get(e.toId),
-		junctionOffset = 5,
-		start = [
-		    fromViewModel.x + fromViewModel.size[0] + junctionOffset,
-		    fromViewModel.y + (fromViewModel.size[1] / 2)
-		],
-		end = [
-		    toViewModel.x,
-		    toViewModel.y + (toViewModel.size[1] / 2)
-		];
+		start = fromViewModel.edgeJunction,
+		end = toViewModel.edgeEnd;
 
 	    path.push(start);
 

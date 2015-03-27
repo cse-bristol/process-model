@@ -81,6 +81,11 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 		}
 		
 		break;
+	    case "orientation":
+		if (op.oi !== undefined) {
+		    layout.setOrientation(op.oi);
+		}
+		break;
 	    default:
 		throw new Error("Unknown layout property " + path[0]);
 	    }
@@ -311,6 +316,13 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 		    od: true
 		});
 	    }
+	});
+
+	layout.onSetOrientation(function(orientation) {
+	    submitOp({
+		p: ["layout", "orientation"],
+		oi: orientation
+	    });
 	});
     };
 

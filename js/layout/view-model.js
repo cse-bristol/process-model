@@ -25,7 +25,7 @@ module.exports = {
 	return e;
     },
 
-    node: function(node, size, x, y, collapsed) {
+    node: function(node, size, x, y, collapsed, orientationCoords) {
 	var n = {
 	    viewId: Math.random(),
 	    id: node.id,
@@ -40,9 +40,28 @@ module.exports = {
 		n.size = newSize;
 		
 		n.innerWidth = n.size[0] - (2 * nodeSidePadding);
-		n.center = [
-		    n.size[0] / 2,
-		    n.size[1] / 2
+
+		orientationCoords[0] /= 2;
+		orientationCoords[1] /= 2;
+
+		n.junctionOffset = [
+		    n.size[0] * (orientationCoords[0] + 0.5),
+		    n.size[1] * (orientationCoords[1] + 0.5)
+		];
+
+		n.edgeJunction = [
+		    n.x + n.junctionOffset[0],
+		    n.y + n.junctionOffset[1]
+		];
+
+		n.edgeOffset = [
+		    n.size[0] * (0.5 - orientationCoords[0]),
+		    n.size[1] * (0.5 - orientationCoords[1])
+		];
+
+		n.edgeEnd = [
+		    n.x + n.edgeOffset[0],
+		    n.y + n.edgeOffset[1]
 		];
 	    },
 	    sidePadding: nodeSidePadding

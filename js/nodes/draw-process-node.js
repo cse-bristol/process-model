@@ -160,13 +160,14 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		.attr("draggable", true)
 		.call(dragNode);
 
-	var junctions = nodes
-		.select("g.handle")
+	var junctions = nodes.select("g.handle");
+
+	transitions.maybeTransition(junctions)
 		.style("visibility", function(d, i) {
 		    return d.collapsed ? "hidden" : "visible";
 		})
 		.attr("transform", function(d, i) {
-		    return "translate(" + d.size[0] + "," + d.center[1] + ")";
+		    return "translate(" + d.junctionOffset[0] + "," + d.junctionOffset[1] + ")";
 		});
 
 	callback(junctions, newJunctions);
@@ -247,7 +248,7 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	nodes.select("g." + clazz)
 	    .select("text")
 	    .attr("x", function(d, i) {
-		return d.center[0];
+		return d.size[0] / 2;
 	    })
 	    .attr("y", function(d, i) {
 		return d.size[1] - 10;

@@ -94,7 +94,8 @@ var serializeLayout = function(layout) {
     return {
 	collapsed: serializeD3Set(layout.collapsed()),
 	positions: serializeD3Map(layout.position()),
-	sizes: serializeD3Map(layout.size())
+	sizes: serializeD3Map(layout.size()),
+	orientation: layout.getOrientation()
     };
 };
 
@@ -180,6 +181,9 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
 	    });
 	}
 
+	if (o.layout.orientation) {
+	    layout.setOrientation(o.layout.orientation);
+	}
     }
 
     /*

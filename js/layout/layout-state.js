@@ -6,6 +6,12 @@ var d3 = require("d3"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
     directions = ["LR", "TB", "RL", "BT"],
+    directionCoords = d3.map({
+	"LR": [1, 0],
+	"TB": [0, 1],
+	"RL": [-1, 0],
+	"BT": [0, -1]
+    }),
     minWidth = 50,
     minHeight = 50;
 
@@ -119,11 +125,17 @@ module.exports = function(nodes) {
 	},
 	toggleOrientation: function() {
 	    m.setOrientation(
-		(directions.indexOf(orientation) + 1) % directions.length
+		directions[(directions.indexOf(orientation) + 1) % directions.length]
 	    );
 	},
 	getOrientation: function() {
 	    return orientation;
+	},
+	/*
+	 Unit vector in the direction specified.
+	 */
+	getOrientationCoords: function() {
+	    return directionCoords.get(orientation).slice(0);
 	},
 	onSetOrientation: onSetOrientation.add,
 	
