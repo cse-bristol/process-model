@@ -41,12 +41,14 @@ module.exports = {
 		
 		n.innerWidth = n.size[0] - (2 * nodeSidePadding);
 
-		orientationCoords[0] /= 2;
-		orientationCoords[1] /= 2;
+		var fromCentre = [
+		    orientationCoords[0] / 2,
+		    orientationCoords[1] / 2
+		];
 
 		n.junctionOffset = [
-		    n.size[0] * (orientationCoords[0] + 0.5),
-		    n.size[1] * (orientationCoords[1] + 0.5)
+		    n.size[0] * (fromCentre[0] + 0.5),
+		    n.size[1] * (fromCentre[1] + 0.5)
 		];
 
 		n.edgeJunction = [
@@ -55,8 +57,8 @@ module.exports = {
 		];
 
 		n.edgeOffset = [
-		    n.size[0] * (0.5 - orientationCoords[0]),
-		    n.size[1] * (0.5 - orientationCoords[1])
+		    n.size[0] * (0.5 - fromCentre[0]),
+		    n.size[1] * (0.5 - fromCentre[1])
 		];
 
 		n.edgeEnd = [
