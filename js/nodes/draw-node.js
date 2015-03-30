@@ -36,19 +36,36 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		    .classed("junction-mask", true)
 		    .attr("id", function(d, i) {
 			return "cut-" + d.id;
-		    });
+		    })
+	    /*
+	     This is some dark magic which controls the size of the buffer we are masking against.
 
-	    newMasks.append("rect")
+	     See: http://www.w3.org/TR/2003/REC-SVG11-20030114/masking.html
+	     */
+		    .attr("maskUnits", "userSpaceOnUse")
+		    .attr("x", "-50000%")
+		    .attr("y", "-50000%")
+		    .attr("width", "100000%")
+		    .attr("height", "100000%");
+
+	    newMasks.append("circle")
 		.classed("background-mask", true)
-		.attr("x", "-5000%")
-		.attr("y", "-5000%")
-		.attr("width", "10000%")
-		.attr("height", "10000%")
+		.attr("r", 10000)
 		.attr("fill", "white")
 		.attr("stroke", "none");
 
+	    transitions.maybeTransition(
+		junctionMasks.select(".background-mask"))
+		.attr("cx", function(d, i) {
+		    return d.edgeJunction[0];
+		})
+		.attr("cy", function(d, i) {
+		    return d.edgeJunction[1];
+		});
+	    
 	    newMasks
 		.append("circle")
+		.classed("hidden-mask", true)
 		.attr("r", function(d, i) {
 		    return d.type === "process" ? 7 : 5;
 		})
@@ -56,7 +73,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		.attr("stroke", "none");
 
 	    transitions.maybeTransition(
-		junctionMasks.select("circle"))
+		junctionMasks.select(".hidden-mask"))
 		.attr("cx", function(d, i) {
 		    return d.edgeJunction[0];
 		})
