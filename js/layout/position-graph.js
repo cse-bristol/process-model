@@ -51,11 +51,11 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
     /*
      This function is designed to be called repeatedly to automatically layout sections of our process graph.
 
-     The whole graph is translated by the offset.
+     The whole graph is translated by the offset function after it has been laid out.
 
      This function does not return anything: it accumulates its results into the nodeViewModels dictionary and edgeResults list.
     */
-    autoLayout = function(nodes, layoutState, isReachable, startNodes, offset, nodeViewModels, edgeResults) {
+    autoLayout = function(nodes, layoutState, isReachable, startNodes, calcOffset, nodeViewModels, edgeResults) {
 	var graph = new dagre.Digraph(),
 	    sizeOrDefault = function(id) {
 		return layoutState.getSize(id) || defaultSize;
@@ -124,7 +124,9 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 		.nodeSep(10)
 		.rankSep(70)
 		.rankDir(layoutState.getOrientation())
-		.run(graph);
+		.run(graph),
+
+	    offset = calcOffset(layout);
 
 	/*
 	 Turn each node into a view model and add it to the nodeViewModels dictionary.
@@ -211,7 +213,9 @@ module.exports = function(nodes, layoutState) {
 	    .map(function(id) {
 		return nodes.get(id);
 	    }),
-	[10, 100],
+	function(nodes) {
+	    return [10, 100];
+	},
 	nodeViewModels,
 	edgeResults	
     );
@@ -227,7 +231,15 @@ module.exports = function(nodes, layoutState) {
 	    layoutState,
 	    isReachable,
 	    [r],
-	    layoutState.getPosition(r.id),
+	    function(layout) {
+		var desired = layoutState.getPosition(r.id),
+		    n = layout.node(r.id);
+
+		return [
+		    (n.width / 2) + desired[0] - n.x,
+		    (n.height / 2) + desired[1] - n.y
+		];
+	    },
 	    nodeViewModels,
 	    edgeResults
 	);
