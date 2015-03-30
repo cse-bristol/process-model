@@ -91,7 +91,7 @@ zoom.out = function() {
     zoom.go();
 };
 
-require("./nodes/draw-process-node.js")(drawNodes, model.getNodes, transitions, update);
+require("./nodes/draw-process-node.js")(g, drawNodes, model.getNodes, model.getLayout, transitions, update);
 zoom(svg);
 svg.on("dblclick.zoom", null);
 

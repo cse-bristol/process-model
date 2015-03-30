@@ -3,19 +3,20 @@
 /*global module, require*/
 
 var d3 = require("d3"),
+    edgePath = require("../layout/edge-path.js"),
     onScroll = require("../helpers.js").onScroll,
     allowedTypes = require("./allowed-types.js"),
     circleFraction = require("../circle-fraction.js"),
     junctionRadius = 5,
     dependencyArcRadius = 7;
 
-module.exports = function(drawNodes, getNodeCollection, transitions, update) {
+module.exports = function(container, drawNodes, getNodeCollection, getLayoutState, transitions, update) {
     var findDragTarget = function() {
 	var target = document.elementFromPoint(
 	    d3.event.sourceEvent.clientX, 
 	    d3.event.sourceEvent.clientY);
-	
-	while (target.parentNode) {
+
+	while (target && target.parentNode) {
 	    var targetSelection = d3.select(target);
 	    if (targetSelection.classed("process-node")) {
 		return targetSelection;
@@ -95,26 +96,36 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		update();
 	    });
 
-    var dragNode = d3.behavior.drag()
+    var tempEdgeId = "temporary-edge",
+	dragNode = d3.behavior.drag()
+	    .origin(function(d, i) {
+		return {
+		    x: d.edgeJunction[0],
+		    y: d.edgeJunction[1]
+		};
+	    })    
 	    .on("dragstart", function(d) {
 		/* Nothing else should get this click now. */
 		d3.event.sourceEvent.stopPropagation();
+
+		container.select("#" + tempEdgeId).remove();
+		container.append("path")
+		    .attr("id", tempEdgeId);
 	    })
 	    .on("drag", function(d) {
-		/* Highlight things we're dragging over to aid the user. */
-		var target = findDragTarget();
+		var target = findDragTarget(),
+		    tempEdge = container.select("#" + tempEdgeId);
+
+		/*
+		 Draw a dotted line to indicate where we're dragging to.
+		 */
+		tempEdge.attr("d", d3.svg.line().interpolate("basis")(
+		    edgePath(
+			d.edgeJunction,
+			target ? target.datum().edgeEnd : [d3.event.x, d3.event.y],
+			getLayoutState().getOrientationCoords()
+		    )));
 		
-		if (target === d.previousDragTarget) {
-		    return;
-		} else {
-		    if (d.previousDragTarget) {
-			d.previousDragTarget.classed("drag-target", false);
-		    }
-		    if (target) {
-			target.classed("drag-target", true);
-		    }
-		    d.previousDragTarget = target;
-		}
 	    })
 	    .on("dragend", function(d, i) {
 		/* See if we're over an existing different node. 
@@ -124,6 +135,8 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		    oldNode = nodes.get(d.id),
 		    target = findDragTarget(),
 		    newNode;
+
+		d3.select("#" + tempEdgeId).remove();
 
 		if (d.collapsed) {
 		    return;
@@ -143,32 +156,25 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 		    newNode = nodes.getOrCreateNode(newNodeType);
 		}
 
-		try {
-		    oldNode.edgeTo(newNode); 
-		    update();
-		} finally {
-		    if (d.previousDragTarget) {
-			d.previousDragTarget.classed("drag-target", false);
-		    }
-		}
+		oldNode.edgeTo(newNode); 
+		update();
 	    });
 
     var drawEdgeJunctionGroup = function(nodes, newNodes, callback) {
 	var newJunctions = newNodes
 		.append("g")
 		.classed("handle", true)
-		.attr("draggable", true)
-		.call(dragNode);
+		.attr("draggable", true);
 
 	var junctions = nodes.select("g.handle");
 
 	transitions.maybeTransition(junctions)
-		.style("visibility", function(d, i) {
-		    return d.collapsed ? "hidden" : "visible";
-		})
-		.attr("transform", function(d, i) {
-		    return "translate(" + d.junctionOffset[0] + "," + d.junctionOffset[1] + ")";
-		});
+	    .style("visibility", function(d, i) {
+		return d.collapsed ? "hidden" : "visible";
+	    })
+	    .attr("transform", function(d, i) {
+		return "translate(" + d.junctionOffset[0] + "," + d.junctionOffset[1] + ")";
+	    });
 
 	callback(junctions, newJunctions);
     };
@@ -177,6 +183,8 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
 	newJunctions.append("circle")
 	    .attr("r", junctionRadius)
 	    .call(dragNode);
+
+	junctions.select("circle");
     };
 
     var drawDependencyArc = function(junctions, newJunctions) {

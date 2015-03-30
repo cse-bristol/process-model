@@ -36,3 +36,11 @@ g.weight-half:hover {
     -ms-transform: scale(1.8);
     -o-transform: scale(1.8);
 }
+
+#temporary-edge {
+    stroke: red;
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-dasharray: 5 2 2 2;
+    fill: none;
+}
