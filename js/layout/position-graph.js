@@ -6,6 +6,7 @@ var d3 = require("d3"),
     _ = require("lodash"),
     dagre = require("dagre"),
     viewModel = require("./view-model.js"),
+    edgePath = require("./edge-path.js"),
     
     defaultNodeWidth = 240,
     defaultNodeHeight = 70,
@@ -235,68 +236,17 @@ module.exports = function(nodes, layoutState) {
     return {
 	nodes: nodeViewModels.values(),
 	edges: edgeResults.map(function(e) {
-	    var path = [],
-		fromViewModel = nodeViewModels.get(e.fromId),
-		toViewModel = nodeViewModels.get(e.toId),
-		start = fromViewModel.edgeJunction,
-		end = toViewModel.edgeEnd;
-
-	    path.push(start);
-
-	    if (e.points) {
-		e.points.forEach(function(p) {
-		    path.push(p);
-		});
-		
-	    } else {
-		if (end[0] < start[0]) {
-		    /*
-		     Add extra control points to give us an S-shape.
-
-		     Worked out on a fairly ad-hoc basis, but seems to give mostly good results.
-		     */
-		    var xScale = end[0] - start[0],
-			yScale = end[1] - start[1],
-			xOffset = xScale / 5,
-			yOffset = yScale / 10,
-			midY = (start[1] + end[1]) / 2;
-		    
-		    path.push([
-			start[0] - xOffset,
-			start[1] + yOffset
-		    ]);
-		    
-		    path.push([
-			start[0] - xOffset,
-			midY
-		    ]);
-
-		    path.push([
-			end[0] + xOffset,
-			midY
-		    ]);
-		    
-		    path.push([
-			end[0] + xOffset,
-			end[1] - yOffset
-		    ]);
-		    
-		} else {
-		    /*
-		     Add an extra control point to give us a nice curve.
-		     */
-		    path.push([
-			(start[0] + end[0]) / 2,
-			end[1]
-		    ]);
-		}
-	    }
-
-	    path.push(end);
+	    var	fromViewModel = nodeViewModels.get(e.fromId),
+		toViewModel = nodeViewModels.get(e.toId);
 
 	    return viewModel.edge(
 		e.edge,
-		path,
+		edgePath(
+		    fromViewModel.edgeJunction,
+		    toViewModel.edgeEnd,
+		    layoutState.getOrientationCoords(),
+		    e.points
+		),
 		layoutState.isCollapsed(e.fromId)
 	    );
 	})
