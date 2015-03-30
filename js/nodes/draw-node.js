@@ -4,15 +4,62 @@
 
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js"),
-    empty = d3.select();
+    empty = d3.select(),
+    edgePath = require("../layout/edge-path.js");
 
-module.exports = function(container, defs, getNodeCollection, getLayout, transitions, toolbar, update) {
+module.exports = function(container, defs, getNodeCollection, getLayout, transitions, toolbar, drawEdges, update) {
     var types = d3.map(),
 
 	filterByType = function(nodeSelection, type) {
 	    return nodeSelection.filter(function(d, i) {
 		return d.type === type;
 	    });
+	},
+
+	/*
+	 When we move or resize a node, we redraw it individually to prevent slowdown.
+
+	 This function lets us also redraw its incoming and outgoing edges at the some time.
+	 */
+	redrawEdgesToNode = function(edgesInCoords, edgesOutCoords, nodeId) {
+	    var direction = getLayout().getOrientationCoords(),
+		nodeCollection = getNodeCollection(),
+		node = nodeCollection.get(nodeId),
+		edgesSelection = d3.select("#non-existant-element"),
+		
+		outgoing = node.edges().forEach(function(e) {
+		    var element = d3.select("#edge-" + e.parent().id + "-to-" + e.node().id),
+			d = element.datum();
+
+		    d.path = edgePath(
+			edgesOutCoords,
+			/* Find the existing edge and use the last coordinate of its path as the start point. */			    
+			d.path.pop(),
+			direction
+		    );
+
+		    edgesSelection[0].push(element.node());
+		}),
+		
+		incoming = nodeCollection.edgesToNode(node)
+		    .forEach(function(e) {
+			var element = d3.select("#edge-" + e.parent().id + "-to-" + e.node().id),
+			    d = element.datum();
+
+			d.path = edgePath(
+			    /* Find the existing edge and use the first coordinate of its path as the start point. */
+			    d.path[0],
+			    edgesInCoords,
+			    direction
+			);
+
+			edgesSelection[0].push(element.node());
+		    });
+
+	    drawEdges(
+		edgesSelection,
+	    	empty
+	    );
 	},
 
 	drawMoveHandle = function(nodes, newNodes) {
@@ -51,7 +98,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 			    }
 			);
 		    })
-		    .on("drag", function(d){
+		    .on("drag", function(d) {
 			tryDrag(
 			    d3.select(this),
 			    function(g) {
@@ -62,8 +109,14 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 				layout.setPosition(d.id, [x, y]);
 				d.x = x;
 				d.y = y;
+
+				/*
+				 Update some properties on the view model which depend on its size and position.
+				 */
+				d.resize(d.size);
 				
 				drawNodes(g, empty);
+				redrawEdgesToNode(d.edgeEnd, d.edgeJunction, d.id);
 			    }
 			);
 		    })
@@ -109,7 +162,8 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		    d3.select(this.parentElement),
 		    empty
 		);
-		
+
+		redrawEdgesToNode(d.edgeEnd, d.edgeJunction, d.id);
 	    })
 	    .on("dragend", function(d) {
 		update();		

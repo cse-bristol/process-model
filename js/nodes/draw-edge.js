@@ -230,6 +230,9 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
     var drawEdges = function(edges, newEdges) {
 	var newEdgeGroups = newEdges
 		.append("g")
+		.attr("id", function(d, i) {
+		    return "edge-" + d.parentId + "-to-" + d.childId;
+		}) 
 		.classed("edge", true);
 
 	drawPaths(edges, newEdgeGroups);
@@ -294,6 +297,8 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 	    edges.exit().remove();
 
 	    drawEdges(edges, edges.enter());
-	}
+	},
+
+	drawEdges: drawEdges
     };
 };
