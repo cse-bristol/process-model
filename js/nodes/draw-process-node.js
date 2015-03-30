@@ -176,7 +176,6 @@ module.exports = function(drawNodes, getNodeCollection, transitions, update) {
     var drawSimpleJunction = function(junctions, newJunctions) {
 	newJunctions.append("circle")
 	    .attr("r", junctionRadius)
-	    .style("fill", "white")
 	    .call(dragNode);
     };
 

@@ -87,6 +87,14 @@ g.expander {
     stroke: #708090;
 }
 
+.handle circle {
+    fill: white;
+}
+
+.handle circle:hover {
+    fill: green;
+}
+
 rect.success {
     fill: green;
 }
