@@ -7,7 +7,8 @@ var _ = require("lodash"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
     guid = helpers.guid,
-    makeNode = require("./abstract-node.js");
+    makeNode = require("./abstract-node.js"),
+    parentLookupFactory = require("./parent-lookup.js");
 
 /*
  A graph of process nodes. Nodes in the graph are not required to be connected.
@@ -21,29 +22,15 @@ module.exports = function() {
 	onNodeChooseType = callbacks(),
 	onEdgeCreate = callbacks(),
 	onEdgeDelete = callbacks(),
-	onNavigate = callbacks();
+	onNavigate = callbacks(),
+
+	parentLookup = parentLookupFactory(onNodeCreate, onNodeDelete, onEdgeCreate, onEdgeDelete);
 	
     var edgesToNode = function(nodeId) {
-	var edges = [],
-	    stack = nodesWithoutParents.values().map(function(id) {
-		return nodesById.get(id);
-	    }),
-	    seen = d3.set();
-
-	while (stack.length > 0) {
-	    var current = stack.pop();
-	    if (!seen.has(current.id)) {
-		seen.add(current.id);
-		current.edges().forEach(function(e){
-		    if (e.node().id === nodeId) {
-			edges.push(e);
-		    } else {
-			stack.push(e.node());
-		    }
-		});
-	    }
-	}
-	return edges;
+	return parentLookup(nodeId).map(function(parentId) {
+	    return nodesById.get(parentId)
+		.edgeTo(nodesById.get(nodeId));
+	});
     };
 
     var getOrCreateNode = function(type, id) {
