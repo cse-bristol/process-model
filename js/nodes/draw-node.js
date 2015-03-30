@@ -17,6 +17,55 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	},
 
 	/*
+	 Used to tidy up the beginnings of edges.
+	*/
+	drawJunctionMasks = function(nodeData, keepMissing) {
+	    var junctionMasks = defs.selectAll("mask.junction-mask")
+		    .data(
+			nodeData,
+			function(d, i) {
+			    return d.id;
+			}
+		    );
+
+	    if (!keepMissing) {
+		junctionMasks.exit().remove();
+	    }
+
+	    var newMasks = junctionMasks.enter().append("mask")
+		    .classed("junction-mask", true)
+		    .attr("id", function(d, i) {
+			return "cut-" + d.id;
+		    });
+
+	    newMasks.append("rect")
+		.classed("background-mask", true)
+		.attr("x", "-5000%")
+		.attr("y", "-5000%")
+		.attr("width", "10000%")
+		.attr("height", "10000%")
+		.attr("fill", "white")
+		.attr("stroke", "none");
+
+	    newMasks
+		.append("circle")
+		.attr("r", function(d, i) {
+		    return d.type === "process" ? 7 : 5;
+		})
+		.attr("fill", "black")
+		.attr("stroke", "none");
+
+	    transitions.maybeTransition(
+		junctionMasks.select("circle"))
+		.attr("cx", function(d, i) {
+		    return d.edgeJunction[0];
+		})
+		.attr("cy", function(d, i) {
+		    return d.edgeJunction[1];
+		});
+	},
+
+	/*
 	 When we move or resize a node, we redraw it individually to prevent slowdown.
 
 	 This function lets us also redraw its incoming and outgoing edges at the some time.
@@ -116,6 +165,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 				d.resize(d.size);
 				
 				drawNodes(g, empty);
+				drawJunctionMasks([d], true);
 				redrawEdgesToNode(d.edgeEnd, d.edgeJunction, d.id);
 			    }
 			);
@@ -163,6 +213,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		    empty
 		);
 
+		drawJunctionMasks([d], true);
 		redrawEdgesToNode(d.edgeEnd, d.edgeJunction, d.id);
 	    })
 	    .on("dragend", function(d) {
@@ -385,6 +436,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	    transitions.fadeOut(nodes);	    
 
 	    drawNodes(nodes, newNodes);
+	    drawJunctionMasks(nodeData);
 	}
     };
     

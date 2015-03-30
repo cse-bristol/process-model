@@ -242,50 +242,6 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 
     return {
 	draw: function(edgeData) {
-	    var junctionMasks = defs.selectAll("mask.junction-mask")
-		    .data(
-			edgeData,
-			function(d, i) {
-			    return d.parentId;
-			}
-		    );
-
-	    junctionMasks.exit().remove();
-
-	    var newMasks = junctionMasks.enter().append("mask")
-		    .classed("junction-mask", true)
-		    .attr("id", function(d, i) {
-			return "cut-" + d.parentId;
-		    });
-
-	    newMasks.append("rect")
-		.classed("background-mask", true)
-		.attr("x", "-5000%")
-		.attr("y", "-5000%")
-		.attr("width", "10000%")
-		.attr("height", "10000%")
-		.attr("fill", "white")
-		.attr("stroke", "none");
-
-	    newMasks
-		.append("circle")
-		.attr("r", function(d, i) {
-		    return getNodeCollection()
-			.get(d.parentId)
-			.type === "process" ? 7 : 5;
-		})
-		.attr("fill", "black")
-		.attr("stroke", "none");
-
-	    transitions.maybeTransition(
-		junctionMasks.select("circle"))
-		.attr("cx", function(d, i) {
-		    return d.path[0][0];
-		})
-		.attr("cy", function(d, i) {
-		    return d.path[0][1];
-		});
-	    
 	    var edges = container.selectAll("g.edge")
 		    .data(
 			edgeData,
