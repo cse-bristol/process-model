@@ -366,6 +366,30 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		});
 	},
 
+	drawDeleteButton = function(nodes, newNodes) {
+	    var newDelete = newNodes.append("g")
+		    .classed("delete-button", true)
+		    .attr("transform", function(d, i) {
+			return "translate(0, 15)";
+		    });
+
+	    newDelete.append("rect")
+		.attr("width", 15)
+		.attr("height", 15);
+
+	    newDelete.append("text")
+		.text("X")
+		.attr("x", 3)
+		.attr("y", 12)
+		.on("click", function(d, i) {
+		    getNodeCollection().deleteNode(d.id);
+		    update();
+		});
+
+	    nodes.select("g.delete-button")
+		.select("text");
+	},
+
 	closeEnough = function(bbox, x, y) {
 	    return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
 		(bbox.y >= y || (bbox.y + bbox.height) <= y);
@@ -414,7 +438,8 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	    });
 	    
 	    drawExpandContract(nodes, newNodes);
-
+	    drawDeleteButton(nodes, newNodes);
+	    
 	    drawMoveHandle(nodes, newNodes);
 	    drawResizeHandle(nodes, newNodes);
 

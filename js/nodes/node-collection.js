@@ -82,6 +82,10 @@ module.exports = function() {
 	    edgesToNode(id).forEach(function(e) {
 		e.disconnect();
 	    });
+	    nodesById.get(id).edges().forEach(function(e) {
+		e.disconnect();
+	    });
+	    
 	    nodesWithoutParents.remove(id);
 	    nodesById.remove(id);
 

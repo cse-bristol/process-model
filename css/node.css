@@ -110,3 +110,19 @@ rect.failure {
 rect.conflict {
     fill: #27408B;
 }
+
+.delete-button {
+    cursor: pointer;
+}
+
+.delete-button rect {
+    fill: white;
+}
+
+.delete-button:hover rect {
+    fill: red;
+}
+
+.delete-button text {
+    font-family: monospace;
+}
