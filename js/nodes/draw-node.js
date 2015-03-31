@@ -337,6 +337,9 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	drawExpandContract = function(nodes, newNodes) {
 	    var newExpanders = newNodes.append("g")
 		    .classed("expander", true)
+		    .attr("transform", function(d, i) {
+			return "translate(0, 15)";
+		    })	    
     		    .on("click", function(d, i) {
 			getLayout().setCollapsed(d.id, !d.collapsed);
 			
@@ -368,10 +371,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 
 	drawDeleteButton = function(nodes, newNodes) {
 	    var newDelete = newNodes.append("g")
-		    .classed("delete-button", true)
-		    .attr("transform", function(d, i) {
-			return "translate(0, 15)";
-		    });
+		    .classed("delete-button", true);
 
 	    newDelete.append("rect")
 		.attr("width", 15)
