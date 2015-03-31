@@ -15,7 +15,6 @@ var _ = require("lodash"),
  */
 module.exports = function() {
     var nodesById = d3.map(),
-	nodesWithoutParents = d3.set(),
     
 	onNodeCreate = callbacks(),
 	onNodeDelete = callbacks(),
@@ -27,7 +26,7 @@ module.exports = function() {
 	parentLookup = parentLookupFactory(onNodeCreate, onNodeDelete, onEdgeCreate, onEdgeDelete);
 	
     var edgesToNode = function(nodeId) {
-	return parentLookup(nodeId).map(function(parentId) {
+	return parentLookup.parentsForNode(nodeId).map(function(parentId) {
 	    return nodesById.get(parentId)
 		.edgeTo(nodesById.get(nodeId));
 	});
@@ -54,7 +53,6 @@ module.exports = function() {
 	}
 	onNodeCreate(node);
 	nodesById.set(node.id, node);
-	nodesWithoutParents.add(node.id);
 	
 	return node;
     };
@@ -73,7 +71,7 @@ module.exports = function() {
 	},
 
 	nodesWithoutParents: function() {
-	    return nodesWithoutParents;
+	    return parentLookup.nodesWithoutParents();
 	},
 	
 	getOrCreateNode: getOrCreateNode,
@@ -86,7 +84,6 @@ module.exports = function() {
 		e.disconnect();
 	    });
 	    
-	    nodesWithoutParents.remove(id);
 	    nodesById.remove(id);
 
 	    onNodeDelete(id);
@@ -125,10 +122,6 @@ module.exports = function() {
 		    nodesById.set(node.id, node);
 		    onNodeCreate(node);
 		});
-
-	    toMerge.nodesWithoutParents().forEach(function(id) {
-		nodesWithoutParents.add(id);
-	    });
 	},
 
 	onNodeCreate: onNodeCreate.add,
@@ -138,18 +131,6 @@ module.exports = function() {
 	onEdgeDelete: onEdgeDelete.add,
 	onNavigate: onNavigate.add
     };
-
-    onEdgeCreate.add(function(e) {
-	nodesWithoutParents.remove(e.node().id);
-    });
-
-    onEdgeDelete.add(function(e) {
-	var remainingEdges = edgesToNode(e.node().id);
-
-	if (remainingEdges.length === 0) {
-	    nodesWithoutParents.add(e.node().id);
-	}
-    });
 
     return m;
 };

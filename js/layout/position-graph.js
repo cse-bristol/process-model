@@ -187,7 +187,7 @@ module.exports = function(nodes, layoutState) {
      Find ids of nodes which don't belong 'inside' a collapsed node.
      */
     var reachable = nodesToKeep(
-	nodes.nodesWithoutParents().values()
+	nodes.nodesWithoutParents()
 	    .map(function(id) {
 		return nodes.get(id);
 	    }),
@@ -206,7 +206,7 @@ module.exports = function(nodes, layoutState) {
 	nodes,
 	layoutState,
 	isReachable,
-	nodes.nodesWithoutParents().values()
+	nodes.nodesWithoutParents()
 	    .filter(function(id) {
 		return !layoutState.getPosition(id);
 	    })
