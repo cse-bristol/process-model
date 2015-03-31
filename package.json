@@ -21,6 +21,6 @@
 	"xmldom": "0.1.16",
 	"url-regex": "2.1.2",
 	"zenpen-toolbar": "git://github.com/GlennS/zenpen",
-	"multiuser-file-menu": "git://github.com/cse-bristol/multiuser-file-menu.git#v0.5.0"
+	"multiuser-file-menu": "git://github.com/cse-bristol/multiuser-file-menu.git"
     }
 }
