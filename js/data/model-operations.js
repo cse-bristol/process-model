@@ -64,7 +64,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 		break;
 	    case "sizes":
 		if (op.od !== undefined) {
-		    layout.setSize(path[1], null);
+		    layout.setSize(op.od, null);
 		}
 		if (op.oi !== undefined) {
 		    layout.setSize(path[1], op.oi);
@@ -73,7 +73,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 		break;
 	    case "positions":
 		if (op.od !== undefined) {
-		    layout.setPosition(path[1], null);
+		    layout.setPosition(op.od, null);
 		}
 
 		if (op.oi !== undefined) {
@@ -278,7 +278,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 		});
 
 	    } else {
-		delayedSubmitOp({
+		submitOp({
 		    p: ["layout", "sizes"],
 		    od: id
 		});
@@ -287,13 +287,12 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 
 	layout.onSetPosition(function(id, position) {
 	    if (position) {
-	    
 		delayedSubmitOp({
 		    p: ["layout", "positions", id],
 		    oi: position
 		});
 	    } else {
-		delayedSubmitOp({
+		submitOp({
 		    p: ["layout", "positions"],
 		    od: id
 		});		
