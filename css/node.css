@@ -77,6 +77,10 @@ g.expander {
     font-family: monospace;
 }
 
+g.expander:hover rect {
+    fill: deepskyblue;
+}
+
 .resize-handle {
     cursor: se-resize;
     font-family: monospace;
