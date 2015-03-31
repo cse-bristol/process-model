@@ -347,10 +347,10 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    });
 	});
 
-	coll.onNodeDelete(function(node) {
+	coll.onNodeDelete(function(id) {
 	    submitOp({
-		p: ["nodes", node.id],
-		od: node
+		p: ["nodes", id],
+		od: true
 	    });
 	});
 

@@ -38,33 +38,22 @@ module.exports = function(nodes) {
 	 This code ensures that any layout applied to the old node is transferred.
 	 */
 	if (collapsedNodes.has(old.id)) {
-	    collapsedNodes.remove(old.id);
-	    collapsedNodes.add(replacement.id);
+	    m.setCollapsed(replacement.id, true);
 	}
 
 	if (manualPositions.has(old.id)) {
-	    manualPositions.set(
-		replacement.id,
-		manualPositions.get(old.id)
-	    );
-
-	    manualPositions.remove(old.id);
+	    m.setPosition(replacement.id, m.getPosition(old.id));
 	}
 
 	if (manualSizes.has(old.id)) {
-	    manualSizes.set(
-		replacement.id,
-		manualSizes.get(old.id)
-	    );
-
-	    manualSizes.remove(old.id);
+	    m.setPosition(replacement.id, m.getPosition(old.id));
 	}
     });
 
-    nodes.onNodeDelete(function(n) {
-	m.setCollapsed(n.id, false);
-	m.setPosition(n.id, null);
-	m.setSize(n.id, null);
+    nodes.onNodeDelete(function(id) {
+	m.setCollapsed(id, false);
+	m.setPosition(id, null);
+	m.setSize(id, null);
     });
 
     var m = {
