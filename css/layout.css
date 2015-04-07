@@ -1,6 +1,14 @@
+html {
+    height: 100%;
+}
+
+body {
+    height: 100%;
+}
+
 #model {
-    height: 96vh;
-    width: 99vw;
+    height: 100%;
+    width: 100%;
 }
 
 #toolbar {
