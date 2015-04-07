@@ -24,3 +24,9 @@ body {
     right: 0.3em;
     top: 0.2em;
 }
+
+@media print {
+    #help {
+	display: none;
+    }
+}
