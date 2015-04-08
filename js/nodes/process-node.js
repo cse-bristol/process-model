@@ -48,11 +48,16 @@ module.exports = d3.map({
 
 	node.allowedChildren = d3.set(["process", "issue", "option"]);
 
+	node.hasChildProcesses = function() {
+	    return _.any(node.edges(), function(e) {
+		return e.node().type === "process";
+	    });
+	};
+
 	node.localEvidence = function(evidence) {
 	    if (evidence !== undefined) {
-		if (node.edges().length > 0) {
-		    // Cannot set local evidence on a node which has children.
-		    return node;
+		if (node.hasChildProcesses()) {
+		    throw new Error("Cannot change local evidence of a process node which has child processes: it's evidence is derived from its children instead.");
 		}
 
 		if (evidence[0] < 0) {
@@ -125,7 +130,7 @@ module.exports = d3.map({
 	increaseDecreaseKey(node.dependence, "d", 0.05);
 
 	node.p = function() {
-	    if (node.edges().length === 0) {
+	    if (!node.hasChildProcesses()) {
 		return localE;
 	    } else {
 		return combineEvidence(localDep, node.edges()

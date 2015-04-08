@@ -365,11 +365,7 @@ module.exports = function(container, drawNodes, getNodeCollection, getLayoutStat
 	    	.attr("class", function(d, i) {
 		    return d.type;
 		})
-		.call(onScroll, function(d, i, change){
-		    if (!d.node.isLeaf || d.node.collapsed) {
-			return;
-		    }
-
+		.call(onScroll, function(d, i, change) {
 		    var evidence = d.node.evidence;
 		    
 		    switch(d.type) {
