@@ -247,7 +247,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 			/*
 			 Resize my node to fit the description box.
 			 */
-			getLayout().size(
+			getLayout().setSize(
 			    d.id,
 			    [
 				d.size[0],
