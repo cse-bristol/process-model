@@ -4,4 +4,4 @@ clean: ; rm -rf ./bin/*
 
 tests: ; node ./js/test.js
 
-watch: ; watchify -d js/process-model.js -o bin/main.js &
+watch: ; watchify -d js/process-model.js -o bin/main.js;
