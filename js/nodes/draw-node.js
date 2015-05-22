@@ -5,7 +5,8 @@
 var d3 = require("d3"),
     svgEditableText = require("../svg-editable-text.js"),
     empty = d3.select(),
-    edgePath = require("../layout/edge-path.js");
+    edgePath = require("../layout/edge-path.js"),
+    nodeClass = "process-node";
 
 module.exports = function(container, defs, getNodeCollection, getLayout, transitions, toolbar, drawEdges, update) {
     var types = d3.map(),
@@ -461,9 +462,13 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	redrawNode: function(nodeSelection) {
 	    drawNodes(nodeSelection, empty);
 	},
+
+	selectNodes: function(ids) {
+	    return container.selectAll("g." + nodeClass);
+	},
 	
 	draw: function(nodeData) {
-	    var nodes = container.selectAll("g.process-node")
+	    var nodes = container.selectAll("g." + nodeClass)
 		    .data(
 			nodeData,
 			function(d, i) {

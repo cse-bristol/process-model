@@ -47,6 +47,8 @@ var d3 = require("d3"),
 	    textControls.update();
 	}),
     files = require("./files.js"),
+
+    focus = require("./focus.js")(model.getNodes, svg, drawNodes.selectNodes, zoom),
     shortcutKeys = require("./keys.js")(helpLink, zoom, update, model.getNodes),
 
     fileMenu = require("multiuser-file-menu")(
@@ -77,6 +79,7 @@ var d3 = require("d3"),
 fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec, layoutButton, rotateButton]);
 
 model.onSet(update);
+model.onSet(focus.showAll);
 
 zoom.go = function() {
     zoom.event(g);

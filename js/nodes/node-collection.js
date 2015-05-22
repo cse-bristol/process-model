@@ -59,6 +59,10 @@ module.exports = function() {
 
     var m = {
 	all: _.bind(nodesById.values, nodesById),
+	ids: function() {
+	    return d3.set(
+		nodesById.keys());
+	},
 	has: _.bind(nodesById.has, nodesById),
 	get: _.bind(nodesById.get, nodesById),
 
