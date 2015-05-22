@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var tolerance = 20;
+var tolerance = 50,
+    maxAutoScale = 2.5;
 
 module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom) {
 
@@ -60,7 +61,10 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom) {
 	    var svgBBox = svg.node().getBoundingClientRect(),
 		widthScale = svgBBox.width / modelBBox.width,
 		heightScale = svgBBox.height / modelBBox.height,
-		scale = Math.min(widthScale, heightScale),
+		scale = Math.min(
+		    Math.min(widthScale, heightScale),
+		    maxAutoScale
+		),
 		scaledModelCentre = [
 		    (modelBBox.left + modelBBox.right) * scale / 2,
 		    (modelBBox.top + modelBBox.bottom) * scale / 2
