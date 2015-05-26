@@ -80,6 +80,7 @@ module.exports = {
 	case "process":
 	    n.evidence = node.p();
 	    n.dependence = node.dependence();
+	    n.hasChildProcesses = node.hasChildProcesses();
 	    
 	    break;
 	case "issue":

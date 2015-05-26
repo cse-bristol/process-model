@@ -7,6 +7,8 @@ var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
     allowedTypes = require("./allowed-types.js"),
     circleFraction = require("../circle-fraction.js"),
+
+    computedClass = "computed",
     junctionRadius = 5,
     dependencyArcRadius = 7;
 
@@ -325,7 +327,10 @@ module.exports = function(container, drawNodes, getNodeCollection, getLayoutStat
 	var drawIntervalParts = function(g) {
 	    g.attr("transform", function(d, i) {
 		return "rotate(180," +  (d.size[0] / 2) + ", 0)translate(" + 0 + "," + (4 - d.size[1])  + ")";
-	    });
+	    })
+		.classed(computedClass, function(d, i) {
+		    return d.hasChildProcesses;
+		});
 
 
 	    /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */

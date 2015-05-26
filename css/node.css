@@ -99,6 +99,10 @@ g.expander:hover rect {
     fill: green;
 }
 
+g.interval.computed {
+    cursor: auto;
+}
+
 rect.success {
     fill: green;
 }
