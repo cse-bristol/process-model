@@ -1,0 +1,46 @@
+.focus-tools {
+    position: absolute;
+    right: 0.5em;
+    top: 3em;
+    font-family: monospace;
+    font-size: x-large;
+
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.focus-tools div {
+    background-color: #E0E0E0;
+    padding: 0.1em;
+    cursor: pointer;
+}
+
+.focus-tools .disabled {
+    cursor: default;
+    color: grey;
+}
+
+.focus-node-tool {
+    cursor: pointer;
+
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.focus-node-tool rect {
+    stroke: grey;
+    fill: white;
+}
+
+.focus-node-tool text {
+    text-anchor: start;
+    font-family: monospace;
+}

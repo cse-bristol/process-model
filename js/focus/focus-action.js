@@ -2,11 +2,13 @@
 
 /*global module, require*/
 
-var tolerance = 50,
-    maxAutoScale = 2.5;
+var d3 = require("d3"),
+    tolerance = 50;
 
-module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom) {
-
+/*
+ Modifies the model to pan and zoom to a particular node and its descendents.
+*/
+module.exports = function(svg, selectSVGNodes, zoom) {
     var calcExtent = function(nodeIds) {
 	var bbox;
 	
@@ -61,10 +63,7 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom) {
 	    var svgBBox = svg.node().getBoundingClientRect(),
 		widthScale = svgBBox.width / modelBBox.width,
 		heightScale = svgBBox.height / modelBBox.height,
-		scale = Math.min(
-		    Math.min(widthScale, heightScale),
-		    maxAutoScale
-		),
+		scale = Math.min(widthScale, heightScale),
 		scaledModelCentre = [
 		    (modelBBox.left + modelBBox.right) * scale / 2,
 		    (modelBBox.top + modelBBox.bottom) * scale / 2
@@ -80,14 +79,18 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom) {
 	},
 
 	doPanAndZoom = function(panAndZoom) {
-	    zoom.scale(panAndZoom.scale);
-	    zoom.translate(panAndZoom.translate);
-	    zoom.go();
+	    zoom.scaleTranslate(
+		panAndZoom.scale,
+		panAndZoom.translate
+	    );
 	},
 
-	showAll = function() {
-	    var modelExtent = calcExtent(
-		getNodeCollection().ids());
+	show = function(nodeIdSet) {
+	    if (!nodeIdSet) {
+		throw new Error("nodeIdSet should be a d3 set of ids for nodes which we want to be displayed on the screen.");
+	    }
+	    
+	    var modelExtent = calcExtent(nodeIdSet);
 
 	    if (modelExtent) {
 		doPanAndZoom(
@@ -96,7 +99,5 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom) {
 	    }
 	};
 
-    return {
-	showAll: showAll
-    };
+    return show;
 };

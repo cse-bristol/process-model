@@ -10,6 +10,7 @@ var update = function() {
     draw();
     exportButton.update();
     textControls.update();
+    focus.update();
 
 }, withUpdate = function(f) {
     return function(args) {
@@ -48,7 +49,6 @@ var d3 = require("d3"),
 	}),
     files = require("./files.js"),
 
-    focus = require("./focus.js")(model.getNodes, svg, drawNodes.selectNodes, zoom),
     shortcutKeys = require("./keys.js")(helpLink, zoom, update, model.getNodes),
 
     fileMenu = require("multiuser-file-menu")(
@@ -59,6 +59,8 @@ var d3 = require("d3"),
 	model.set,
 	model.freshModel
     ),
+
+    focus = require("./focus/focus.js")(model.getNodes, svg, drawNodes.selectNodes, zoom, body, null, drawNodes.drawNodesHook),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
     exportButton = require("./export-button.js")(
@@ -79,19 +81,23 @@ var d3 = require("d3"),
 fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec, layoutButton, rotateButton]);
 
 model.onSet(update);
-model.onSet(focus.showAll);
+model.onSet(focus.onSetModel);
 
-zoom.go = function() {
-    zoom.event(g);
+zoom.scaleTranslate = function(scale, translate) {
+    g.transition()
+	.call(
+	    zoom
+		.scale(scale)
+		.translate(translate)
+		.event
+	);
 };
 
 zoom.in = function() {
-    zoom.scale(zoom.scale() * 1.1);
-    zoom.go();
+    zoom.scaleTranslate(zoom.scale() * 1.1);
 };
 zoom.out = function() {
-    zoom.scale(zoom.scale() / 1.1);
-    zoom.go();
+    zoom.scaleTranslate(zoom.scale() / 1.1);
 };
 
 require("./nodes/draw-process-node.js")(g, drawNodes, model.getNodes, model.getLayout, transitions, update);
