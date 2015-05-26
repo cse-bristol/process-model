@@ -40,6 +40,10 @@
     fill: white;
 }
 
+.focus-node-tool:hover rect {
+    fill: deepskyblue;
+}
+
 .focus-node-tool text {
     text-anchor: start;
     font-family: monospace;
