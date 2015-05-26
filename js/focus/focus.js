@@ -8,24 +8,23 @@ var d3 = require("d3"),
     nodeChildrenSearchFactory = require("./node-children-search.js"),
     dataFactory = require("./focus-data.js");
 
-module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, container, queryString, drawNodesHook) {
+module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, container, queryString, drawNodesHook, update) {
     var data = dataFactory(),
 	nodeChildrenSearch = nodeChildrenSearchFactory(getNodeCollection),
 	focusAction = actionFactory(svg, selectSVGNodes, zoom),
-	controls = controlsFactory(container, drawNodesHook),
+	controls = controlsFactory(container, drawNodesHook, data),
+
+	targetIds,
 
 	selectNodeAndCalcDepthLimit = function(id) {
 	    var nodeChildren = nodeChildrenSearch(id);
 	    
-	    data.setSelectedNodeIdAndDepthLimit(
-		id,
+	    data.setDepthLimit(
 		nodeChildren.maxDepthReached
 	    );
 	},
 
-	update = function() {
-	    var targetIds;
-
+	recalc = function() {
 	    if (data.hasSelectedNodeId()) {
 		selectNodeAndCalcDepthLimit(data.getSelectedNodeId());
 
@@ -37,7 +36,9 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 	    } else {
 		targetIds = getNodeCollection().ids();
 	    }
+	},
 
+	redraw = function() {
 	    focusAction(targetIds);
 	    controls.update(data);
 	};
@@ -47,7 +48,7 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 	    return;
 	}
 
-	selectNodeAndCalcDepthLimit(nodeId);
+	data.setSelectedNodeId(nodeId);
 
 	update();
     });
@@ -69,12 +70,17 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 		roots = nodes.nodesWithoutParents();
 	    
 	    if (roots.length === 1) {
-		selectNodeAndCalcDepthLimit(roots[0]);
+		data.setSelectedNodeId(roots[0]);
 	    }
-	    
-	    update();
 	},
 
-	update: update
+	/*
+	 Each draw cycle, the following should happen in order:
+	 1. recalc is called, working out which nodes to focus on, and what the maximum depth should be.
+	 2. The node graph is drawn, possibly looking at some data from (1).
+	 3. redraw is called, panning and zooming to a box around some of the nodes drawn in (2) and updating the focus controls with the depth limit worked out in (1).
+	 */
+	recalc: recalc,
+	redraw: redraw
     };
 };

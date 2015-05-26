@@ -2,19 +2,23 @@
 
 /*global module, require*/
 
-var helpers = require("../helpers.js"),
+var d3 = require("d3"),
+
+    helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
 
     focusToolsClass = "focus-tools",
     disableClass = "disabled",
-    focusNodeToolClass = "focus-node-tool";
+    focusNodeToolClass = "focus-node-tool",
+
+    focusedNodeClass = "focused";
 
 /*
  Container is the place where we will put our depth change controls.
 
  drawNodesHook is a function which is called each time we update nodes.
  */
-module.exports = function(container, drawNodesHook) {
+module.exports = function(container, drawNodesHook, data) {
     var onSelectNode = callbacks(),
 	onSetDepth = callbacks(),
 
@@ -54,6 +58,12 @@ module.exports = function(container, drawNodesHook) {
 		.attr("transform", function(d, i) {
 		    return "translate(" + (d.size[0] - 30) + "," + 0 + ")";
 		})
+		.on("mousedown", function() {
+		    /*
+		     Prevent this event from causing a drag event.
+		     */
+		    d3.event.stopPropagation();
+		})
 		.on("click", function(d, i) {
 		    onSelectNode(d.id);
 		});
@@ -67,13 +77,20 @@ module.exports = function(container, drawNodesHook) {
 	    .text("F")
 	    .attr("x", 4)
 	    .attr("y", 12);
+
+	nodes.classed(
+	    focusedNodeClass,
+	    function(d, i) {
+		return (d.id === data.getSelectedNodeId()) ? true : null;
+	    }
+	);
     });
     
     return {
 	onSelectNode: onSelectNode.add,
 	onSetDepth: onSetDepth.add,
 
-	update: function(data) {
+	update: function() {
 	    var selected = data.hasSelectedNodeId();
 	    
 	    disableDepthTools(!selected, data);

@@ -64,9 +64,8 @@ module.exports = function() {
 	    return selectedNodeId !== null;
 	},
 
-	setSelectedNodeIdAndDepthLimit: function(newNodeId, newDepthLimit) {
-	    selectedNodeId = newNodeId;
-	    setDepthLimit(newDepthLimit);
+	setSelectedNodeId: function(val) {
+	    selectedNodeId = val;
 	},
 
 	setDepthLimit: setDepthLimit,

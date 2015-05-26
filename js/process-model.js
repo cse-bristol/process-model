@@ -6,17 +6,13 @@ var update = function() {
     if (model.empty()) {
 	model.set(model.freshModel());
     }
-    
+
+    focus.recalc();
     draw();
     exportButton.update();
     textControls.update();
-    focus.update();
+    focus.redraw();
 
-}, withUpdate = function(f) {
-    return function(args) {
-	f(args);
-	update();
-    };
 };
 
 var d3 = require("d3"),
@@ -60,7 +56,7 @@ var d3 = require("d3"),
 	model.freshModel
     ),
 
-    focus = require("./focus/focus.js")(model.getNodes, svg, drawNodes.selectNodes, zoom, body, null, drawNodes.drawNodesHook),
+    focus = require("./focus/focus.js")(model.getNodes, svg, drawNodes.selectNodes, zoom, body, null, drawNodes.drawNodesHook, update),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
     exportButton = require("./export-button.js")(
@@ -80,8 +76,11 @@ var d3 = require("d3"),
 
 fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec, layoutButton, rotateButton]);
 
-model.onSet(update);
-model.onSet(focus.onSetModel);
+model.onSet(function() {
+    focus.onSetModel();
+    update();
+});
+
 
 zoom.scaleTranslate = function(scale, translate) {
     g.transition()

@@ -134,3 +134,7 @@ rect.conflict {
 .delete-button text {
     font-family: monospace;
 }
+
+g.process-node.focused {
+    stroke-width: 2px;
+}
