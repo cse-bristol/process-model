@@ -34,10 +34,6 @@ module.exports = function() {
 	    }
 	},
 
-	hasDepth: function() {
-	    return depth !== null;
-	},
-	
 	setDepth: function(val) {
 	    if (selectedNodeId === null) {
 		throw new Error("Cannot set depth without first selecting a node.");

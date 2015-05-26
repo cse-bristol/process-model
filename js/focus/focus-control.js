@@ -41,9 +41,9 @@ module.exports = function(container, drawNodesHook) {
 		onSetDepth(depthSlider.node().value + 1);
 	    }),
 
-	disableDepthTools = function(disable) {
-	    increaseDepthTool.classed(disableClass, disable);
-	    decreaseDepthTool.classed(disableClass, disable);
+	disableDepthTools = function(disable, data) {
+	    increaseDepthTool.classed(disableClass, disable ? true : data.getDepth() === 0);
+	    decreaseDepthTool.classed(disableClass, disable ? true : data.getDepth() === data.getDepthLimit());
 	    depthSlider.attr("disabled", disable ? true : null);
 	};
 
@@ -76,15 +76,11 @@ module.exports = function(container, drawNodesHook) {
 	update: function(data) {
 	    var selected = data.hasSelectedNodeId();
 	    
-	    disableDepthTools(!selected);
+	    disableDepthTools(!selected, data);
 
 	    depthSlider.attr("max", data.getDepthLimit());
 	    
-	    if (data.hasDepth())  {
-		depthSlider.node().value = data.getDepth();
-	    } else {
-		depthSlider.node().value = data.getDepthLimit();
-	    }
+	    depthSlider.node().value = data.getDepth();
 	}
     };
 };

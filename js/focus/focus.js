@@ -17,8 +17,6 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 	selectNodeAndCalcDepthLimit = function(id) {
 	    var nodeChildren = nodeChildrenSearch(id);
 	    
-	    console.log("set depth limit", nodeChildren.maxDepthReached);
-	    
 	    data.setSelectedNodeIdAndDepthLimit(
 		id,
 		nodeChildren.maxDepthReached
