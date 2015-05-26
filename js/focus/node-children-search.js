@@ -13,9 +13,13 @@ module.exports = function(getNodeCollection) {
 		accum.maxDepthReached = currentDepth;
 	    }
 	}
+
+	if (!nodes.has(id)) {
+	    return;
+	}
 	
 	var current = nodes.get(id);
-	
+
 	accum.childIds.set(id, current);
 	
 	current.edges().forEach(function(e) {

@@ -14,55 +14,49 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 	focusAction = actionFactory(svg, selectSVGNodes, zoom),
 	controls = controlsFactory(container, drawNodesHook),
 
+	selectNodeAndCalcDepthLimit = function(id) {
+	    var nodeChildren = nodeChildrenSearch(id);
+	    
+	    console.log("set depth limit", nodeChildren.maxDepthReached);
+	    
+	    data.setSelectedNodeIdAndDepthLimit(
+		id,
+		nodeChildren.maxDepthReached
+	    );
+	},
+
 	update = function() {
-	    focusAction(
-		nodeChildrenSearch(
+	    var targetIds;
+
+	    if (data.hasSelectedNodeId()) {
+		selectNodeAndCalcDepthLimit(data.getSelectedNodeId());
+
+		targetIds = nodeChildrenSearch(
 		    data.getSelectedNodeId(),
 		    data.getDepth()
-		).childIds
-	    );
+		).childIds;
+
+	    } else {
+		targetIds = getNodeCollection().ids();
+	    }
+
+	    focusAction(targetIds);
+	    controls.update(data);
 	};
 
     controls.onSelectNode(function(nodeId) {
 	if (!nodeId || data.getSelectedNodeId === nodeId) {
 	    return;
 	}
-	
-	data.setSelectedNodeId(nodeId);
-	controls.enableDepthTools();
 
-	var nodeChildren = nodeChildrenSearch(
-	    data.getSelectedNodeId());
+	selectNodeAndCalcDepthLimit(nodeId);
 
-	data.limitDepth(nodeChildren.maxDepthReached);
-	
-	focusAction(nodeChildren.childIds);
+	update();
     });
 
-    controls.onChangeDepth(function(depthChange) {
-	if (!data.hasSelectedNodeId()) {
-	    return;
-	}
-
-	var nodeChildren = nodeChildrenSearch(
-	    data.getSelectedNodeId());
-	
-	if (data.hasDepth()) {
-	    var newDepth = data.getDepth() + depthChange;
-
-	    newDepth = Math.max(0, newDepth);
-	    newDepth = Math.min(nodeChildren.maxDepthReached, newDepth);
-	    
-	    if (newDepth === data.getDepth()) {
-		return;
-	    } else {
-		data.setDepth(newDepth);
-		update();
-	    }
-	} else {
-	    data.setDepth(nodeChildren.maxDepthReached);
-	    focusAction(nodeChildren.childIds);
-	}
+    controls.onSetDepth(function(depth) {
+	data.setDepth(depth);
+	update();
     });
 
     return {
@@ -71,11 +65,16 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 	 */
 	onSetModel: function() {
 	    data.clear();
-	    controls.disableDepthTools();
 	    // ToDo maybe look at query string here?
+
+	    var nodes = getNodeCollection(),
+		roots = nodes.nodesWithoutParents();
 	    
-	    // ToDo this is clearly wrong since it will trigger on save as.
-	    focusAction(getNodeCollection().ids());
+	    if (roots.length === 1) {
+		selectNodeAndCalcDepthLimit(roots[0]);
+	    }
+	    
+	    update();
 	},
 
 	update: update

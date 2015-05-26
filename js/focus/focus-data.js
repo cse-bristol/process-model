@@ -7,11 +7,31 @@ module.exports = function() {
      Depth is how many levels of edges we will follow when accumulating children of the selected node.
      */
     var depth = null,
-	selectedNodeId = null;
+	depthLimit = null,
+	selectedNodeId = null,
+
+	setDepthLimit = function(val) {
+	    if (val < 0) {
+		throw new Error("Depth limit cannot be below 0.");
+	    } else {
+		depthLimit = val;
+	    }
+	};
 
     return {
 	getDepth: function() {
-	    return depth;
+	    if (depth === null) {
+		if (depthLimit === null) {
+		    return null;
+		} else {
+		    return depthLimit;
+		}
+	    } else if (depthLimit === null) {
+		// This case should never happen, but is included for completeness.
+		return null;
+	    } else {
+		return Math.min(depth, depthLimit);
+	    }
 	},
 
 	hasDepth: function() {
@@ -19,28 +39,25 @@ module.exports = function() {
 	},
 	
 	setDepth: function(val) {
+	    if (selectedNodeId === null) {
+		throw new Error("Cannot set depth without first selecting a node.");
+	    }
+
 	    if (val < 0) {
 		depth = 0;
+	    } else if (val >= depthLimit) {
+		/*
+		 If we're at or above the maximum zoom out, consider that the user intends for us to stay as zoomed out as possible.
+		 */
+		depth = null;
+		
 	    } else {
 		depth = val;
 	    }
 	},
 
-	/*
-	 If depth has not been set, set it as high as it will go.
-
-	 If depth has been set, but is higher than allowed, set it to the maximum.
-
-	 Otherwise, leave it be.
-	 */
-	limitDepth: function(maximumForNode) {
-	    if (maximumForNode < 0) {
-		throw new Error("Maximum depth must always be at least 0.");
-	    }
-	    
-	    if (depth !== null && depth > maximumForNode) {
-		depth = maximumForNode;
-	    }
+	getDepthLimit: function() {
+	    return depthLimit;
 	},
 
 	getSelectedNodeId: function() {
@@ -51,12 +68,16 @@ module.exports = function() {
 	    return selectedNodeId !== null;
 	},
 
-	setSelectedNodeId: function(val) {
-	    selectedNodeId = val;
+	setSelectedNodeIdAndDepthLimit: function(newNodeId, newDepthLimit) {
+	    selectedNodeId = newNodeId;
+	    setDepthLimit(newDepthLimit);
 	},
+
+	setDepthLimit: setDepthLimit,
 
 	clear: function() {
 	    depth = null;
+	    depthLimit = null;
 	    selectedNodeId = null;
 	}
     };

@@ -16,7 +16,7 @@ var helpers = require("../helpers.js"),
  */
 module.exports = function(container, drawNodesHook) {
     var onSelectNode = callbacks(),
-	onChangeDepth = callbacks(),
+	onSetDepth = callbacks(),
 
 	focusTools = container.append("div")
 	    .classed(focusToolsClass, true),
@@ -24,18 +24,27 @@ module.exports = function(container, drawNodesHook) {
 	increaseDepthTool = focusTools.append("div")
 	    .text("+")
 	    .on("click", function() {
-		onChangeDepth(-1);
+		onSetDepth(depthSlider.node().value - 1);
+	    }),
+
+	depthSlider = focusTools.append("input")
+	    .attr("type", "range")
+	    .attr("min", 0)
+	    .attr("max", 0)
+	    .on("input", function() {
+		onSetDepth(depthSlider.node().value);
 	    }),
 
 	decreaseDepthTool = focusTools.append("div")
 	    .text("-")
 	    .on("click", function() {
-		onChangeDepth(1);
+		onSetDepth(depthSlider.node().value + 1);
 	    }),
 
 	disableDepthTools = function(disable) {
 	    increaseDepthTool.classed(disableClass, disable);
 	    decreaseDepthTool.classed(disableClass, disable);
+	    depthSlider.attr("disabled", disable ? true : null);
 	};
 
     drawNodesHook(function(nodes, newNodes) {
@@ -56,19 +65,26 @@ module.exports = function(container, drawNodesHook) {
 
 	focusG.append("text")
 	    .text("F")
-	    .attr("x", 3)
+	    .attr("x", 4)
 	    .attr("y", 12);
     });
     
     return {
 	onSelectNode: onSelectNode.add,
-	onChangeDepth: onChangeDepth.add,
-	disableDepthTools: function() {
-	    disableDepthTools(true);
-	},
+	onSetDepth: onSetDepth.add,
 
-	enableDepthTools: function() {
-	    disableDepthTools(false);
+	update: function(data) {
+	    var selected = data.hasSelectedNodeId();
+	    
+	    disableDepthTools(!selected);
+
+	    depthSlider.attr("max", data.getDepthLimit());
+	    
+	    if (data.hasDepth())  {
+		depthSlider.node().value = data.getDepth();
+	    } else {
+		depthSlider.node().value = data.getDepthLimit();
+	    }
 	}
     };
 };

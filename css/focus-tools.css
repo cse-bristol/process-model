@@ -19,6 +19,12 @@
     cursor: pointer;
 }
 
+.focus-tools input[type=range] {
+    transform: rotate(90deg);
+    position: absolute;
+    right: 0;
+}
+
 .focus-tools .disabled {
     cursor: default;
     color: grey;
