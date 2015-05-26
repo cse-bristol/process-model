@@ -241,8 +241,15 @@ module.exports = function(container, drawNodes, getNodeCollection, getLayoutStat
 	newNodes.append("g")
 	    .classed(clazz, true)
 	    .classed("toggleable-text", true)
+	    .classed("no-select", true)
 	    .append("text")
 	    .style("text-anchor", "middle")
+	    .on("mousedown", function(d, i) {
+		/*
+		 The click from this button won't become part of a drag event.
+		 */
+		d3.event.stopPropagation();
+	    })	
 	    .on("click", function(d, i) {
 		d3.event.preventDefault();
 		d3.event.stopPropagation();
@@ -292,8 +299,15 @@ module.exports = function(container, drawNodes, getNodeCollection, getLayoutStat
 
 	var newOptions = typeOptions.enter().append("g")
 		.classed("node-choice", true)
+		.classed("no-select", true)
 		.each(function(d, i) {
 		    d3.select(this).classed("node-choice-" + d.option, true);
+		})
+		.on("mousedown", function(d, i) {
+		    /*
+		    The click from this button won't become part of a drag event.
+		    */
+		    d3.event.stopPropagation();
 		})
 		.on("click", function(d, i) {
 		    var nodeCollection = getNodeCollection();

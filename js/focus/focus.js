@@ -33,13 +33,18 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 		    data.getDepth()
 		).childIds;
 
+	    } else if (data.underManualControl()) {
+		targetIds = null;
+		
 	    } else {
 		targetIds = getNodeCollection().ids();
 	    }
 	},
 
 	redraw = function() {
-	    focusAction(targetIds);
+	    if (targetIds) {
+		focusAction(targetIds);
+	    }
 	    controls.update(data);
 	};
 
@@ -56,6 +61,14 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
     controls.onSetDepth(function(depth) {
 	data.setDepth(depth);
 	update();
+    });
+
+    zoom.on("zoomstart", function() {
+	if (!zoom.manual) {
+	    data.clear();
+	    data.setManualControl(true);
+	    controls.clearFocus();
+	}
     });
 
     return {

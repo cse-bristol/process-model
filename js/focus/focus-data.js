@@ -9,6 +9,7 @@ module.exports = function() {
     var depth = null,
 	depthLimit = null,
 	selectedNodeId = null,
+	manualControl = false,
 
 	setDepthLimit = function(val) {
 	    if (val < 0) {
@@ -70,10 +71,22 @@ module.exports = function() {
 
 	setDepthLimit: setDepthLimit,
 
+	/*
+	 From the point that we load a document, to the point when a user either focuses on something or pans/zooms, keep all the nodes in focus at once.
+	 */
+	setManualControl: function() {
+	    manualControl = true;
+	},
+
+	underManualControl: function() {
+	    return manualControl;
+	},
+
 	clear: function() {
 	    depth = null;
 	    depthLimit = null;
 	    selectedNodeId = null;
+	    manualControl = false;
 	}
     };
 };

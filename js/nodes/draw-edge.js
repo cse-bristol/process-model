@@ -99,6 +99,9 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 	newEdges
 	    .append("circle")
 	    .classed("edge-end", true)
+	    .on("mousedown", function() {
+		d3.event.stopPropagation();
+	    })
 	    .on("click", function(d, i) {
 		if (d.canModify) {
 		    var nodes = getNodeCollection(),

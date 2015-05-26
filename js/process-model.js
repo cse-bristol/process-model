@@ -83,14 +83,20 @@ model.onSet(function() {
 
 
 zoom.scaleTranslate = function(scale, translate) {
+    zoom.manual = true;
+
     g.transition()
-	.call(
+	.call(function(selection) {
 	    zoom
 		.scale(scale)
 		.translate(translate)
-		.event
-	);
+		.event(selection);
+	});
 };
+
+zoom.on("zoomend", function() {
+    zoom.manual = false;
+});
 
 zoom.in = function() {
     zoom.scaleTranslate(zoom.scale() * 1.1);

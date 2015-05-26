@@ -267,7 +267,8 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		})
 		.call(dragResize)
 		.append("text")
-		.text("⇘");
+		.text("⇘")
+		.classed("no-select", true);
 
 	    nodes.select("g.resize-handle")
 		.attr("transform", function(d, i) {
@@ -343,6 +344,12 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		    .classed("expander", true)
 		    .attr("transform", function(d, i) {
 			return "translate(0, 15)";
+		    })
+		    .on("mousedown", function(d, i) {
+			/*
+			 The click from this button won't become part of a drag event.
+			 */
+			d3.event.stopPropagation();
 		    })	    
     		    .on("click", function(d, i) {
 			getLayout().setCollapsed(d.id, !d.collapsed);
@@ -357,6 +364,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 
 	    newExpanders
 		.append("text")
+		.classed("no-select", true)
 		.attr("x", 7.5)
 		.attr("y", 13)
 		.attr("width", 15)
@@ -383,8 +391,15 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 
 	    newDelete.append("text")
 		.text("X")
+		.classed("no-select", true)
 		.attr("x", 3)
 		.attr("y", 12)
+		.on("mousedown", function(d, i) {
+		    /*
+		    The click from this button won't become part of a drag event.
+		    */
+		    d3.event.stopPropagation();
+		})	    
 		.on("click", function(d, i) {
 		    getNodeCollection().deleteNode(d.id);
 		    update();
@@ -404,6 +419,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		.append("g")
 		.classed("node-type", true)
 		.append("text")
+		.classed("no-select", true)
 		.text(function(d, i){
 		    return d.type[0].toUpperCase();
 		});

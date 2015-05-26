@@ -22,8 +22,11 @@ module.exports = function(container, drawNodesHook, data) {
     var onSelectNode = callbacks(),
 	onSetDepth = callbacks(),
 
+	focusedNode,
+
 	focusTools = container.append("div")
-	    .classed(focusToolsClass, true),
+	    .classed(focusToolsClass, true)
+	    .classed("no-select", true),
 
 	increaseDepthTool = focusTools.append("div")
 	    .text("+")
@@ -55,6 +58,7 @@ module.exports = function(container, drawNodesHook, data) {
 	var focusG = newNodes
 		.append("g")
 		.classed(focusNodeToolClass, true)
+		.classed("no-select", true)
 		.attr("transform", function(d, i) {
 		    return "translate(" + (d.size[0] - 30) + "," + 0 + ")";
 		})
@@ -81,7 +85,13 @@ module.exports = function(container, drawNodesHook, data) {
 	nodes.classed(
 	    focusedNodeClass,
 	    function(d, i) {
-		return (d.id === data.getSelectedNodeId()) ? true : null;
+		if (d.id === data.getSelectedNodeId()) {
+		    focusedNode = this;
+		    return true;
+		    
+		} else {
+		    return null;
+		}
 	    }
 	);
     });
@@ -89,6 +99,16 @@ module.exports = function(container, drawNodesHook, data) {
     return {
 	onSelectNode: onSelectNode.add,
 	onSetDepth: onSetDepth.add,
+
+	/*
+	 When the user has manually panned or zoomed, we don't want to do a whole update loop to change this.
+	 */
+	clearFocus: function() {
+	    if (focusedNode) {
+		d3.select(focusedNode)
+		    .classed(focusedNodeClass, false);
+	    }
+	},
 
 	update: function() {
 	    var selected = data.hasSelectedNodeId();
