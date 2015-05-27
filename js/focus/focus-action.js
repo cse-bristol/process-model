@@ -13,6 +13,9 @@ module.exports = function(svg, zoom, getSVGNodes) {
 	var bbox;
 	
 	getSVGNodes()
+	    .filter(function(d, i) {
+		return !d3.select(this).classed("removing");
+	    })
 	    .each(function(d, i) {
 		if (nodeIds.has(d.id)) {
 		    var right = d.x + d.size[0],

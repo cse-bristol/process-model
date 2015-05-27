@@ -17,7 +17,11 @@ module.exports = function(){
 	    };
 	},
 	fadeOut: function(selection) {
-	    module.maybeTransition(selection.exit())
+	    
+	    module.maybeTransition(
+		selection.exit()
+		    .classed("removing", true)
+	    )
 		.style("opacity", 0.0001)
 		.remove();
 	},
