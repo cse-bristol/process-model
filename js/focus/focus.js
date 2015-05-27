@@ -6,46 +6,43 @@ var d3 = require("d3"),
     actionFactory = require("./focus-action.js"),
     controlsFactory = require("./focus-control.js"),
     nodeChildrenSearchFactory = require("./node-children-search.js"),
-    dataFactory = require("./focus-data.js");
+    dataFactory = require("./focus-data.js"),
+    emphasisFactory = require("./emphasis.js");
 
-module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, container, queryString, drawNodesHook, update) {
+module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, container, queryString, update, drawNodeHooks) {
     var data = dataFactory(),
 	nodeChildrenSearch = nodeChildrenSearchFactory(getNodeCollection),
-	focusAction = actionFactory(svg, selectSVGNodes, zoom),
-	controls = controlsFactory(container, drawNodesHook, data),
+	focusAction = actionFactory(svg, zoom, selectSVGNodes),
+	controls = controlsFactory(container, drawNodeHooks),
+	emphasis = emphasisFactory(svg, drawNodeHooks),
 
 	targetIds,
 
-	selectNodeAndCalcDepthLimit = function(id) {
-	    var nodeChildren = nodeChildrenSearch(id);
-	    
-	    data.setDepthLimit(
-		nodeChildren.maxDepthReached
-	    );
-	},
-
-	recalc = function() {
-	    if (data.hasSelectedNodeId()) {
-		selectNodeAndCalcDepthLimit(data.getSelectedNodeId());
-
-		targetIds = nodeChildrenSearch(
-		    data.getSelectedNodeId(),
-		    data.getDepth()
-		).childIds;
-
-	    } else if (data.underManualControl()) {
+	recalc = function(nodeViewModels) {
+	    if (data.underManualControl()) {
 		targetIds = null;
 		
+	    } else if (data.hasSelectedNodeId()) {
+		targetIds = nodeChildrenSearch(
+		    data.getSelectedNodeId()
+		);
+
 	    } else {
 		targetIds = getNodeCollection().ids();
 	    }
+
+	    nodeViewModels.forEach(function(viewModel) {
+		if (data.getSelectedNodeId() === viewModel.id) {
+		    viewModel.emphasize = true;
+		}
+		viewModel.deEmphasize = targetIds && !targetIds.has(viewModel.id);
+	    });
 	},
 
 	redraw = function() {
 	    if (targetIds) {
 		focusAction(targetIds);
 	    }
-	    controls.update(data);
 	};
 
     controls.onSelectNode(function(nodeId) {
@@ -58,16 +55,13 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 	update();
     });
 
-    controls.onSetDepth(function(depth) {
-	data.setDepth(depth);
-	update();
-    });
-
     zoom.on("zoomstart", function() {
 	if (!zoom.manual) {
-	    data.clear();
-	    data.setManualControl(true);
-	    controls.clearFocus();
+	    if (!data.underManualControl()) {
+		data.clear();
+		data.setManualControl(true);
+		update();
+	    }
 	}
     });
 
@@ -89,9 +83,9 @@ module.exports = function(getNodeCollection, svg, selectSVGNodes, zoom, containe
 
 	/*
 	 Each draw cycle, the following should happen in order:
-	 1. recalc is called, working out which nodes to focus on, and what the maximum depth should be.
-	 2. The node graph is drawn, possibly looking at some data from (1).
-	 3. redraw is called, panning and zooming to a box around some of the nodes drawn in (2) and updating the focus controls with the depth limit worked out in (1).
+	 1. recalc is called, working out which nodes to focus on
+	 2. The node graph is drawn, possibly looking at some data from (1) to emphasize particular nodes.
+	 3. redraw is called, panning and zooming to a box around some of the nodes drawn in (2).
 	 */
 	recalc: recalc,
 	redraw: redraw

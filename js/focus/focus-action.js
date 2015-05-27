@@ -8,11 +8,11 @@ var d3 = require("d3"),
 /*
  Modifies the model to pan and zoom to a particular node and its descendents.
 */
-module.exports = function(svg, selectSVGNodes, zoom) {
+module.exports = function(svg, zoom, getSVGNodes) {
     var calcExtent = function(nodeIds) {
 	var bbox;
 	
-	selectSVGNodes()
+	getSVGNodes()
 	    .each(function(d, i) {
 		if (nodeIds.has(d.id)) {
 		    var right = d.x + d.size[0],

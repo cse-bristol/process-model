@@ -7,7 +7,6 @@ var update = function() {
 	model.set(model.freshModel());
     }
 
-    focus.recalc();
     draw();
     exportButton.update();
     textControls.update();
@@ -56,7 +55,7 @@ var d3 = require("d3"),
 	model.freshModel
     ),
 
-    focus = require("./focus/focus.js")(model.getNodes, svg, drawNodes.selectNodes, zoom, body, null, drawNodes.drawNodesHook, update),
+    focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, body, null, update, drawNodes.drawNodesHook),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
     exportButton = require("./export-button.js")(
@@ -81,17 +80,13 @@ model.onSet(function() {
     update();
 });
 
-
 zoom.scaleTranslate = function(scale, translate) {
     zoom.manual = true;
 
-    g.transition()
-	.call(function(selection) {
-	    zoom
-		.scale(scale)
-		.translate(translate)
-		.event(selection);
-	});
+    zoom
+	.scale(scale)
+	.translate(translate)
+	.event(g.transition());
 };
 
 zoom.on("zoomend", function() {
@@ -114,6 +109,8 @@ var draw = function() {
 	model.getNodes(),
 	model.getLayout()
     );
+
+    focus.recalc(display.nodes);
 
     drawNodes.draw(display.nodes);
     drawEdges.draw(display.edges);
