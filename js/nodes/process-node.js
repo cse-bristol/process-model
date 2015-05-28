@@ -56,10 +56,6 @@ module.exports = d3.map({
 
 	node.localEvidence = function(evidence) {
 	    if (evidence !== undefined) {
-		if (node.hasChildProcesses()) {
-		    throw new Error("Cannot change local evidence of a process node which has child processes: it's evidence is derived from its children instead.");
-		}
-
 		if (evidence[0] < 0) {
 		    evidence[0] = 0;
 		} else if (evidence[0] > 1) {
