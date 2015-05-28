@@ -21,9 +21,10 @@ var _ = require("lodash"),
  */
 module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel, onModelChanged, update) {
     var listening = true,
+	bufferedOperations = [],
 	submitOp = function(op) {
 	    if (listening) {
-		writeOp(op);
+		bufferedOperations.push(op);
 	    }
 	};
 
@@ -368,4 +369,10 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    });
 	});
     });
+
+    return {
+	writeBufferedOperations: function() {
+	    writeOp(bufferedOperations);
+	}
+    };
 };

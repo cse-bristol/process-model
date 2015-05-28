@@ -18,12 +18,8 @@ var d3 = require("d3"),
 
  drawNodesHook is a function which is called each time we update nodes.
  */
-module.exports = function(container, drawNodeHook) {
-    var onSelectNode = callbacks(),
-
-	focusTools = container.append("div")
-	    .classed(focusToolsClass, true)
-	    .classed("no-select", true);
+module.exports = function(drawNodeHook) {
+    var onSelectNode = callbacks();
 
     drawNodeHook(function(nodes, newNodes) {
 	var focusG = newNodes

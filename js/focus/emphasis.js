@@ -21,8 +21,6 @@ module.exports = function(svg, drawNodeHook) {
 
 	setEmphasis = function(selection, newSelection) {
 	    selection.style("filter", function(d, i) {
-		console.log(d, d.emphasize, d.deEmphasize);
-		
 		if (d.emphasize) {
 		    return asCSS(emphasizeId);
 		    return null;

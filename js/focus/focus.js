@@ -9,11 +9,11 @@ var d3 = require("d3"),
     dataFactory = require("./focus-data.js"),
     emphasisFactory = require("./emphasis.js");
 
-module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, container, queryString, update, drawNodeHooks) {
+module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryString, update, drawNodeHooks) {
     var data = dataFactory(),
 	nodeChildrenSearch = nodeChildrenSearchFactory(getNodeCollection),
 	focusAction = actionFactory(svg, zoom, selectSVGNodes),
-	controls = controlsFactory(container, drawNodeHooks),
+	controls = controlsFactory(drawNodeHooks),
 	emphasis = emphasisFactory(svg, drawNodeHooks),
 
 	targetIds,
@@ -79,6 +79,14 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, containe
 	    if (roots.length === 1) {
 		data.setSelectedNodeId(roots[0]);
 	    }
+	},
+
+	/*
+	 Zoom out so that we can see every node in the model at once.
+	 */
+	zoomToExtent: function() {
+	    data.clear();
+	    update();
 	},
 
 	/*

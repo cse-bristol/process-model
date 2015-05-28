@@ -12,6 +12,7 @@ var update = function() {
     textControls.update();
     focus.redraw();
 
+    modelOperations.writeBufferedOperations();
 };
 
 var d3 = require("d3"),
@@ -37,12 +38,9 @@ var d3 = require("d3"),
 	g, defs, model.getNodes, model.getLayout, transitions, textControls, drawEdges.drawEdges,
 	update
     ),    
-    zoom = d3.behavior.zoom()
-	.on("zoom", function() {
-	    g.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-	    textControls.update();
-	}),
     files = require("./files.js"),
+
+    zoom = require("./navigation/zoom.js")(svg, g, textControls),
 
     shortcutKeys = require("./keys.js")(helpLink, zoom, update, model.getNodes),
 
@@ -55,7 +53,7 @@ var d3 = require("d3"),
 	model.freshModel
     ),
 
-    focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, body, null, update, drawNodes.drawNodesHook),
+    focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, null, update, drawNodes.drawNodesHook),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
     exportButton = require("./export-button.js")(
@@ -71,38 +69,27 @@ var d3 = require("d3"),
 	update,
 	fileMenu.spec.button),
     layoutButton = require("./reset-layout-button.js")(fileMenu.spec.button, model.getLayout, update),
-    rotateButton = require("./layout/rotate-button.js")(fileMenu.spec.button, model.getLayout, update);
+    rotateButton = require("./layout/rotate-button.js")(fileMenu.spec.button, model.getLayout, update),
+    zoomToExtentButton = require("./navigation/zoom-to-extent.js")(fileMenu.spec.button, focus),
+    expandButton = require("./navigation/mass-expand.js")(fileMenu.spec.button, model.getNodes, model.getLayout, update);
 
-fileMenu.buildMenu(toolbar, [insertButton, exportButton.spec, layoutButton, rotateButton]);
+fileMenu.buildMenu(
+    toolbar,
+    [
+	insertButton,
+	exportButton.spec,
+	layoutButton,
+	rotateButton,
+	zoomToExtentButton,
+	expandButton
+    ]);
 
 model.onSet(function() {
     focus.onSetModel();
     update();
 });
 
-zoom.scaleTranslate = function(scale, translate) {
-    zoom.manual = true;
-
-    zoom
-	.scale(scale)
-	.translate(translate)
-	.event(g.transition());
-};
-
-zoom.on("zoomend", function() {
-    zoom.manual = false;
-});
-
-zoom.in = function() {
-    zoom.scaleTranslate(zoom.scale() * 1.1);
-};
-zoom.out = function() {
-    zoom.scaleTranslate(zoom.scale() / 1.1);
-};
-
 require("./nodes/draw-process-node.js")(g, drawNodes, model.getNodes, model.getLayout, transitions, update);
-zoom(svg);
-svg.on("dblclick.zoom", null);
 
 var draw = function() {
     var display = positionGraph(

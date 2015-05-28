@@ -62,32 +62,6 @@ module.exports = function(svg, zoom, getSVGNodes) {
 	return bbox;
     },
 
-	calcPanAndZoom = function(modelBBox) {
-	    var svgBBox = svg.node().getBoundingClientRect(),
-		widthScale = svgBBox.width / modelBBox.width,
-		heightScale = svgBBox.height / modelBBox.height,
-		scale = Math.min(widthScale, heightScale),
-		scaledModelCentre = [
-		    (modelBBox.left + modelBBox.right) * scale / 2,
-		    (modelBBox.top + modelBBox.bottom) * scale / 2
-		];
-
-	    return {
-		scale: scale,
-		translate: [
-		    (svgBBox.width / 2) - scaledModelCentre[0],
-		    (svgBBox.height / 2) - scaledModelCentre[1]
-		]
-	    };
-	},
-
-	doPanAndZoom = function(panAndZoom) {
-	    zoom.scaleTranslate(
-		panAndZoom.scale,
-		panAndZoom.translate
-	    );
-	},
-
 	show = function(nodeIdSet) {
 	    if (!nodeIdSet) {
 		throw new Error("nodeIdSet should be a d3 set of ids for nodes which we want to be displayed on the screen.");
@@ -96,9 +70,7 @@ module.exports = function(svg, zoom, getSVGNodes) {
 	    var modelExtent = calcExtent(nodeIdSet);
 
 	    if (modelExtent) {
-		doPanAndZoom(
-		    calcPanAndZoom(modelExtent)
-		);
+		zoom.bbox(modelExtent);
 	    }
 	};
 
