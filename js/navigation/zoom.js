@@ -40,9 +40,14 @@ module.exports = function(modelSVG, modelG, textControls) {
     };
 
     zoom.bbox = function(targetBBox) {
-	var svgBBox = modelSVG.node().getBoundingClientRect(),
-	    widthScale = svgBBox.width / targetBBox.width,
-	    heightScale = svgBBox.height / targetBBox.height,
+	var svgStyles = window.getComputedStyle(modelSVG.node()),
+	    svgSize = {
+		width: parseInt(svgStyles.width),
+		height: parseInt(svgStyles.height)
+	    },
+
+	    widthScale = svgSize.width / targetBBox.width,
+	    heightScale = svgSize.height / targetBBox.height,
 	    scale = Math.min(widthScale, heightScale),
 	    scaledTargetCentre = [
 		(targetBBox.left + targetBBox.right) * scale / 2,
@@ -52,8 +57,8 @@ module.exports = function(modelSVG, modelG, textControls) {
 	zoom.scaleTranslate(
 	    scale,
 	    [
-		(svgBBox.width / 2) - scaledTargetCentre[0],
-		(svgBBox.height / 2) - scaledTargetCentre[1]
+		(svgSize.width / 2) - scaledTargetCentre[0],
+		(svgSize.height / 2) - scaledTargetCentre[1]
 	    ]
 	);
     };
