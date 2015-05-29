@@ -53,7 +53,7 @@ var d3 = require("d3"),
 	model.freshModel
     ),
 
-    focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, null, update, drawNodes.drawNodesHook),
+    focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, fileMenu.queryString, update, drawNodes.drawNodesHook),
 
     modelOperations = require("./data/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
     exportButton = require("./export-button.js")(

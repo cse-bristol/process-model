@@ -7,7 +7,8 @@ var d3 = require("d3"),
     controlsFactory = require("./focus-control.js"),
     nodeChildrenSearchFactory = require("./node-children-search.js"),
     dataFactory = require("./focus-data.js"),
-    emphasisFactory = require("./emphasis.js");
+    emphasisFactory = require("./emphasis.js"),
+    queryParam = "focus";
 
 module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryString, update, drawNodeHooks) {
     var data = dataFactory(),
@@ -15,6 +16,11 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 	focusAction = actionFactory(svg, zoom, selectSVGNodes),
 	controls = controlsFactory(drawNodeHooks),
 	emphasis = emphasisFactory(svg, drawNodeHooks),
+
+	queryStringAndUpdate = function() {
+	    queryString.toURL();
+	    update();
+	},
 
 	targetIds,
 
@@ -52,7 +58,7 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 
 	data.setSelectedNodeId(nodeId);
 
-	update();
+	queryStringAndUpdate();
     });
 
     zoom.on("zoomstart", function() {
@@ -60,33 +66,41 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 	    if (!data.underManualControl()) {
 		data.clear();
 		data.setManualControl(true);
-		update();
+		queryStringAndUpdate();
 	    }
 	}
     });
 
+    queryString.param(
+	queryParam,
+	// The read function is omitted here, because we're going to set up our focus during 'onSetModel' instead.
+	null,
+	function() {
+	    return data.hasSelectedNodeId() ? data.getSelectedNodeId() : null;
+	}
+    );
+
     return {
-	/*
-	 This should happen after we have done the drawing phase for this model.
-	 */
-	onSetModel: function() {
-	    data.clear();
-	    // ToDo maybe look at query string here?
-
-	    var nodes = getNodeCollection(),
-		roots = nodes.nodesWithoutParents();
-	    
-	    if (roots.length === 1) {
-		data.setSelectedNodeId(roots[0]);
-	    }
-	},
-
 	/*
 	 Zoom out so that we can see every node in the model at once.
 	 */
 	zoomToExtent: function() {
 	    data.clear();
-	    update();
+	    queryStringAndUpdate();
+	},
+
+	onSetModel: function() {
+	    data.clear();
+
+	    var focusNodeId = queryString.readParameter(queryParam);
+	    
+	    if (focusNodeId) {
+		if (getNodeCollection().has(focusNodeId)) {
+		    data.setSelectedNodeId(focusNodeId);
+		} else {
+		    queryStringAndUpdate();
+		}
+	    }
 	},
 
 	/*
