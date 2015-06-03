@@ -8,8 +8,8 @@ var d3 = require("d3"),
     viewModel = require("./view-model.js"),
     edgePath = require("./edge-path.js"),
     
-    defaultNodeWidth = 240,
-    defaultNodeHeight = 70,
+    defaultNodeWidth = 100,
+    defaultNodeHeight = 100,
     defaultSize = [defaultNodeWidth, defaultNodeHeight];
 
 
