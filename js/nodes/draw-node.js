@@ -290,7 +290,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		0,
 		0, 
 		function(d, i) {
-		    return (d.size[0] - 35);
+		    return (d.size[0] - 50);
 		},
 		21,
 		"node-name",

@@ -62,7 +62,7 @@ module.exports = function(type, id, onEdgeCreate, onEdgeDelete, onNavigate) {
 
     var edges = [],
 	description = " ",
-	name = "Name this node";
+	name = "Name";
 
     var node = {
 	/*
