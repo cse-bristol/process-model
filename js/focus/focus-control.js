@@ -26,9 +26,6 @@ module.exports = function(drawNodeHook) {
 		.append("g")
 		.classed(focusNodeToolClass, true)
 		.classed("no-select", true)
-		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size[0] - 30) + "," + 0 + ")";
-		})
 		.on("mousedown", function() {
 		    /*
 		     Prevent this event from causing a drag event.
@@ -38,6 +35,11 @@ module.exports = function(drawNodeHook) {
 		.on("click", function(d, i) {
 		    onSelectNode(d.id);
 		});
+
+	nodes.select("." + focusNodeToolClass)
+	    .attr("transform", function(d, i) {
+		return "translate(" + (d.size[0] - 30) + "," + 0 + ")";
+	    });
 
 	focusG
 	    .append("rect")
