@@ -14,28 +14,15 @@ var deEmphasizeId = "desaturate-blur",
 
     emphasizeId = "drop-shadow";
 
-module.exports = function(svg, drawNodeHook) {
+module.exports = function(defs) {
     var asCSS = function(elementId) {
-	    return "url(#" + elementId + ")";
-	},
+	return "url(#" + elementId + ")";
+    },
 
-	setEmphasis = function(selection, newSelection) {
-	    selection.style("filter", function(d, i) {
-		if (d.emphasize) {
-		    return asCSS(emphasizeId);
-		    return null;
-		} else if (d.deEmphasize) {
-		    return asCSS(deEmphasizeId);
-		} else {
-		    return null;
-		}
-	    });
-	};
-
-    var deemphasisFilter = svg.append("filter")
+	deemphasisFilter = defs.append("filter")
 	    .attr("id", deEmphasizeId),
 
-	emphasisFilter = svg.append("filter")
+	emphasisFilter = defs.append("filter")
 	    .attr("id", emphasizeId);
 
     deemphasisFilter.append("feGaussianBlur")
@@ -62,11 +49,17 @@ module.exports = function(svg, drawNodeHook) {
 
     emphasisMerge.append("feMergeNode")
 	.attr("in", "SourceGraphic");
-	
-
-    drawNodeHook(setEmphasis);
-
-    return {
-	clearFocus: setEmphasis
+    
+    return function(selection, newSelection) {
+	selection.style("filter", function(d, i) {
+	    if (d.effects.emphasize) {
+		return asCSS(emphasizeId);
+		return null;
+	    } else if (d.effects.blurOut) {
+		return asCSS(deEmphasizeId);
+	    } else {
+		return null;
+	    }
+	});
     };
 };

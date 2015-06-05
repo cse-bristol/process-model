@@ -4,7 +4,10 @@
 
 var d3 = require("d3");
 
-module.exports = function() {
+/*
+ Provides drag and drop file loading.
+ */
+module.exports = function(handlers) {
     var toArray = function(filelist) {
 	var arr = [];
 	var len = filelist.length;
@@ -15,8 +18,8 @@ module.exports = function() {
 	return arr;
     };
 
-    var module = {
-	drop: function(container, handlers) {
+    return {
+	drop: function(container) {
 	    container.on("dragover", function(d, i) {
 		d3.event.preventDefault();
 		d3.event.stopPropagation();
@@ -62,5 +65,4 @@ module.exports = function() {
 	    });
 	}
     };
-    return module;
-}();
+};

@@ -118,6 +118,38 @@ module.exports = function() {
 	},
 
 	/*
+	 Returns a set containing the id passed in and the ids of all its descendents.
+
+	 If the id is not contained in this node collection, returns an empty set.
+	 */
+	descendentIds: function(id) {
+	    var findChildIdsAccum = function(id, accum) {
+		if (!nodesById.has(id)) {
+		    return;
+		}
+		
+		var current = nodesById.get(id);
+
+		accum.set(id, current);
+		
+		current.edges().forEach(function(e) {
+		    if (!accum.has(e.node().id)) {
+			findChildIdsAccum(
+			    e.node().id,
+			    accum
+			);
+		    }
+		});
+	    };
+
+	    var accum = d3.map();
+	    
+	    findChildIdsAccum(id, accum);
+	    
+	    return d3.set(accum.keys());
+	},
+
+	/*
 	 Adds all the nodes from another node collection to this one, retaining the edges between them.
 	 */
 	merge: function(toMerge) {

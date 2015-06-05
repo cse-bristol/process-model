@@ -11,15 +11,7 @@ g.process-node {
 }
 
 .node-name {
-    overflow: hidden;
     white-space: nowrap;
-    font-family: sans-serif;    
-}
-
-.node-description {
-    font-size: small;
-    font-family: sans-serif;
-    height: 100%;
 }
 
 .process-node rect.node-box-process {
@@ -38,26 +30,6 @@ g.process-node {
     fill: #9966EE;
 }
 
-g.node-choice-process rect {
-    fill: #C0C0C0;
-}
-
-g.node-choice-issue rect {
-    fill: #6699EE;
-}
-
-g.node-choice-option rect {
-    fill: #55CC55;
-}
-
-g.node-choice-argument rect {
-    fill: #9966EE;
-}
-
-g.node-choice {
-    cursor: pointer;
-}
-
 g.toggleable-text {
     cursor: pointer;
 }
@@ -65,20 +37,6 @@ g.toggleable-text {
 g.node-type text {
     font-family: monospace;
     fill: maroon;
-}
-
-g.node-choice text {
-    font-family: monospace;
-    fill: maroon;
-}
-
-g.expander {
-    cursor: pointer;
-    font-family: monospace;
-}
-
-g.expander:hover rect {
-    fill: deepskyblue;
 }
 
 .resize-handle {
@@ -97,40 +55,4 @@ g.expander:hover rect {
 
 .handle circle:hover {
     fill: green;
-}
-
-g.interval.computed {
-    cursor: auto;
-}
-
-rect.success {
-    fill: green;
-}
-
-rect.uncertainty {
-    fill: white;
-}
-
-rect.failure {
-    fill: red;
-}
-
-rect.conflict {
-    fill: #27408B;
-}
-
-.delete-button {
-    cursor: pointer;
-}
-
-.delete-button rect {
-    fill: white;
-}
-
-.delete-button:hover rect {
-    fill: red;
-}
-
-.delete-button text {
-    font-family: monospace;
 }

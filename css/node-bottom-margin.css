@@ -1,0 +1,35 @@
+.node-choice-process:hover rect {
+    fill: #C0C0C0;
+}
+
+.node-choice-issue:hover rect {
+    fill: #6699EE;
+}
+
+.node-choice-option:hover rect {
+    fill: #55CC55;
+}
+
+.node-choice-argument:hover rect {
+    fill: #9966EE;
+}
+
+g.interval.computed {
+    cursor: auto;
+}
+
+rect.success {
+    fill: green;
+}
+
+rect.uncertainty {
+    fill: white;
+}
+
+rect.failure {
+    fill: red;
+}
+
+rect.conflict {
+    fill: #27408B;
+}

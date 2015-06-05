@@ -3,16 +3,17 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    svgEditableText = require("../svg-editable-text.js"),
+    svgTextWrapping = require("./svg-text-wrapping.js"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
     empty = d3.select(),
     edgePath = require("../layout/edge-path.js"),
+    emphasisFactory = require("./emphasis.js"),
     nodeClass = "process-node";
 
-module.exports = function(container, defs, getNodeCollection, getLayout, transitions, toolbar, drawEdges, update) {
+module.exports = function(container, defs, getNodeCollection, getLayout, transitions, drawEdges, update) {
     var types = d3.map(),
-	drawNodesHook = callbacks(),
+	emphasis = emphasisFactory(defs),
 
 	filterByType = function(nodeSelection, type) {
 	    return nodeSelection.filter(function(d, i) {
@@ -245,26 +246,6 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	drawResizeHandle = function(nodes, newNodes) {
 	    newNodes.append("g")
 		.classed("resize-handle", true)
-		.on("click", function(d, i) {
-		    if (!d3.event.defaultPrevented) {
-
-			/*
-			 Resize my node to fit the description box.
-			 */
-			getLayout().setSize(
-			    d.id,
-			    [
-				d.size[0],
-				d3.select(this.parentNode)
-				    .select(".node-description")
-				    .node()
-				    .scrollHeight + 45				
-			    ]
-			);
-
-			update();
-		    }
-		})
 		.call(dragResize)
 		.append("text")
 		.text("⇘")
@@ -278,156 +259,30 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	},
 
 	drawNodeName = function(nodes, newNodes) {
-	    var newNameGroups = newNodes.append("g")
-		    .classed("name", true)
-		    .attr("transform", "translate(20, 5)");
+	    newNodes.append("g")
+		.classed("name", true)
+		.attr("transform", "translate(5, 30)")
+		.append("text");
 
-	    var nameGroups = nodes.select("g.name");
-
-	    svgEditableText(
-		nameGroups,
-		newNameGroups,
-		0,
-		0, 
-		function(d, i) {
-		    return (d.size[0] - 50);
-		},
-		21,
-		"node-name",
-		function content(d, i) {
-		    return d.name;
-		},
-		function onChange(d, i, val) {
-		    getNodeCollection()
-			.get(d.id)
-			.name(val);
-		},
-		toolbar,
-		true
-	    );
+	    nodes.select("g.name")
+		.select("text")
+		.call(
+		    svgTextWrapping,
+		    function(d, i) {
+			return d.name;
+		    },
+		    function(d) {
+			return d.innerWidth;
+		    },
+		    function(d) {
+			return d.size[1] - 50;
+		    }
+		);
 	};
 
-    var drawNodeDescription = function(nodes, newNodes) {
-	var newDescriptionGroups = newNodes.append("g")
-		.classed("description", true)
-		.attr("transform", "translate(20, 26)");
-
-	var descriptionGroups = nodes.select("g.description");
-
-	svgEditableText(
-	    descriptionGroups,
-	    newDescriptionGroups,
-	    0,
-	    0, 
-	    function(d, i) {
-		return (d.size[0] - 35);
-	    },
-	    function(d, i) {
-		return (d.size[1] - 40);
-	    },
-	    "node-description",
-	    function content(d, i) {
-		return d.description;
-	    },
-	    function onChange(d, i, val) {
-		getNodeCollection()
-		    .get(d.id)
-		    .description(val);
-	    },
-	    toolbar,
-	    false
-	);
-    },
-
-	drawExpandContract = function(nodes, newNodes) {
-	    var newExpanders = newNodes.append("g")
-		    .classed("expander", true)
-		    .attr("transform", function(d, i) {
-			return "translate(0, 15)";
-		    })
-		    .on("mousedown", function(d, i) {
-			/*
-			 The click from this button won't become part of a drag event.
-			 */
-			d3.event.stopPropagation();
-		    })	    
-    		    .on("click", function(d, i) {
-			getLayout().setCollapsed(d.id, !d.collapsed);
-			
-			update();
-		    });
-
-	    newExpanders
-	    	.append("rect")
-		.attr("width", 15)
-		.attr("height", 15);
-
-	    newExpanders
-		.append("text")
-		.classed("no-select", true)
-		.attr("x", 7.5)
-		.attr("y", 13)
-		.attr("width", 15)
-		.attr("height", 15)
-		.attr("text-anchor", "middle");
-	    
-	    nodes.select("g.expander")
-		.style("visibility", function(d, i) {
-		    return (!d.collapsed && d.isLeaf) ? "hidden" : "visible";
-		})
-		.select("text")
-		.text(function(d, i) {
-		    return d.collapsed ? "+" : String.fromCharCode("8259");
-		});
-	},
-
-	drawDeleteButton = function(nodes, newNodes) {
-	    var newDelete = newNodes.append("g")
-		    .classed("delete-button", true);
-
-	    newDelete.append("rect")
-		.attr("width", 15)
-		.attr("height", 15);
-
-	    newDelete.append("text")
-		.text("X")
-		.classed("no-select", true)
-		.attr("x", 3)
-		.attr("y", 12)
-		.on("mousedown", function(d, i) {
-		    /*
-		    The click from this button won't become part of a drag event.
-		    */
-		    d3.event.stopPropagation();
-		})	    
-		.on("click", function(d, i) {
-		    getNodeCollection().deleteNode(d.id);
-		    update();
-		});
-
-	    nodes.select("g.delete-button")
-		.select("text");
-	},
-
-	closeEnough = function(bbox, x, y) {
+    var closeEnough = function(bbox, x, y) {
 	    return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
 		(bbox.y >= y || (bbox.y + bbox.height) <= y);
-	},
-
-	drawNodeType = function(displayNodes, newNodes) {
-	    newNodes
-		.append("g")
-		.classed("node-type", true)
-		.append("text")
-		.classed("no-select", true)
-		.text(function(d, i){
-		    return d.type[0].toUpperCase();
-		});
-
-	    displayNodes.select("g.node-type")
-		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size[0] - d.sidePadding - 2) + "," + 13 + ")";
-		});
 	},
 
 	drawNodes = function(nodes, newNodes) {
@@ -451,19 +306,13 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		});
 
 	    drawNodeName(nodes, newNodes);
-	    drawNodeDescription(nodes, newNodes);
 
 	    transitions.maybeTransition(nodes).attr("transform", function(d, i){
 		return "translate(" + (d.x) + "," + d.y + ")";
 	    });
 	    
-	    drawExpandContract(nodes, newNodes);
-	    drawDeleteButton(nodes, newNodes);
-	    
 	    drawMoveHandle(nodes, newNodes);
 	    drawResizeHandle(nodes, newNodes);
-
-	    drawNodeType(nodes, newNodes);
 
 	    types.entries().forEach(function(e) {
 		e.value(
@@ -472,7 +321,14 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		);
 	    });
 
-	    drawNodesHook(nodes, newNodes);
+	    emphasis(nodes, newNodes);
+	},
+
+	selectNodes = function() {
+	    return container.selectAll("g." + nodeClass)
+	    	.filter(function(d, i) {
+		    return !d3.select(this).classed("removing");
+		});
 	};
 
     return {
@@ -484,14 +340,10 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	    drawNodes(nodeSelection, empty);
 	},
 
-	selectNodes: function(ids) {
-	    return container.selectAll("g." + nodeClass);
-	},
+	selectNodes: selectNodes,
 
-	drawNodesHook: drawNodesHook.add,
-	
 	draw: function(nodeData) {
-	    var nodes = container.selectAll("g." + nodeClass)
+	    var nodes = selectNodes()
 		    .data(
 			nodeData,
 			function(d, i) {

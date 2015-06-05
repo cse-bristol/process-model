@@ -1,0 +1,155 @@
+"use strict";
+
+/*global module, require*/
+
+var d3 = require("d3"),
+    helpers = require("../../helpers.js"),
+    callbacks = helpers.callbackHandler,
+    buttonWidth = 15,
+    buttonTextXOffset = 3,
+    buttonTextYOffset = 12;
+
+module.exports = function(getNodeCollection, getLayoutState, viewportState, update) {
+    var onBottomMarginDraw = callbacks(),
+
+	marginVisibility = function(selection) {
+		selection.style("visibility", function(d, i) {
+		    return d.margin.vertical ? "visible" : "hidden";
+		});
+	},
+
+	drawType = function(margins, newMargins) {
+	    newMargins
+		.append("g")
+		.classed("node-type", true)
+		.append("text")
+		.classed("no-select", true)
+		.text(function(d, i){
+		    return d.type[0].toUpperCase();
+		});
+
+	    margins.select("g.node-type")
+		.attr("transform", function(d, i) {
+		    return "translate(" + (d.size[0] - d.sidePadding - 1) + "," + 12 + ")";
+		});
+	},
+
+	drawButton = function(buttonText, onClick, cssClass, position) {
+	    return function(margins, newMargins) {
+		var newButtons = newMargins.append("g")
+			.classed("margin-button", true)
+			.classed(cssClass, true)
+		/*
+		 Prevent highlighting the text inside this button.
+		 */
+			.classed("no-select", true)
+			.attr("transform", function(d, i) {
+			    return "translate("+ i * buttonWidth + ",0)";
+			})
+			.on("mousedown", function(d, i) {
+			    /*
+			     The click from this button won't become part of a drag event.
+			     */
+			    d3.event.stopPropagation();
+			})	    
+			.on("click", function(d, i) {
+			    onClick(d, i);
+			    update();
+			});
+
+		newButtons.append("rect")
+		    .attr("width", buttonWidth);
+
+		newButtons.append("text")
+		    .text(buttonText)
+		    .attr("x", buttonTextXOffset)
+		    .attr("y", buttonTextYOffset);
+
+		var buttons = margins.select("g." + cssClass);
+
+		buttons.select("rect")
+		    .attr("height", function(d, i) {
+			return d.margin.vertical;
+		    });
+
+		return buttons;
+	    };
+	},
+
+	drawDelete = drawButton(
+	    "X",
+	    function(d, i) {
+		getNodeCollection().deleteNode(d.id);
+	    },
+	    "delete-button",
+	    0
+	),
+
+	drawFocus = drawButton(
+	    "F",
+	    function(d, i) {
+		viewportState.focusSubTree(d.id);
+	    },
+	    "focus-subtree-tool",
+	    1
+	),
+
+	drawExpand = drawButton(
+	    "+",
+	    function(d, i) {
+		getLayoutState().setCollapsed(d.id, false);
+	    },
+	    "expander",
+	    2
+	),
+
+	drawContract = drawButton(
+	    String.fromCharCode("8259"),
+	    function(d, i) {
+		getLayoutState().setCollapsed(d.id, true);		
+	    },
+	    "expander",
+	    2
+	),
+
+	drawExpandContract = function(margins, newMargins) {
+	    drawExpand(margins, newMargins)
+		.style("visibility", function(d, i) {
+		    return d.collapsed ? "visible" : "hidden";
+		});
+
+	    drawContract(margins, newMargins)
+		.style("visibility", function(d, i) {
+		    return d.collapsed ? "hidden" : "visible";
+		});
+	};
+
+    return {
+	onBottomMarginDraw: onBottomMarginDraw.add,
+
+	draw: function(nodes, newNodes) {
+	    var newTopMargins = newNodes.append("g")
+		    .classed("node-top-margin", true);
+
+	    var topMargins = nodes.select("g.node-top-margin")
+		    .call(marginVisibility);
+
+
+	    drawDelete(topMargins, newTopMargins);
+	    drawFocus(topMargins, newTopMargins);
+	    drawExpandContract(topMargins, newTopMargins);
+	    drawType(topMargins, newTopMargins);
+	    
+	    var newBottomMargins = newNodes.append("g")
+		    .classed("node-bottom-margin", true);
+
+	    var bottomMargins = nodes.select("g.node-bottom-margin")
+	    	    .call(marginVisibility)
+	    	    .attr("transform", function(d, i) {
+			return "translate(0," + (d.height - d.margin.vertical)  + ")";
+		    });
+	    
+	    onBottomMarginDraw(bottomMargins, newBottomMargins);
+	}
+    };
+};

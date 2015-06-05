@@ -9,8 +9,6 @@ var d3 = require("d3");
 
  + modelSVG is the element which will receive the zoom events for the model.
  + modelG is a g element inside the modelSVG which will have a pan and zoom applied to it as a transform.
- 
- 
  */
 module.exports = function(modelSVG, modelG, textControls) {
     var zoom = d3.behavior.zoom()
@@ -68,10 +66,3 @@ module.exports = function(modelSVG, modelG, textControls) {
 
     return zoom;
 };
-    
-
-
-
-
-
-

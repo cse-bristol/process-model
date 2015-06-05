@@ -3,8 +3,8 @@
 /*global module, require*/
 
 var nodeCollectionFactory = require("./nodes/node-collection.js"),
-    layoutFactory = require("./layout/layout-state.js"),
-    helpers = require("./helpers.js"),
+    layoutStateFactory = require("./layout/layout-state.js"),
+    helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler;
 
 /*
@@ -20,7 +20,7 @@ module.exports = function() {
 	    
 	    return {
 		nodes: nodes,
-		layout: layoutFactory(nodes)
+		layout: layoutStateFactory(nodes)
 	    };
 	};
     
@@ -43,6 +43,12 @@ module.exports = function() {
 	set: function(model) {
 	    nodes = model.nodes;
 	    layout = model.layout;
+	    onSet();
+	},
+
+	setFromNodes: function(nodesCollection) {
+	    nodes = nodesCollection;
+	    layout = layoutStateFactory(nodes);
 	    onSet();
 	},
 

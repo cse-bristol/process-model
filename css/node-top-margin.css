@@ -1,0 +1,11 @@
+.delete-button:hover rect {
+    fill: red;
+}
+
+.expander:hover rect {
+    fill: deepskyblue;
+}
+
+.focus-subtree-tool:hover rect {
+    fill: deepskyblue;
+}

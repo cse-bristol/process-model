@@ -2,8 +2,6 @@
 
 /*global module, require*/
 
-var nodeSidePadding = 10;
-
 /*
  Simple bags of properties representing the display properties of our model.
  */
@@ -25,7 +23,7 @@ module.exports = {
 	return e;
     },
 
-    node: function(node, size, x, y, collapsed, orientationCoords) {
+    node: function(node, size, margin, position, collapsed, orientationCoords, effects) {
 	var n = {
 	    viewId: Math.random(),
 	    id: node.id,
@@ -34,12 +32,14 @@ module.exports = {
 	    name: node.name(),
 	    description: node.description(),
 	    isLeaf: node.isLeaf(),
-	    x: x,
-	    y: y,
+	    x: position[0],
+	    y: position[1],
+	    effects: effects,
 	    resize: function(newSize) {
 		n.size = newSize;
 		
-		n.innerWidth = n.size[0] - (2 * nodeSidePadding);
+		n.innerWidth = n.size[0] - (2 * margin.horizontal);
+		n.innerHeight = n.size[1] - (2 * margin.vertical);
 
 		var fromCentre = [
 		    orientationCoords[0] / 2,
@@ -65,8 +65,7 @@ module.exports = {
 		    n.x + n.edgeOffset[0],
 		    n.y + n.edgeOffset[1]
 		];
-	    },
-	    sidePadding: nodeSidePadding
+	    }
 	};
 
 	/*

@@ -6,7 +6,7 @@ var d3 = require("d3"),
     edgePath = require("../layout/edge-path.js"),
     onScroll = require("../helpers.js").onScroll,
     allowedTypes = require("./allowed-types.js"),
-    circleFraction = require("../circle-fraction.js"),
+    circleFraction = require("./circle-fraction.js"),
 
     computedClass = "computed",
     junctionRadius = 5,

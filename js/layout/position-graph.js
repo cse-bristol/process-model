@@ -3,63 +3,23 @@
 /*global require, module*/
 
 var d3 = require("d3"),
-    _ = require("lodash"),
-    dagre = require("dagre"),
-    viewModel = require("./view-model.js"),
-    edgePath = require("./edge-path.js"),
-    
-    defaultNodeWidth = 100,
-    defaultNodeHeight = 100,
-    defaultSize = [defaultNodeWidth, defaultNodeHeight];
-
+    dagre = require("dagre");
 
 /*
- Return a list of ids for nodes which are not hidden inside other collapsed nodes.
+ Given some nodes and a layout state, output lists of view-models for nodes and edges.
+ 
+ Dagre uses the centre of a node as its position, whereas we use the top-left corner.
  */
-var nodesToKeep = function(startNodes, isCollapsed, nodes) {
-    var stack = startNodes,
-	found = d3.map(),
-	foundFromCollapsed = d3.set();
-
-    while(stack.length > 0) {
-	var node = stack.pop(),
-	    id = node.id,
-	    collapsed = isCollapsed(id);
-
-	found.set(id, node);
-
-	node.edges().forEach(function(e){
-	    /* 
-	     If we reach a node from any uncollapsed node, or from two or more collapsed nodes, we'll keep it.
-	     */
-	    if (found.has(e.node().id)) {
-		// NOOP
-
-	    } else if (!collapsed || foundFromCollapsed.has(e.node().id)) {
-		stack.push(e.node());
-		foundFromCollapsed.remove(e.node().id);
-
-	    } else {
-		foundFromCollapsed.add(e.node().id);
-	    }
-	});
-    }
-
-    return found;
-},
-    
+module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
     /*
      This function is designed to be called repeatedly to automatically layout sections of our process graph.
 
      The whole graph is translated by the offset function after it has been laid out.
 
-     This function does not return anything: it accumulates its results into the nodeViewModels dictionary and edgeResults list.
-    */
-    autoLayout = function(nodes, layoutState, isReachable, startNodes, calcOffset, nodeViewModels, edgeResults) {
+     This function does not return anything: it accumulates its results into the nodePositions dictionary and edgeResults list.
+     */
+    var autoLayout = function(startNodes, calcOffset, nodePositions, edgeResults) {
 	var graph = new dagre.Digraph(),
-	    sizeOrDefault = function(id) {
-		return layoutState.getSize(id) || defaultSize;
-	    },
 	    toRead = startNodes,
 	    visited = d3.set(),
 
@@ -76,12 +36,12 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 	    var node = toRead.pop(),
 		id = node.id;
 
-	    if (visited.has(id) || nodeViewModels.has(id)) {
+	    if (visited.has(id) || nodePositions.has(id)) {
 		continue;
 	    } else {
 		visited.add(id);
 		
-		var size = sizeOrDefault(id);
+		var size = sizes.get(id).size;
 
 		graph.addNode(
 		    id,
@@ -93,7 +53,7 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 		);
 
 		node.edges().forEach(function(e){
-		    if (isReachable(e.node().id)) {
+		    if (isVisible(e.node().id)) {
 			if (layoutState.getPosition(e.node().id)) {
 			    manualEdges.push(e);
 			    
@@ -132,18 +92,12 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 	 Turn each node into a view model and add it to the nodeViewModels dictionary.
 	 */
 	layout.eachNode(function(id, val) {
-	    var size = sizeOrDefault(id);
-
-	    nodeViewModels.set(
+	    nodePositions.set(
 		id,
-		viewModel.node(
-		    nodes.get(id),
-		    size,
+		[
 		    val.x + offset[0] - (size[0] / 2),
-		    val.y + offset[1] - (size[1] / 2),
-		    layoutState.isCollapsed(id),
-		    layoutState.getOrientationCoords()
-		)
+		    val.y + offset[1] - (size[1] / 2)
+		]
 	    );
 	});
 
@@ -152,9 +106,9 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 	 */
 	layout.eachEdge(function(e, fromId, toId, val) {
 	    edgeResults.push({
-		edge: nodes.get(fromId)
+		edge: nodesCollection.get(fromId)
 		    .edgeTo(
-			nodes.get(toId)
+			nodesCollection.get(toId)
 		    ),
 		fromId: fromId,
 		toId: toId,		
@@ -177,59 +131,35 @@ var nodesToKeep = function(startNodes, isCollapsed, nodes) {
 	});
     };
 
-/*
- Given some nodes and a layout state, output lists of view-models for nodes and edges.
- 
- Dagre uses the centre of a node as its position, whereas we use the top-left corner.
- */
-module.exports = function(nodes, layoutState) {
-    /*
-     Find ids of nodes which don't belong 'inside' a collapsed node.
-     */
-    var reachable = nodesToKeep(
-	nodes.nodesWithoutParents()
-	    .map(function(id) {
-		return nodes.get(id);
-	    }),
-	layoutState.isCollapsed,
-	nodes
-    ),
-	isReachable = _.bind(reachable.has, reachable),
-	nodeViewModels = d3.map(),
+    var nodePositions = d3.map(),
 	edgeResults = [];
-
+    
     /*
      First place orphaned nodes which don't have a position.
      (Note that orphaned nodes are always considered 'reachable', since they have no parent to collapse.)
      */
     autoLayout(
-	nodes,
-	layoutState,
-	isReachable,
-	nodes.nodesWithoutParents()
+	nodesCollection.nodesWithoutParents()
 	    .filter(function(id) {
 		return !layoutState.getPosition(id);
 	    })
 	    .map(function(id) {
-		return nodes.get(id);
+		return nodesCollection.get(id);
 	    }),
 	function(nodes) {
 	    return [10, 100];
 	},
-	nodeViewModels,
+	nodePositions,
 	edgeResults	
     );
     
     /*
      Place things which have been given a manual position.
      */
-    nodes.all().filter(function(n) {
-	return layoutState.getPosition(n.id) && reachable.has(n.id);
+    nodesCollection.all().filter(function(n) {
+	return layoutState.getPosition(n.id) && isVisible(n.id);
     }).forEach(function(r) {
 	autoLayout(
-	    nodes,
-	    layoutState,
-	    isReachable,
 	    [r],
 	    function(layout) {
 		var desired = layoutState.getPosition(r.id),
@@ -240,27 +170,13 @@ module.exports = function(nodes, layoutState) {
 		    (n.height / 2) + desired[1] - n.y
 		];
 	    },
-	    nodeViewModels,
+	    nodePositions,
 	    edgeResults
 	);
     });
 
     return {
-	nodes: nodeViewModels.values(),
-	edges: edgeResults.map(function(e) {
-	    var	fromViewModel = nodeViewModels.get(e.fromId),
-		toViewModel = nodeViewModels.get(e.toId);
-
-	    return viewModel.edge(
-		e.edge,
-		edgePath(
-		    fromViewModel.edgeJunction,
-		    toViewModel.edgeEnd,
-		    layoutState.getOrientationCoords(),
-		    e.points
-		),
-		layoutState.isCollapsed(e.fromId)
-	    );
-	})
+	nodes: nodePositions,
+	edges: edgeResults
     };
 };

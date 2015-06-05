@@ -4,27 +4,19 @@
 
 var d3 = require("d3"),
     actionFactory = require("./focus-action.js"),
-    controlsFactory = require("./focus-control.js"),
     nodeChildrenSearchFactory = require("./node-children-search.js"),
     dataFactory = require("./focus-data.js"),
     emphasisFactory = require("./emphasis.js"),
     queryParam = "focus";
 
-module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryString, update, drawNodeHooks) {
+module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryString, update) {
     var data = dataFactory(),
 	nodeChildrenSearch = nodeChildrenSearchFactory(getNodeCollection),
 	focusAction = actionFactory(svg, zoom, selectSVGNodes),
-	controls = controlsFactory(drawNodeHooks),
-	emphasis = emphasisFactory(svg, drawNodeHooks),
-
-	queryStringAndUpdate = function() {
-	    queryString.toURL();
-	    update();
-	},
 
 	targetIds,
 
-	recalc = function(nodeViewModels) {
+	recalc = function() {
 	    if (data.underManualControl()) {
 		targetIds = null;
 		
@@ -36,13 +28,15 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 	    } else {
 		targetIds = getNodeCollection().ids();
 	    }
+	},
 
+	markEmphasis = function(nodeViewModels) {
 	    nodeViewModels.forEach(function(viewModel) {
 		if (data.getSelectedNodeId() === viewModel.id) {
 		    viewModel.emphasize = true;
 		}
 		viewModel.deEmphasize = targetIds && !targetIds.has(viewModel.id);
-	    });
+	    });	    
 	},
 
 	redraw = function() {
@@ -51,22 +45,12 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 	    }
 	};
 
-    controls.onSelectNode(function(nodeId) {
-	if (!nodeId || data.getSelectedNodeId === nodeId) {
-	    return;
-	}
-
-	data.setSelectedNodeId(nodeId);
-
-	queryStringAndUpdate();
-    });
-
     zoom.on("zoomstart", function() {
 	if (!zoom.manual) {
 	    if (!data.underManualControl()) {
 		data.clear();
 		data.setManualControl(true);
-		queryStringAndUpdate();
+		update();
 	    }
 	}
     });
@@ -86,7 +70,7 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 	 */
 	zoomToExtent: function() {
 	    data.clear();
-	    queryStringAndUpdate();
+	    update();
 	},
 
 	onSetModel: function() {
@@ -98,18 +82,23 @@ module.exports = function(getNodeCollection, svg, zoom, selectSVGNodes, queryStr
 		if (getNodeCollection().has(focusNodeId)) {
 		    data.setSelectedNodeId(focusNodeId);
 		} else {
-		    queryStringAndUpdate();
+		    update();
 		}
 	    }
 	},
 
 	/*
-	 Each draw cycle, the following should happen in order:
-	 1. recalc is called, working out which nodes to focus on
-	 2. The node graph is drawn, possibly looking at some data from (1) to emphasize particular nodes.
-	 3. redraw is called, panning and zooming to a box around some of the nodes drawn in (2).
+	 Recalc looks at the node graph and determines which ids are in the currently focused subtree.
 	 */
 	recalc: recalc,
+	/*
+	 MarkEmphasis adds information about focus to node view models. 
+	 */
+	markEmphasis: markEmphasis,
+
+	/*
+	 Redraw should be called after nodes have been positioned on the screen. It pans and zooms the screen.
+	 */
 	redraw: redraw
     };
 };
