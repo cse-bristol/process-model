@@ -54,7 +54,7 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 
 		d.node.evidence = node.p();
 
-		redrawNode(d3.select(this.parentNode.parentNode));
+		redrawNode(d3.select(this.parentNode.parentNode.parentNode));
 	    })
 	    .on("dragend", function(d, i) {
 		modifyIndex = undefined;
@@ -63,9 +63,10 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 
     return function(nodes, newNodes, margins, newMargins) {
 	var drawIntervalParts = function(g) {
-	    g.attr("transform", function(d, i) {
-		return "rotate(180," +  (d.size[0] / 2) + ", 0)translate(" + 0 + "," + (4 - d.size[1])  + ")";
-	    })
+	    g
+		.attr("transform", function(d, i) {
+		    return "rotate(180," +  (d.size[0] / 2) + ", 0)translate(0," + (-d.margin.vertical) + ")";
+		})
 		.classed(computedClass, function(d, i) {
 		    return d.hasChildProcesses;
 		});
@@ -103,7 +104,6 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 
 	    parts.enter()
 		.append("rect")
-		.attr("height", "15px")
 		.call(dragEvidence)
 	    	.attr("class", function(d, i) {
 		    return d.type;
@@ -135,10 +135,13 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 
 	    parts
 		.attr("x", function(d, i) {
-		    return (d.nodeSidePadding + (d.nodeInnerWidth * d.x)) + "px";
+		    return (d.node.size[0] * d.x) + "px";
+		})
+		.attr("height", function(d, i) {
+		    return d.node.margin.vertical + "px";
 		})
 		.attr("width", function(d, i) {
-		    return (d.nodeInnerWidth * d.width) + "px";
+		    return (d.node.size[0] * d.width) + "px";
 		});
 	};
 

@@ -6,7 +6,7 @@
  Simple bags of properties representing the display properties of our model.
  */
 module.exports = {
-    edge: function(edge, path, collapsed) {
+    edge: function(edge, path, collapsed, detailMode) {
 	var e =  {
 	    viewId: Math.random(),
 	    parentId: edge.parent().id,
@@ -15,7 +15,7 @@ module.exports = {
 	    canModify: !collapsed
 	};
 	
-	if (!collapsed && edge.necessity) {
+	if (!collapsed && detailMode && edge.necessity) {
 	    e.necessity = edge.necessity();
 	    e.sufficiency = edge.sufficiency();
 	}
@@ -29,12 +29,15 @@ module.exports = {
 	    id: node.id,
 	    type: node.type,
 	    collapsed: collapsed,
+	    canCollapse: !collapsed && node.edges().length > 0,
 	    name: node.name(),
 	    description: node.description(),
 	    isLeaf: node.isLeaf(),
 	    x: position[0],
 	    y: position[1],
 	    effects: effects,
+	    margin: margin,
+	    
 	    resize: function(newSize) {
 		n.size = newSize;
 		

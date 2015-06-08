@@ -3,17 +3,20 @@
 /*global module, require*/
 
 var d3 = require("d3"),
+  
     svgTextWrapping = require("./svg-text-wrapping.js"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
-    empty = d3.select(),
     edgePath = require("../layout/edge-path.js"),
-    nodeClass = "process-node";
+
+    nodeClass = "process-node",
+
+    empty = d3.select();
 
 /*
  Draws parts which are common to all types of node.
  */
-module.exports = function(container, defs, getNodeCollection, getLayout, transitions, drawEdges, update) {
+module.exports = function(container, defs, getNodeCollection, getLayout, transitions, drawEdges, redrawNode, update) {
     /*
      Used to tidy up the beginnings of edges.
      */
@@ -122,7 +125,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 
 	    drawEdges(
 		edgesSelection,
-	    	empty
+		empty
 	    );
 	},
 
@@ -179,7 +182,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 				 */
 				d.resize(d.size);
 				
-				drawNodes(g, empty);
+				redrawNode(g);
 				drawJunctionMasks([d], true);
 				redrawEdgesToNode(d.edgeEnd, d.edgeJunction, d.id);
 			    }
@@ -223,9 +226,8 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 		layout.setSize(d.id, [x, y]);
 		d.resize(layout.getSize(d.id));
 		
-		drawNodes(
-		    d3.select(this.parentElement),
-		    empty
+		redrawNode(
+		    d3.select(this.parentElement)
 		);
 
 		drawJunctionMasks([d], true);
@@ -254,11 +256,16 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	drawNodeName = function(nodes, newNodes) {
 	    newNodes.append("g")
 		.classed("name", true)
-		.attr("transform", "translate(5, 30)")
 		.append("text");
 
 	    nodes.select("g.name")
+		.attr("transform", function(d, i) {
+		    return "translate(" + d.margin.horizontal + "," + d.margin.vertical + ")";
+		})	    
 		.select("text")
+		.attr("x", function(d, i) {
+		    return d.innerWidth;
+		})
 		.call(
 		    svgTextWrapping,
 		    function(d, i) {
@@ -268,7 +275,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 			return d.innerWidth;
 		    },
 		    function(d) {
-			return d.size[1] - 50;
+			return d.innerHeight;
 		    }
 		);
 	};
@@ -316,8 +323,8 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	};
 
     return {
-	redrawNode: function(nodeSelection) {
-	    drawNodes(nodeSelection, empty);
+	redrawNode: function(nodes, newNodes) {
+	    drawNodes(nodes, newNodes);
 	},
 
 	selectNodes: selectNodes,

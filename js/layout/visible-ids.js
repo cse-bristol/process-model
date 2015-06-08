@@ -26,7 +26,7 @@ module.exports = function(nodesCollection, isCollapsed) {
 
 	found.set(id, node);
 
-	node.edges().forEach(function(e){
+	node.edges().forEach(function(e) {
 	    /* 
 	     If we reach a node from any uncollapsed node, or from two or more collapsed nodes, we'll keep it.
 	     */

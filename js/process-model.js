@@ -17,7 +17,7 @@ var updating = false,
 
 	    modelOperations.writeBufferedOperations();
 	    fileMenu.queryString.toURL();
-	    serialization.exportButton.update();
+	    serialization.exportButton().update();
 
 	    draw.update(
 		layout()
@@ -38,24 +38,23 @@ var d3 = require("d3"),
     helpers = require("./helpers.js"),
     callbacks = helpers.callbackHandler,
 
-    model = require("./model.js")(),
-    
-    margins = require("./margins.js")(update),
-    focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, fileMenu.queryString, update, drawNodes.drawNodesHook),
-    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, margins),
-
-    draw = require(./draw/draw.js)(body, svg, model.getNodes, model.getLayout, viewportState, update),
+    model = require("./state/model.js")(),
 
     serialization = require("./serialization/serialization.js")(body, model),
     
     fileMenu = require("multiuser-file-menu")(
 	"process-models",
-	serialization.serialize,
-	serialization.deserialize,
+	serialization.jsonSerialize,
+	serialization.jsonDeserialize,
 	model.get,
 	model.set,
 	model.freshModel
-    ),
+    ),    
+    
+    margins = require("./margins.js")(update),
+    // ToDo put in textEditor here
+    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, null, model.getNodes, model.getLayout, update),    
+    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins),
 
     modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
 
@@ -65,10 +64,9 @@ var d3 = require("d3"),
 	update,
 	fileMenu.spec.button),
     
-    layoutButton = require("./reset-layout-button.js")(fileMenu.spec.button, model.getLayout, update),
+    layoutButton = require("./layout/reset-layout-button.js")(fileMenu.spec.button, model.getLayout, update),
     rotateButton = require("./layout/rotate-button.js")(fileMenu.spec.button, model.getLayout, update),
-    zoomToExtentButton = require("./navigation/zoom-to-extent.js")(fileMenu.spec.button, focus),
-    expandButton = require("./navigation/mass-expand.js")(fileMenu.spec.button, model.getNodes, model.getLayout, update);
+    expandButton = require("./mass-expand-button.js")(fileMenu.spec.button, model.getNodes, model.getLayout, update);
 
 fileMenu.buildMenu(
     toolbar,
@@ -77,14 +75,14 @@ fileMenu.buildMenu(
 	serialization.exportButton(fileMenu).spec,
 	layoutButton,
 	rotateButton,
-	zoomToExtentButton,
+	draw.viewport.makeFitButton(fileMenu.spec.button),
 	expandButton
     ].concat(
 	margins.makeButtons(fileMenu.spec.toggle)
     ));
 
 model.onSet(function() {
-    focus.onSetModel();
+    draw.viewport.onSetModel();
     update();
 });
 

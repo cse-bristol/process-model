@@ -14,21 +14,15 @@ module.exports = function(modelSVG, modelG, textControls) {
     var zoom = d3.behavior.zoom()
 	    .on("zoom", function() {
 		modelG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-		textControls.update();
+		// textControls.update();
 	    });
 
     zoom.scaleTranslate = function(scale, translate) {
-	zoom.manual = true;
-
 	zoom
 	    .scale(scale)
 	    .translate(translate)
 	    .event(modelG.transition());
     };
-
-    zoom.on("zoomend", function() {
-	zoom.manual = false;
-    });
 
     zoom.in = function() {
 	zoom.scaleTranslate(zoom.scale() * 1.1);

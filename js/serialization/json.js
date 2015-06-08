@@ -3,8 +3,8 @@
 /*global require, module*/
 
 var d3 = require("d3"),
-    nodeCollectionFactory = require("../nodes/node-collection.js"),
-    layoutFactory = require("../layout/layout-state.js");
+    nodeCollectionFactory = require("../state/graph/node-collection.js"),
+    layoutFactory = require("../state/layout-state.js");
 
 var serializeD3Map = function(d3Map) {
     var result = {};

@@ -3,16 +3,16 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    helpers = require("../../helpers.js"),
+    helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
 
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
-    buttonTextXOffset = constants.buttonTextXOffset,
-    buttonTextYOffset = constants.buttonTextYOffset;
+    textXOffset = constants.textXOffset,
+    textYOffset = constants.textYOffset;
 
 
-module.exports = function(getNodeCollection, getLayoutState, viewportState, update) {
+module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
     var onBottomMarginDraw = callbacks(),
 
 	marginVisibility = function(selection) {
@@ -33,11 +33,13 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 
 	    margins.select("g.node-type")
 		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size[0] - d.sidePadding - 1) + "," + 12 + ")";
+		    return "translate(" + (d.size[0] - 12) + "," + 12 + ")";
 		});
 	},
 
 	drawButton = function(buttonText, onClick, cssClass, position) {
+	    var translate = "translate(" + (position * buttonSize) + ",0)";
+	    
 	    return function(margins, newMargins) {
 		var newButtons = newMargins.append("g")
 			.classed("margin-button", true)
@@ -46,9 +48,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 		 Prevent highlighting the text inside this button.
 		 */
 			.classed("no-select", true)
-			.attr("transform", function(d, i) {
-			    return "translate("+ i * buttonSize + ",0)";
-			})
+			.attr("transform", translate)
 			.on("mousedown", function(d, i) {
 			    /*
 			     The click from this button won't become part of a drag event.
@@ -65,8 +65,8 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 
 		newButtons.append("text")
 		    .text(buttonText)
-		    .attr("x", buttonTextXOffset)
-		    .attr("y", buttonTextYOffset);
+		    .attr("x", textXOffset)
+		    .attr("y", textYOffset);
 
 		var buttons = margins.select("g." + cssClass);
 
@@ -91,7 +91,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 	drawFocus = drawButton(
 	    "F",
 	    function(d, i) {
-		viewportState.focusSubTree(d.id);
+		viewport.focusSubTree(d.id);
 	    },
 	    "focus-subtree-tool",
 	    1
@@ -102,7 +102,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 	    function(d, i) {
 		getLayoutState().setCollapsed(d.id, false);
 	    },
-	    "expander",
+	    "expand-button",
 	    2
 	),
 
@@ -111,19 +111,19 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 	    function(d, i) {
 		getLayoutState().setCollapsed(d.id, true);		
 	    },
-	    "expander",
+	    "contract-button",
 	    2
 	),
 
 	drawExpandContract = function(margins, newMargins) {
 	    drawExpand(margins, newMargins)
 		.style("visibility", function(d, i) {
-		    return d.collapsed ? "visible" : "hidden";
+		    return d.margin.vertical && d.collapsed ? "visible" : "hidden";
 		});
 
 	    drawContract(margins, newMargins)
 		.style("visibility", function(d, i) {
-		    return d.collapsed ? "hidden" : "visible";
+		    return d.margin.vertical && d.canCollapse ? "visible" : "hidden";
 		});
 	};
 
@@ -146,7 +146,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 	var bottomMargins = nodes.select("g.node-bottom-margin")
 	    	.call(marginVisibility)
 	    	.attr("transform", function(d, i) {
-		    return "translate(0," + (d.height - d.margin.vertical)  + ")";
+		    return "translate(0," + (d.size[1] - d.margin.vertical)  + ")";
 		});
 
 	return {

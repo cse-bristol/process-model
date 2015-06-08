@@ -58,7 +58,11 @@ module.exports = function(nodes) {
 
     var m = {
 	setPosition: function(id, position) {
-	    manualPositions.set(id, position);
+	    if (position) {
+		manualPositions.set(id, position);
+	    } else {
+		manualPositions.remove(id);
+	    }
 	    onSetPosition(id, position);
 	},
 	getPosition: function(id) {
@@ -95,9 +99,12 @@ module.exports = function(nodes) {
 		    size[0] < minWidth ? minWidth : size[0],
 		    size[1] < minHeight ? minHeight : size[1]
 		];
+
+		manualSizes.set(id, size);
+	    } else {
+		manualSizes.remove(id);
 	    }
 	    
-	    manualSizes.set(id, size);
 	    onSetSize(id, size);
 	},
 	getSize: function(id) {

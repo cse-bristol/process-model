@@ -3,7 +3,7 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    helpers = require("./helpers.js"),
+    helpers = require("../helpers.js"),
     noop = helpers.noop,
     callbacks = helpers.callbackHandler;
 

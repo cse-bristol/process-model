@@ -4,7 +4,7 @@
 
 var d3 = require("d3"),
 
-    helpers = require("../../../helper.js"),
+    helpers = require("../../../helpers.js"),
     onScroll = helpers.onScroll,
     
     circleFraction = require("../../circle-fraction.js"),

@@ -3,18 +3,26 @@
 /*global module, require*/
 
 var _ = require("lodash"),
-    charsPerW = 0.155,
-    linesPerH = 0.065,
+    charsPerW = 0.13,
+    linesPerH = 0.063,
     heightOffset = 15,
     lineBreak = /[\r\n]+/,
     wordBreak = /[ \t]+/;
+
+var clamp = function(num) {
+    return Math.max(
+	parseInt(num),
+	1
+    );
+};
 
 // TODO double line separator
 module.exports = function(textElement, getText, getWidth, getHeight) {
     var w = getWidth(textElement.datum()),
 	h = getHeight(textElement.datum()),
-	charsPerSpan = charsPerW * w,
-	maxLines = linesPerH * h;
+	
+	charsPerSpan = clamp(charsPerW * w),
+	maxLines = clamp(linesPerH * h);
 
     var tspans = textElement.selectAll("tspan")
 	    .data(
@@ -92,7 +100,7 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
 	    return 0;
 	})
 	.attr("y", function(d, i) {
-	    return i * heightOffset;
+	    return 15 + (i * heightOffset);
 	})
 	.text(function(d, i) {
 	    return d;

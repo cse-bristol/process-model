@@ -13,7 +13,7 @@ module.exports = function(update) {
 	
 	makeButtons: function(makeToggle) {
 	    return makeToggle(
-		"Details",
+		"Detail",
 		function() {
 		    return enabled;
 		},

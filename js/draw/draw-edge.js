@@ -5,7 +5,7 @@
 var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
     empty = d3.select(),
-    circleFraction = require("../circle-fraction.js"),
+    circleFraction = require("./circle-fraction.js"),
     labelSize = 10,
     endSize = 3;
 
@@ -244,6 +244,9 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
     };
 
     return {
+	/*
+	 Use some edge view models to update d3 selections, then redraw those selections.
+	 */
 	draw: function(edgeData) {
 	    var edges = container.selectAll("g.edge")
 		    .data(
@@ -258,6 +261,9 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 	    drawEdges(edges, edges.enter());
 	},
 
+	/*
+	 Redraw some passed in edge selections.
+	 */
 	drawEdges: drawEdges
     };
 };

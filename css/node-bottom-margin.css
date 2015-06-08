@@ -33,3 +33,7 @@ rect.failure {
 rect.conflict {
     fill: #27408B;
 }
+
+.toggleable-text {
+    text-anchor: middle;
+}

@@ -18,7 +18,7 @@ module.exports = function(enabledIds, verticalMargins, manualSizes) {
 	defaultSize = {
 	    size: [
 		defaultNodeWidth,
-		defaultNodeHeight - verticalMargins ? 0 : (2 * verticalMargin)
+		defaultNodeHeight - (verticalMargins ? 0 : (2 * verticalMargin))
 	    ],
 	    margins: {
 		horizontal: horizontalMargin,

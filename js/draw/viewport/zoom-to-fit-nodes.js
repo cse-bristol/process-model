@@ -6,8 +6,8 @@ var d3 = require("d3"),
     tolerance = 50;
 
 /*
- Modifies the model to pan and zoom to a particular node and its descendents.
-*/
+ The model will zoom to a bbox which fits the supplied node ids.
+ */
 module.exports = function(svg, zoom, getSVGNodes) {
     var calcExtent = function(nodeIds) {
 	var bbox;
@@ -60,19 +60,17 @@ module.exports = function(svg, zoom, getSVGNodes) {
 	}
 
 	return bbox;
-    },
+    };
 
-	show = function(nodeIdSet) {
-	    if (!nodeIdSet) {
-		throw new Error("nodeIdSet should be a d3 set of ids for nodes which we want to be displayed on the screen.");
-	    }
-	    
-	    var modelExtent = calcExtent(nodeIdSet);
+    return function(nodeIdSet) {
+	if (!nodeIdSet) {
+	    throw new Error("nodeIdSet should be a d3 set of ids for nodes which we want to be displayed on the screen.");
+	}
+	
+	var modelExtent = calcExtent(nodeIdSet);
 
-	    if (modelExtent) {
-		zoom.bbox(modelExtent);
-	    }
-	};
-
-    return show;
+	if (modelExtent) {
+	    zoom.bbox(modelExtent);
+	}
+    };
 };

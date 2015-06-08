@@ -4,8 +4,8 @@
 
 var d3 = require("d3"),
     _ = require("lodash"),
-    combineEvidence = require("../combine-evidence.js"),
-    helpers = require("../helpers.js"),
+    combineEvidence = require("./combine-evidence.js"),
+    helpers = require("../../helpers.js"),
     clamp = helpers.clamp,
     callbacks = helpers.callbackHandler;
 

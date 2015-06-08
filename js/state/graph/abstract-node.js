@@ -4,7 +4,7 @@
 
 var d3 = require("d3"),
     types = require("./process-node.js"),
-    helpers = require("../helpers.js"),
+    helpers = require("../../helpers.js"),
     createEdge = require("./edge.js"),
     callbacks = helpers.callbackHandler;
 

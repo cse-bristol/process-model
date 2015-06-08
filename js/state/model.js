@@ -2,8 +2,8 @@
 
 /*global module, require*/
 
-var nodeCollectionFactory = require("./nodes/node-collection.js"),
-    layoutStateFactory = require("./layout/layout-state.js"),
+var nodeCollectionFactory = require("./graph/node-collection.js"),
+    layoutStateFactory = require("./layout-state.js"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler;
 

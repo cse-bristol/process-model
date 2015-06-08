@@ -3,14 +3,14 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    allowedTypes = require("./allowed-types.js"),
-    constants = require("./drawing-constants.js"),
+    allowedTypes = require("../../state/graph/allowed-types.js"),
+    constants = require("../drawing-constants.js"),
     buttonSize = constants.buttonSize,
-    buttonTextXOffset = constants.buttonTextXOffset,
-    buttonTextYOffset = constants.buttonTextYOffset;    
+    textXOffset = constants.textXOffset,
+    textYOffset = constants.textYOffset;    
 
 module.exports = function(getNodeCollection, transitions, update) {
-    return function(margins, newMargins) {
+    return function(nodes, newNodes, margins, newMargins) {
 	var typeOptions = margins
 		.selectAll("g.node-choice")
 		.data(
@@ -55,18 +55,17 @@ module.exports = function(getNodeCollection, transitions, update) {
 	    .attr("width", buttonSize)
 	    .attr("height", buttonSize);
 
-
 	newOptions.append("text")
-	    .attr("x", buttonTextXOffset)
-	    .attr("y", buttonTextYOffset)
+	    .attr("x", textXOffset)
+	    .attr("y", textYOffset)
 	    .text(function(d, i) {
 		return d.option[0].toUpperCase();
 	    });
 
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
-		var horizontal = d.viewModel.margin.horizontal + (i * buttonSize),
-		    vertical = d.viewModel.size[1] - d.viewModel.margin.vertical;
+		var horizontal = i * buttonSize,
+		    vertical = 0;
 		
 		return "translate(" + horizontal + "," + vertical + ")";
 	    });
