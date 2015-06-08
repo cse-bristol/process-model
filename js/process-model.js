@@ -44,7 +44,7 @@ var d3 = require("d3"),
     focus = require("./focus/focus.js")(model.getNodes, svg, zoom, drawNodes.selectNodes, fileMenu.queryString, update, drawNodes.drawNodesHook),
     layout = require("./layout/layout.js")(model.getNodes, model.getLayout, margins),
 
-    draw = require(./draw/draw.js)(body, svg, model.getNodes, model.getLayout, update),
+    draw = require(./draw/draw.js)(body, svg, model.getNodes, model.getLayout, viewportState, update),
 
     serialization = require("./serialization/serialization.js")(body, model),
     

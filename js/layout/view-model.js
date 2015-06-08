@@ -41,14 +41,24 @@ module.exports = {
 		n.innerWidth = n.size[0] - (2 * margin.horizontal);
 		n.innerHeight = n.size[1] - (2 * margin.vertical);
 
-		var fromCentre = [
-		    orientationCoords[0] / 2,
-		    orientationCoords[1] / 2
+		n.centre = [
+		    n.size[0] * 0.5,
+		    n.size[1] * 0.5
 		];
 
+		var offsetDirection = [
+		    orientationCoords[0] / 2,
+		    orientationCoords[1] / 2
+		],
+
+		    offsetVector = [
+			offsetDirection[0] * n.size[0],
+			offsetDirection[1] * n.size[1]
+		    ];
+
 		n.junctionOffset = [
-		    n.size[0] * (fromCentre[0] + 0.5),
-		    n.size[1] * (fromCentre[1] + 0.5)
+		    n.centre[0] + offsetVector[0],
+		    n.centre[1] + offsetVector[1]
 		];
 
 		n.edgeJunction = [
@@ -57,8 +67,8 @@ module.exports = {
 		];
 
 		n.edgeOffset = [
-		    n.size[0] * (0.5 - fromCentre[0]),
-		    n.size[1] * (0.5 - fromCentre[1])
+		    n.centre[0] - offsetVector[0],
+		    n.centre[1] - offsetVector[1]
 		];
 
 		n.edgeEnd = [

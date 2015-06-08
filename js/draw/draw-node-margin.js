@@ -5,17 +5,20 @@
 var d3 = require("d3"),
     helpers = require("../../helpers.js"),
     callbacks = helpers.callbackHandler,
-    buttonWidth = 15,
-    buttonTextXOffset = 3,
-    buttonTextYOffset = 12;
+
+    constants = require("./drawing-constants.js"),
+    buttonSize = constants.buttonSize,
+    buttonTextXOffset = constants.buttonTextXOffset,
+    buttonTextYOffset = constants.buttonTextYOffset;
+
 
 module.exports = function(getNodeCollection, getLayoutState, viewportState, update) {
     var onBottomMarginDraw = callbacks(),
 
 	marginVisibility = function(selection) {
-		selection.style("visibility", function(d, i) {
-		    return d.margin.vertical ? "visible" : "hidden";
-		});
+	    selection.style("visibility", function(d, i) {
+		return d.margin.vertical ? "visible" : "hidden";
+	    });
 	},
 
 	drawType = function(margins, newMargins) {
@@ -44,7 +47,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 		 */
 			.classed("no-select", true)
 			.attr("transform", function(d, i) {
-			    return "translate("+ i * buttonWidth + ",0)";
+			    return "translate("+ i * buttonSize + ",0)";
 			})
 			.on("mousedown", function(d, i) {
 			    /*
@@ -58,7 +61,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 			});
 
 		newButtons.append("rect")
-		    .attr("width", buttonWidth);
+		    .attr("width", buttonSize);
 
 		newButtons.append("text")
 		    .text(buttonText)
@@ -124,32 +127,33 @@ module.exports = function(getNodeCollection, getLayoutState, viewportState, upda
 		});
 	};
 
-    return {
-	onBottomMarginDraw: onBottomMarginDraw.add,
+    return function(nodes, newNodes) {
+	var newTopMargins = newNodes.append("g")
+		.classed("node-top-margin", true);
 
-	draw: function(nodes, newNodes) {
-	    var newTopMargins = newNodes.append("g")
-		    .classed("node-top-margin", true);
-
-	    var topMargins = nodes.select("g.node-top-margin")
-		    .call(marginVisibility);
+	var topMargins = nodes.select("g.node-top-margin")
+		.call(marginVisibility);
 
 
-	    drawDelete(topMargins, newTopMargins);
-	    drawFocus(topMargins, newTopMargins);
-	    drawExpandContract(topMargins, newTopMargins);
-	    drawType(topMargins, newTopMargins);
-	    
-	    var newBottomMargins = newNodes.append("g")
-		    .classed("node-bottom-margin", true);
+	drawDelete(topMargins, newTopMargins);
+	drawFocus(topMargins, newTopMargins);
+	drawExpandContract(topMargins, newTopMargins);
+	drawType(topMargins, newTopMargins);
+	
+	var newBottomMargins = newNodes.append("g")
+		.classed("node-bottom-margin", true);
 
-	    var bottomMargins = nodes.select("g.node-bottom-margin")
-	    	    .call(marginVisibility)
-	    	    .attr("transform", function(d, i) {
-			return "translate(0," + (d.height - d.margin.vertical)  + ")";
-		    });
-	    
-	    onBottomMarginDraw(bottomMargins, newBottomMargins);
-	}
+	var bottomMargins = nodes.select("g.node-bottom-margin")
+	    	.call(marginVisibility)
+	    	.attr("transform", function(d, i) {
+		    return "translate(0," + (d.height - d.margin.vertical)  + ")";
+		});
+
+	return {
+	    topMargins: topMargins,
+	    newTopMargins: newTopMargins,
+	    bottomMargins: bottomMargins,
+	    newBottomMargins: newBottomMargins
+	};
     };
 };

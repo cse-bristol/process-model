@@ -8,84 +8,77 @@ var d3 = require("d3"),
     callbacks = helpers.callbackHandler,
     empty = d3.select(),
     edgePath = require("../layout/edge-path.js"),
-    emphasisFactory = require("./emphasis.js"),
     nodeClass = "process-node";
 
+/*
+ Draws parts which are common to all types of node.
+ */
 module.exports = function(container, defs, getNodeCollection, getLayout, transitions, drawEdges, update) {
-    var types = d3.map(),
-	emphasis = emphasisFactory(defs),
+    /*
+     Used to tidy up the beginnings of edges.
+     */
+    var drawJunctionMasks = function(nodeData, keepMissing) {
+	var junctionMasks = defs.selectAll("mask.junction-mask")
+		.data(
+		    nodeData,
+		    function(d, i) {
+			return d.id;
+		    }
+		);
 
-	filterByType = function(nodeSelection, type) {
-	    return nodeSelection.filter(function(d, i) {
-		return d.type === type;
-	    });
-	},
+	if (!keepMissing) {
+	    junctionMasks.exit().remove();
+	}
 
+	var newMasks = junctionMasks.enter().append("mask")
+		.classed("junction-mask", true)
+		.attr("id", function(d, i) {
+		    return "cut-" + d.id;
+		})
 	/*
-	 Used to tidy up the beginnings of edges.
-	*/
-	drawJunctionMasks = function(nodeData, keepMissing) {
-	    var junctionMasks = defs.selectAll("mask.junction-mask")
-		    .data(
-			nodeData,
-			function(d, i) {
-			    return d.id;
-			}
-		    );
+	 This is some dark magic which controls the size of the buffer we are masking against.
 
-	    if (!keepMissing) {
-		junctionMasks.exit().remove();
-	    }
+	 See: http://www.w3.org/TR/2003/REC-SVG11-20030114/masking.html
+	 */
+		.attr("maskUnits", "userSpaceOnUse")
+		.attr("x", "-50000%")
+		.attr("y", "-50000%")
+		.attr("width", "100000%")
+		.attr("height", "100000%");
 
-	    var newMasks = junctionMasks.enter().append("mask")
-		    .classed("junction-mask", true)
-		    .attr("id", function(d, i) {
-			return "cut-" + d.id;
-		    })
-	    /*
-	     This is some dark magic which controls the size of the buffer we are masking against.
+	newMasks.append("circle")
+	    .classed("background-mask", true)
+	    .attr("r", 10000)
+	    .attr("fill", "white")
+	    .attr("stroke", "none");
 
-	     See: http://www.w3.org/TR/2003/REC-SVG11-20030114/masking.html
-	     */
-		    .attr("maskUnits", "userSpaceOnUse")
-		    .attr("x", "-50000%")
-		    .attr("y", "-50000%")
-		    .attr("width", "100000%")
-		    .attr("height", "100000%");
+	transitions.maybeTransition(
+	    junctionMasks.select(".background-mask"))
+	    .attr("cx", function(d, i) {
+		return d.edgeJunction[0];
+	    })
+	    .attr("cy", function(d, i) {
+		return d.edgeJunction[1];
+	    });
+	
+	newMasks
+	    .append("circle")
+	    .classed("hidden-mask", true)
+	    .attr("r", function(d, i) {
+		return d.type === "process" ? 7 : 5;
+	    })
+	    .attr("fill", "black")
+	    .attr("stroke", "none");
 
-	    newMasks.append("circle")
-		.classed("background-mask", true)
-		.attr("r", 10000)
-		.attr("fill", "white")
-		.attr("stroke", "none");
-
-	    transitions.maybeTransition(
-		junctionMasks.select(".background-mask"))
-		.attr("cx", function(d, i) {
-		    return d.edgeJunction[0];
-		})
-		.attr("cy", function(d, i) {
-		    return d.edgeJunction[1];
-		});
-	    
-	    newMasks
-		.append("circle")
-		.classed("hidden-mask", true)
-		.attr("r", function(d, i) {
-		    return d.type === "process" ? 7 : 5;
-		})
-		.attr("fill", "black")
-		.attr("stroke", "none");
-
-	    transitions.maybeTransition(
-		junctionMasks.select(".hidden-mask"))
-		.attr("cx", function(d, i) {
-		    return d.edgeJunction[0];
-		})
-		.attr("cy", function(d, i) {
-		    return d.edgeJunction[1];
-		});
-	},
+	transitions.maybeTransition(
+	    junctionMasks.select(".hidden-mask"))
+	    .attr("cx", function(d, i) {
+		return d.edgeJunction[0];
+	    })
+	    .attr("cy", function(d, i) {
+		return d.edgeJunction[1];
+	    });
+    },
 
 	/*
 	 When we move or resize a node, we redraw it individually to prevent slowdown.
@@ -281,9 +274,9 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	};
 
     var closeEnough = function(bbox, x, y) {
-	    return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
-		(bbox.y >= y || (bbox.y + bbox.height) <= y);
-	},
+	return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
+	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
+    },
 
 	drawNodes = function(nodes, newNodes) {
 	    newNodes
@@ -313,15 +306,6 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	    
 	    drawMoveHandle(nodes, newNodes);
 	    drawResizeHandle(nodes, newNodes);
-
-	    types.entries().forEach(function(e) {
-		e.value(
-		    filterByType(nodes, e.key),
-		    filterByType(newNodes, e.key)		    
-		);
-	    });
-
-	    emphasis(nodes, newNodes);
 	},
 
 	selectNodes = function() {
@@ -332,10 +316,6 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	};
 
     return {
-	registerType: function(key, value) {
-	    types.set(key, value);
-	},
-
 	redrawNode: function(nodeSelection) {
 	    drawNodes(nodeSelection, empty);
 	},
@@ -359,7 +339,11 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 
 	    drawNodes(nodes, newNodes);
 	    drawJunctionMasks(nodeData);
+
+	    return {
+		nodes: nodes,
+		newNodes: newNodes
+	    };
 	}
     };
-    
 };
