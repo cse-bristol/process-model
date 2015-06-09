@@ -2,7 +2,8 @@
 
 /*global module, require*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+    _ = require("lodash");
 
 /*
  Wraps a d3 zoom behaviour with some custom additions.
@@ -15,7 +16,18 @@ module.exports = function(modelSVG, modelG, textControls) {
 	    .on("zoom", function() {
 		modelG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
 		// textControls.update();
+	    })
+	    .on("zoomstart.record", function() {
+		zoom.previousScale = zoom.scale();
+		zoom.previousTranslate = zoom.translate();
 	    });
+
+    zoom.changed = function() {
+	return !(
+	    zoom.scale() === zoom.previousScale &&
+		_.isEqual(zoom.translate(), zoom.previousTranslate)
+	);
+    };
 
     zoom.scaleTranslate = function(scale, translate) {
 	zoom

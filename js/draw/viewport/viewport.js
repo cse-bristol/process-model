@@ -17,26 +17,37 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 	zoomToFit = zoomToFitFactory(svg, zoom, getSVGNodes),
 	
 	viewportChanging = false,
-	doViewportChange = function() {
-	    viewportChanging = true;
-	    update();
-	};
+	zooming = false;
 
-    zoom.on("zoom.setManualPosition", function() {
-	if (!viewportChanging) {
-	    state.setManualPosition(
-		zoom.scale(),
-		zoom.translate()
-	    );
-	} else {
-	    viewportChanging = false;
+    zoom.on("zoomend.setManualPosition", function() {
+	if (zoom.changed()) {
+	    if (viewportChanging) {
+		viewportChanging = false;
+		
+	    } else {
+		var thenUpdate = !state.hasManualPosition();
+		
+		state.setManualPosition(
+		    zoom.scale(),
+		    zoom.translate()
+		);
+
+		if (thenUpdate) {
+		    zooming = true;
+		    try {
+			update();
+		    } finally {
+			zooming = false;
+		    }
+		}
+	    }
 	}
     });
 
     // ToDo sort out text editor
     // textEditor.onClose(function() {
     // 	state.uncentreNode();
-    // 	doViewportChange();
+    // 	update);
     // });
 
     queryString.param(
@@ -50,6 +61,13 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 
     return {
 	update: function() {
+	    if (zooming) {
+		// We're in the middle of a manual zoom, so we shouldn't try to focus on anything.
+		return;
+	    }
+	    
+	    viewportChanging = true;
+	    
 	    if (state.isCentredOnNode()) {
 		zoomToFit(
 		    d3.set(
@@ -81,20 +99,25 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 
 	centreNode: function(nodeId) {
 	    state.centreNode(nodeId);
-	    doViewportChange();
+	    update();
 	},
 
 	focusSubTree: function(nodeId) {
 	    state.focusSubTree(nodeId);
-	    doViewportChange();
+	    update();
 	},
 
-	makeFitButton: function(makeButton) {
+	makeFitButton: function(makeToggle) {
 	    return fitButtonFactory(
-		makeButton,
+		makeToggle,
+		state.hasWholeModelView,
 		function() {
 		    state.setWholeModelView();
-		    doViewportChange();
+		    update();
+		},
+		function() {
+		    state.clearWholeModelView();
+		    update();
 		}
 	    );
 	},

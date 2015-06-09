@@ -18,6 +18,9 @@ var updating = false,
 	    modelOperations.writeBufferedOperations();
 	    fileMenu.queryString.toURL();
 	    serialization.exportButton().update();
+	    if (fileMenu.menu()) {
+		fileMenu.menu().updateButtons();
+	    }
 
 	    draw.update(
 		layout()
@@ -75,11 +78,13 @@ fileMenu.buildMenu(
 	serialization.exportButton(fileMenu).spec,
 	layoutButton,
 	rotateButton,
-	draw.viewport.makeFitButton(fileMenu.spec.button),
 	expandButton
     ].concat(
 	margins.makeButtons(fileMenu.spec.toggle)
-    ));
+    ).concat(
+	draw.viewport.makeFitButton(fileMenu.spec.toggle)
+    )
+);
 
 model.onSet(function() {
     draw.viewport.onSetModel();

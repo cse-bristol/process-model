@@ -2,47 +2,70 @@
 
 /*global module, require*/
 
+var centred = "centred",
+    subtree = "subtree",
+    fit = "fit",
+    manual = "manual",
+
+    modes = [centred, subtree, fit, manual];
+
 /*
- Defines what we are currently looking at in the model. In priority order:
-  1. Clicked on a node to centre it for editing.
-  2. Clicked on a node's focus button to display it and its subtree.
-  3. Manually panned or zoomed.
-  4. None of the above, or has clicked on the 'Fit' button. In this case we will show the whole model.
+ Defines what we are currently looking at in the model.
+
+ Default (and fallback for potential failures) to 'fit whole model to screen' mode, since we require no data to do this.
  */
 module.exports = function() {
-    var centredNodeId = null,
-	subTreeHead = null,
-	manualScale = null,
-	manualTranslate = null,
+    var mode = "fit",
+	previousMode = null,
+
+	changeMode = function(newMode) {
+	    previousMode = mode;
+	    mode = newMode;
+	},
+
+	revertMode = function() {
+	    if (previousMode) {
+		var swap = previousMode;
+		previousMode = mode;
+		mode = swap;
+
+	    } else {
+		mode = fit;
+	    }
+	},
+
+	subtreeHeadId = null,
+	centredNodeId = null,
+
+	manualScale = 1,
+	manualTranslate = [0, 0],
 
 	isCentredOnNode = function() {
-	    return centredNodeId !== null;
+	    return mode === centred;
 	},
 
 	hasSubTreeFocus = function() {
-	    return centredNodeId === null
-		&& subTreeHead !== null;
-	},
-
-	hasManualPosition = function() {
-	    return centredNodeId === null
-		&& subTreeHead === null
-		&& manualScale !== null;
+	    return mode === subtree;
 	},
 
 	hasWholeModelView = function() {
-	    return centredNodeId === null
-		&& subTreeHead === null
-		&& manualScale === null;
-	};
+	    return mode === fit;
+	},
+
+	hasManualPosition = function() {
+	    return mode === manual;
+	};	
     
     return {
-	centreNode: function(nodeId) {
-	    centredNodeId = nodeId;
+	centreNode: function(id) {
+	    changeMode(centred);
+	    centredNodeId = id;
 	},
 
 	uncentreNode: function() {
-	    centredNodeId = null;
+	    if (mode === centred) {
+		revertMode();
+	    }
 	},
 
 	isCentredOnNode: isCentredOnNode,
@@ -52,19 +75,19 @@ module.exports = function() {
 	},
 	
 	focusSubTree: function(head) {
-	    subTreeHead = head;
-	    centredNodeId = null;
+	    changeMode(subtree);
+	    subtreeHeadId = head;
 	},
 
 	hasSubTreeFocus: hasSubTreeFocus,
 
 	getSubTreeFocus: function() {
-	    return subTreeHead;
+	    return subtreeHeadId;
 	},
 
 	setManualPosition: function(scale, translate) {
-	    centredNodeId = null;
-	    subTreeHead = null;
+	    changeMode(manual);
+
 	    manualScale = scale;
 	    manualTranslate = translate;
 	},
@@ -82,10 +105,17 @@ module.exports = function() {
 	hasWholeModelView: hasWholeModelView,
 
 	setWholeModelView: function() {
-	    centredNodeId = null;
-	    subTreeHead = null;
-	    manualScale = null;
-	    manualTranslate = null;
+	    changeMode(fit);
+	},
+
+	clearWholeModelView: function() {
+	    if (mode === fit) {
+		revertMode();
+
+		if (mode === fit) {
+		    changeMode(manual);
+		}
+	    }		     
 	}
     };
 };
