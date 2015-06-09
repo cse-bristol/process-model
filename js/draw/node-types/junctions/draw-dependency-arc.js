@@ -69,7 +69,11 @@ module.exports = function(redrawNode, junctionRadius, getNodeCollection, update)
 	dependenceArc
 	    .attr("d", arc)
 	    .style("visibility", function(d, i) {
-		return d.data.node.detail ? "visible" : "hidden";
+		/*
+		 If detail is off, make sure we're always hidden.
+		 Otherwise, we'll just inherit this value.
+		 */
+		return d.data.node.detail ? null : "hidden";
 	    });
 
 	junctions.call(onScroll, function(d, i, change) {
