@@ -67,14 +67,14 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	newMasks
 	    .append("circle")
 	    .classed("hidden-mask", true)
-	    .attr("r", function(d, i) {
-		return d.type === "process" ? 7 : 5;
-	    })
 	    .attr("fill", "black")
 	    .attr("stroke", "none");
 
 	transitions.maybeTransition(
 	    junctionMasks.select(".hidden-mask"))
+	    .attr("r", function(d, i) {
+		return (d.type === "process" && d.detail) ? 7 : 5;
+	    })	
 	    .attr("cx", function(d, i) {
 		return d.edgeJunction[0];
 	    })

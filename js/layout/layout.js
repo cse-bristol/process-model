@@ -57,6 +57,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 		    positions.nodes.get(id),
 		    layoutState.isCollapsed(id),
 		    orientationCoords,
+		    margins.enabled(),
 		    effects
 		)
 	    );

@@ -67,7 +67,10 @@ module.exports = function(redrawNode, junctionRadius, getNodeCollection, update)
 	    .call(dragDependency);
 
 	dependenceArc
-	    .attr("d", arc);
+	    .attr("d", arc)
+	    .style("visibility", function(d, i) {
+		return d.data.node.detail ? "visible" : "hidden";
+	    });
 
 	junctions.call(onScroll, function(d, i, change) {
 	    var node = getNodeCollection()

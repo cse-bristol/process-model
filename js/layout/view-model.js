@@ -23,7 +23,7 @@ module.exports = {
 	return e;
     },
 
-    node: function(node, size, margin, position, collapsed, orientationCoords, effects) {
+    node: function(node, size, margin, position, collapsed, orientationCoords, detail, effects) {
 	var n = {
 	    viewId: Math.random(),
 	    id: node.id,
@@ -37,6 +37,7 @@ module.exports = {
 	    y: position[1],
 	    effects: effects,
 	    margin: margin,
+	    detail: detail,
 	    
 	    resize: function(newSize) {
 		n.size = newSize;
