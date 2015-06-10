@@ -10,14 +10,26 @@ var d3 = require("d3"),
     drawNodeTypesFactory = require("./node-types/draw-node-types.js"),
     drawMarginsFactory = require("./draw-node-margin.js"),
     emphasisFactory = require("./emphasis.js"),
-    textControlsFactory = require("zenpen-toolbar"),
+
+    textEditFactory = require("./text-edit.js"),
+    
     viewportFactory = require("./viewport/viewport.js"),
     
     empty = d3.select();
 
 
-module.exports = function(body, svg, queryString, textEditor, getNodeCollection, getLayoutState, update) {
-    var g = svg.append("g"),
+module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, update) {
+    var background = svg.append("rect")
+	    .style("width", "100%")
+	    .style("height", "100%")
+	    .style("fill", "white")
+	    .on("click", function() {
+		if (!d3.event.defaultPrevented) {
+		    viewport.uncentreNode();
+		}
+	    }),
+
+	g = svg.append("g"),
 	defs = g.append("defs"),
 
 	drawNodeSubComponents = function(nodes, newNodes) {
@@ -27,37 +39,51 @@ module.exports = function(body, svg, queryString, textEditor, getNodeCollection,
 	    emphasis(nodes, newNodes);
 	},
 
+	selectNodes = function() {
+	    return g.selectAll("g.process-node")
+	    	.filter(function(d, i) {
+		    return !d3.select(this).classed("removing");
+		});
+	},
+
 	redrawNode = function(toRedraw) {
 	    drawNodes.redrawNode(toRedraw, empty);
+	    textEdit.update(toRedraw);
 	    drawNodeSubComponents(toRedraw, empty);
-	},	
+	},
+
+	viewport = viewportFactory(svg, g, queryString, getNodeCollection, update, transitions, selectNodes),
 
 	transitions = transitionsFactory(),
+
 	drawEdges = drawEdgesFactory(g, defs, getNodeCollection, transitions, update),
 
 	drawNodes = drawNodesFactory(
 	    g, defs,
-	    getNodeCollection, getLayoutState,
-	    transitions, drawEdges.drawEdges, redrawNode,
+	    getNodeCollection, getLayoutState, viewport,
+	    transitions, drawEdges.drawEdges, redrawNode, selectNodes,
 	    update
 	),
 	types = drawNodeTypesFactory(svg, redrawNode, transitions, getNodeCollection, getLayoutState, update),
 
-	viewport = viewportFactory(svg, g, textEditor, queryString, getNodeCollection, update, transitions, drawNodes.selectNodes),
-	
 	drawNodeMargin = drawMarginsFactory(getNodeCollection, getLayoutState, viewport, update),
 	emphasis = emphasisFactory(defs),
-	textControls = textControlsFactory(body);
+	textEdit = textEditFactory(body, getNodeCollection, viewport, update);
+
+    viewport.zoom.on("zoomend.updateTextOverlay", function() {
+	textEdit.update(selectNodes());
+    });
 
     return {
 	update: function(viewModels) {
 	    var nodes = drawNodes.draw(viewModels.nodes);
+	    textEdit.update(nodes.nodes);
+	    
 	    drawNodeSubComponents(nodes.nodes, nodes.newNodes);
 
 	    drawEdges.draw(viewModels.edges);
 	    
 	    viewport.update();
-	    textControls.update();
 	},
 
 	viewport: viewport

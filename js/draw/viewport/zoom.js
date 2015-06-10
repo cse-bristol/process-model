@@ -3,7 +3,12 @@
 /*global module, require*/
 
 var d3 = require("d3"),
-    _ = require("lodash");
+    _ = require("lodash"),
+
+    helpers = require("../../helpers.js"),
+    callbacks = helpers.callbackHandler,
+
+    epsilon = Math.pow(2, -20);
 
 /*
  Wraps a d3 zoom behaviour with some custom additions.
@@ -11,22 +16,31 @@ var d3 = require("d3"),
  + modelSVG is the element which will receive the zoom events for the model.
  + modelG is a g element inside the modelSVG which will have a pan and zoom applied to it as a transform.
  */
-module.exports = function(modelSVG, modelG, textControls) {
-    var zoom = d3.behavior.zoom()
+module.exports = function(modelSVG, modelG) {
+    var onZoom = callbacks(),
+    
+	zoom = d3.behavior.zoom()
 	    .on("zoom", function() {
 		modelG.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
-		// textControls.update();
+		onZoom(d3.event.translate, d3.event.scale);
 	    })
 	    .on("zoomstart.record", function() {
 		zoom.previousScale = zoom.scale();
 		zoom.previousTranslate = zoom.translate();
-	    });
+	    }),
+
+	closeEnough = function(a, b) {
+	    return Math.abs(a - b) < epsilon;
+	};
 
     zoom.changed = function() {
-	return !(
-	    zoom.scale() === zoom.previousScale &&
-		_.isEqual(zoom.translate(), zoom.previousTranslate)
+	var result = !(
+	    closeEnough(zoom.scale(), zoom.previousScale) &&
+		closeEnough(zoom.translate()[0], zoom.previousTranslate[0]) &&
+		closeEnough(zoom.translate()[1], zoom.previousTranslate[1])
 	);
+	
+	return result;
     };
 
     zoom.scaleTranslate = function(scale, translate) {
@@ -42,6 +56,8 @@ module.exports = function(modelSVG, modelG, textControls) {
     zoom.out = function() {
 	zoom.scaleTranslate(zoom.scale() / 1.1);
     };
+
+    zoom.onZoom = onZoom.add;
 
     zoom.bbox = function(targetBBox) {
 	var svgStyles = window.getComputedStyle(modelSVG.node()),

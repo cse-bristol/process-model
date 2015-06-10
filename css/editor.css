@@ -1,18 +1,30 @@
-.svg-editable-text {
-    cursor: text;
+.text-editor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 0;
+    margin: 0;
 }
 
-.plaintext {
+.text-editor div {
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+    margin-top: 1px;
+    margin-bottom: 2%;
+}
+
+
+.edit-name {
+    height: 30%;
     -moz-user-modify: read-write-plaintext-only;
     -webkit-user-modify: read-write-plaintext-only;
     -ms-user-modify: read-write-plaintext-only;
-    user-modify: read-write-plaintext-only;
+    user-modify: read-write-plaintext-only;    
 }
 
-[contenteditable="true"]:active,
-[contenteditable="true"]:focus{
-    border:none;
-    outline:none;
+.edit-description {
+    height: 61%;
 }
 
 /* Override the styles from the zenpen-editor where appropriate. */

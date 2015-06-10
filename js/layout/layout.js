@@ -58,6 +58,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 		    layoutState.isCollapsed(id),
 		    orientationCoords,
 		    margins.enabled(),
+		    viewport.getCentredNodeId() === id,
 		    effects
 		)
 	    );

@@ -9,14 +9,12 @@ var d3 = require("d3"),
     callbacks = helpers.callbackHandler,
     edgePath = require("../layout/edge-path.js"),
 
-    nodeClass = "process-node",
-
     empty = d3.select();
 
 /*
  Draws parts which are common to all types of node.
  */
-module.exports = function(container, defs, getNodeCollection, getLayout, transitions, drawEdges, redrawNode, update) {
+module.exports = function(container, defs, getNodeCollection, getLayout, viewport, transitions, drawEdges, redrawNode, selectNodes, update) {
     /*
      Used to tidy up the beginnings of edges.
      */
@@ -256,16 +254,20 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	drawNodeName = function(nodes, newNodes) {
 	    newNodes.append("g")
 		.classed("name", true)
+		.on("click", centreNode)
 		.append("text");
 
 	    nodes.select("g.name")
 		.attr("transform", function(d, i) {
 		    return "translate(" + d.margin.horizontal + "," + d.margin.vertical + ")";
-		})	    
-		.select("text")
-		.attr("x", function(d, i) {
-		    return d.innerWidth;
 		})
+		.style("visibility", function(d, i) {
+		    /*
+		     If the node is centred, we'll provide a text box for the user to edit it instead of display SVG text.
+		     */
+		    return d.centred ? "hidden" : "visible";
+		})
+		.select("text")
 		.call(
 		    svgTextWrapping,
 		    function(d, i) {
@@ -285,10 +287,17 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
     },
 
+	centreNode = function(d, i) {
+	    if (!d3.event.defaultPrevented) {
+		viewport.centreNode(d.id);
+	    }
+	},
+
 	drawNodes = function(nodes, newNodes) {
 	    newNodes
 		.append("rect")
 		.classed("node-box", true)
+		.on("click", centreNode)	    
 		.each(function(d, i) {
 		    d3.select(this).classed("node-box-" + d.type, true);
 		});
@@ -313,21 +322,12 @@ module.exports = function(container, defs, getNodeCollection, getLayout, transit
 	    
 	    drawMoveHandle(nodes, newNodes);
 	    drawResizeHandle(nodes, newNodes);
-	},
-
-	selectNodes = function() {
-	    return container.selectAll("g." + nodeClass)
-	    	.filter(function(d, i) {
-		    return !d3.select(this).classed("removing");
-		});
 	};
 
     return {
 	redrawNode: function(nodes, newNodes) {
 	    drawNodes(nodes, newNodes);
 	},
-
-	selectNodes: selectNodes,
 
 	draw: function(nodeData) {
 	    var nodes = selectNodes()

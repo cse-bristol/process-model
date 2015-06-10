@@ -55,8 +55,7 @@ var d3 = require("d3"),
     ),    
     
     margins = require("./margins.js")(update),
-    // ToDo put in textEditor here
-    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, null, model.getNodes, model.getLayout, update),    
+    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, update),    
     layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins),
 
     modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),

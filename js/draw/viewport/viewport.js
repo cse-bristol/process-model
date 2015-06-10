@@ -11,15 +11,15 @@ var d3 = require("d3"),
 
     queryParam = "focus";
 
-module.exports = function(svg, g, textEditor, queryString, getNodeCollection, update, transitions, getSVGNodes) {
+module.exports = function(svg, g, queryString, getNodeCollection, update, transitions, getSVGNodes) {
     var state = stateFactory(),
-	zoom = zoomFactory(svg, g, textEditor),
+	zoom = zoomFactory(svg, g),
 	zoomToFit = zoomToFitFactory(svg, zoom, getSVGNodes),
 	
 	viewportChanging = false,
 	zooming = false;
 
-    zoom.on("zoomend.setManualPosition", function() {
+    zoom.on("zoom.setManualPosition", function() {
 	if (zoom.changed()) {
 	    if (viewportChanging) {
 		viewportChanging = false;
@@ -44,12 +44,6 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 	}
     });
 
-    // ToDo sort out text editor
-    // textEditor.onClose(function() {
-    // 	state.uncentreNode();
-    // 	update);
-    // });
-
     queryString.param(
 	queryParam,
 	// The read function is omitted here, because we're going to set up our focus during 'onSetModel' instead.
@@ -70,9 +64,9 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 	    
 	    if (state.isCentredOnNode()) {
 		zoomToFit(
-		    d3.set(
+		    d3.set([
 			state.getCentredNodeId()
-		    )
+		    ])
 		);
 		
 	    } else if (state.hasSubTreeFocus()) {
@@ -102,6 +96,19 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 	    update();
 	},
 
+	uncentreNode: function() {
+	    state.uncentreNode();
+	    update();
+	},
+
+	getCentredNodeId: function() {
+	    if (state.isCentredOnNode()) {
+		return state.getCentredNodeId();
+	    } else {
+		return null;
+	    }
+	},
+
 	focusSubTree: function(nodeId) {
 	    state.focusSubTree(nodeId);
 	    update();
@@ -124,9 +131,9 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 
 	getEmphasis: function() {
 	    if (state.isCentredOnNode()) {
-		return d3.set(
+		return d3.set([
 		    state.getCentredNodeId()
-		);
+		]);
 		
 	    } else if (state.hasSubTreeFocus()) {
 		return getNodeCollection()
@@ -147,6 +154,8 @@ module.exports = function(svg, g, textEditor, queryString, getNodeCollection, up
 	    if (focusNodeId && getNodeCollection().has(focusNodeId)) {
 		state.focusSubTree(focusNodeId);
 	    }
-	}
+	},
+
+	zoom: zoom
     };
 };
