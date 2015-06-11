@@ -84,9 +84,14 @@ module.exports = function() {
 	    edgesToNode(id).forEach(function(e) {
 		e.disconnect();
 	    });
-	    nodesById.get(id).edges().forEach(function(e) {
-		e.disconnect();
-	    });
+
+	    nodesById.get(id)
+		.edges()
+	    // Deleting edges from the collection while iterating through it causes problems. Take a copy of it to avoid this.
+		.slice(0)
+		.forEach(function(e) {
+		    e.disconnect();
+		});
 	    
 	    nodesById.remove(id);
 
