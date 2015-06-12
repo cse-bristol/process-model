@@ -12,11 +12,11 @@ var d3 = require("d3"),
 
     junctionsFactory = require("./junctions/draw-junctions.js");
 
-module.exports = function(container, redrawNode, transitions, getNodeCollection, getLayoutState, update) {
+module.exports = function(container, redrawNode, transitions, viewport, getNodeCollection, getLayoutState, update) {
     var drawJunctions = junctionsFactory(container, transitions, redrawNode, getNodeCollection, getLayoutState, update),
 
 	types = d3.map({
-	    undecided: undecided(getNodeCollection, transitions, update),
+	    undecided: undecided(getNodeCollection, transitions, viewport, update),
 	    process: process(drawJunctions, redrawNode, getNodeCollection, update),
 	    issue: issue(drawJunctions, getNodeCollection, update),
 	    option: option(drawJunctions),

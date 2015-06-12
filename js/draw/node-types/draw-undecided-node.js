@@ -9,7 +9,7 @@ var d3 = require("d3"),
     textXOffset = constants.textXOffset,
     textYOffset = constants.textYOffset;    
 
-module.exports = function(getNodeCollection, transitions, update) {
+module.exports = function(getNodeCollection, transitions, viewport, update) {
     return function(nodes, newNodes, margins, newMargins) {
 	var typeOptions = nodes
 		.selectAll("g.node-choice")
@@ -42,11 +42,15 @@ module.exports = function(getNodeCollection, transitions, update) {
 		    d3.event.stopPropagation();
 		})
 		.on("click", function(d, i) {
-		    var nodeCollection = getNodeCollection();
-		    nodeCollection.chooseNodeType(
-			nodeCollection.get(d.viewModel.id),
-			d.option
-		    );
+		    var nodeCollection = getNodeCollection(),
+			replacementNode = nodeCollection.chooseNodeType(
+			    nodeCollection.get(d.viewModel.id),
+			    d.option
+			);
+
+		    if (viewport.getCentredNodeId() === d.viewModel.id) {
+			viewport.centreNode(replacementNode.id);
+		    }
 
 		    update();
 		});
