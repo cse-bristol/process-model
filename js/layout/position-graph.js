@@ -82,7 +82,7 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
 
 	var layout = dagre.layout()
 		.nodeSep(10)
-		.rankSep(70)
+		.rankSep(40)
 		.rankDir(layoutState.getOrientation())
 		.run(graph),
 
