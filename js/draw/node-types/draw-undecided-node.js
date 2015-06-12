@@ -11,7 +11,7 @@ var d3 = require("d3"),
 
 module.exports = function(getNodeCollection, transitions, update) {
     return function(nodes, newNodes, margins, newMargins) {
-	var typeOptions = margins
+	var typeOptions = nodes
 		.selectAll("g.node-choice")
 		.data(
 		    function(d, i) {
@@ -65,7 +65,7 @@ module.exports = function(getNodeCollection, transitions, update) {
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
 		var horizontal = i * buttonSize,
-		    vertical = 0;
+		    vertical = d.viewModel.size[1] - buttonSize;
 		
 		return "translate(" + horizontal + "," + vertical + ")";
 	    });
