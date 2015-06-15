@@ -244,11 +244,11 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		.text("⇘")
 		.classed("no-select", true);
 
-	    nodes.select("g.resize-handle")
+	    transitions.maybeTransition(
+		nodes.select("g.resize-handle"))
 		.attr("transform", function(d, i) {
 		    return "translate(" + (d.size[0] - 8) + "," + (d.size[1] - 0.5) + ")";
 		});
-
 	},
 
 	drawNodeName = function(nodes, newNodes) {
@@ -257,16 +257,20 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		.on("click", centreNode)
 		.append("text");
 
-	    nodes.select("g.name")
-		.attr("transform", function(d, i) {
-		    return "translate(" + d.margin.horizontal + "," + d.margin.vertical + ")";
-		})
+	    var names = nodes.select("g.name")
 		.style("visibility", function(d, i) {
 		    /*
 		     If the node is centred, we'll provide a text box for the user to edit it instead of display SVG text.
 		     */
 		    return d.centred ? "hidden" : "visible";
-		})
+		});
+
+	    transitions.maybeTransition(names)
+	    	.attr("transform", function(d, i) {
+		    return "translate(" + d.margin.horizontal + "," + d.margin.vertical + ")";
+		});
+
+	    names
 		.select("text")
 		.call(
 		    svgTextWrapping,
@@ -302,11 +306,13 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		    d3.select(this).classed("node-box-" + d.type, true);
 		});
 
-	    nodes
+	    var rects = nodes
 		.classed("selected", function(d, i) {
 		    return d.selected;
 		})
-		.select("rect.node-box")
+		    .select("rect.node-box");
+
+	    transitions.maybeTransition(rects)
 		.attr("width", function(d, i) {
 		    return d.size[0] + "px";
 		})
@@ -316,9 +322,10 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 
 	    drawNodeName(nodes, newNodes);
 
-	    transitions.maybeTransition(nodes).attr("transform", function(d, i){
-		return "translate(" + (d.x) + "," + d.y + ")";
-	    });
+	    transitions.maybeTransition(nodes)
+		.attr("transform", function(d, i){
+		    return "translate(" + (d.x) + "," + d.y + ")";
+		});
 	    
 	    drawMoveHandle(nodes, newNodes);
 	    drawResizeHandle(nodes, newNodes);
