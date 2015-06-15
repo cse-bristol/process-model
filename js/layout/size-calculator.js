@@ -13,37 +13,40 @@ var d3 = require("d3"),
 /*
  Returns a d3 dictionary of size by node id.
  */
-module.exports = function(enabledIds, verticalMargins, manualSizes) {
+module.exports = function(enabledIds, verticalMargins, centredNodeId, manualSizes) {
     var result = d3.map(),
-	defaultSize = {
-	    size: [
-		defaultNodeWidth,
-		defaultNodeHeight - (verticalMargins ? 0 : (2 * verticalMargin))
-	    ],
-	    margins: {
-		horizontal: horizontalMargin,
-		vertical: verticalMargins ? verticalMargin : 0
+	
+	defaultSize = [
+	    defaultNodeWidth,
+	    defaultNodeHeight - (verticalMargins ? 0 : (2 * verticalMargin))
+	],
+	
+	defaultMargins = {
+	    horizontal: horizontalMargin,
+	    vertical: verticalMargins ? verticalMargin : 0
+	},
+
+	lookup = function(id) {
+	    if (id === centredNodeId) {
+		return [
+		    window.innerWidth / 6,
+		    window.innerHeight / 6
+		];
+	    } else if (manualSizes.has(id)) {
+		return manualSizes.get(id);
+	    } else {
+		return defaultSize;
 	    }
 	};
-	
-    enabledIds.forEach(function(id) {
-	if (manualSizes.has(id)) {
-	    var size = manualSizes.get(id);
-
-	    result.set(
-		id,
-		{
-		    size: size,
-		    margins: defaultSize.margins
-		}
-	    );
 	    
-	} else {
-	    result.set(
-		id,
-		defaultSize
-	    );
-	}
+    enabledIds.forEach(function(id) {
+	result.set(
+	    id,
+	    {
+		margins: defaultMargins,
+		size: lookup(id)
+	    }
+	);
     });
     
     return result;    

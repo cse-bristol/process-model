@@ -20,6 +20,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 	    sizes = sizeCalculator(
 		visibleIds,
 		margins.enabled(),
+		viewport.getCentredNodeId(),
 		layoutState.size()
 	    ),
 
