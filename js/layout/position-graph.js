@@ -95,15 +95,12 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
 	    nodePositions.set(
 		id,
 		[
-		    val.x + offset[0] - (size[0] / 2),
-		    val.y + offset[1] - (size[1] / 2)
+		    val.x + offset[0] - (val.width / 2),
+		    val.y + offset[1] - (val.height / 2)
 		]
 	    );
 	});
 
-	/*
-	 Queue up the edges to be turned into a view model later (once we've finished adding all the nodes).
-	 */
 	layout.eachEdge(function(e, fromId, toId, val) {
 	    edgeResults.push({
 		edge: nodesCollection.get(fromId)
