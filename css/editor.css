@@ -10,12 +10,10 @@
     overflow: hidden;
     margin: 0;
     padding: 0;
-    margin-top: 1px;
-    margin-bottom: 2%;
 }
 
-
 .edit-name {
+    margin-top: 1px;    
     height: 30%;
     -moz-user-modify: read-write-plaintext-only;
     -webkit-user-modify: read-write-plaintext-only;
@@ -24,7 +22,8 @@
 }
 
 .edit-description {
-    height: 61%;
+    height: 70%;
+    margin-top: 2%;
 }
 
 /* Override the styles from the zenpen-editor where appropriate. */

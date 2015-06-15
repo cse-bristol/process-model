@@ -2,7 +2,10 @@
 
 /*global module, require*/
 
-var d3 = require("d3");
+var d3 = require("d3"),
+
+    constants = require("../drawing-constants.js"),
+    textYOffset = constants.textYOffset;
 
 /*
  Draws some read-only text. Clicking on it will toggle it between states and colours.
@@ -36,6 +39,7 @@ module.exports = function(getNodeCollection, update, clazz, text, colouring, tog
 	    .attr("x", function(d, i) {
 		return d.centre[0];
 	    })
+	    .attr("y", textYOffset)
 	    .attr("width", function(d, i) {
 		return d.innerWidth;
 	    })
