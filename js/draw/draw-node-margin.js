@@ -118,12 +118,12 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
 	drawExpandContract = function(margins, newMargins) {
 	    drawExpand(margins, newMargins)
 		.style("visibility", function(d, i) {
-		    return d.margin.vertical && d.collapsed ? "visible" : "hidden";
+		    return d.collapsed ? null : "hidden";
 		});
 
 	    drawContract(margins, newMargins)
 		.style("visibility", function(d, i) {
-		    return d.margin.vertical && d.canCollapse ? "visible" : "hidden";
+		    return d.canCollapse ? null : "hidden";
 		});
 	};
 
