@@ -20,9 +20,9 @@ var d3 = require("d3"),
 
 module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, update) {
     var background = svg.append("rect")
-	    .style("width", "100%")
-	    .style("height", "100%")
-	    .style("fill", "white")
+	    .attr("width", "100%")
+	    .attr("height", "100%")
+	    .attr("fill", "white")
 	    .on("click", function() {
 		if (!d3.event.defaultPrevented) {
 		    viewport.uncentreNode();
