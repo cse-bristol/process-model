@@ -3,6 +3,8 @@
 /*global module, require*/
 
 var d3 = require("d3"),
+    json0 = require("ot-json0").type,
+    
     types = require("./process-node.js"),
     helpers = require("../../helpers.js"),
     createEdge = require("./edge.js"),
@@ -40,7 +42,27 @@ var assertNoCycles = function(node) {
     };
     
     assertNoCyclesAccum(node, []);
-};
+},
+
+    modifyOperations = function(offset, toInsert, toDelete) {
+	var ops = [];
+
+	if (toDelete) {
+	    ops.push({
+		p: offset,
+		d: toDelete
+	    });
+	}
+	
+	if (toInsert) {
+	    ops.push({
+		p: offset,
+		i: toInsert
+	    });
+	}
+
+	return ops;
+    };
 
 /*
  Defines the basic form of a node.
@@ -61,8 +83,8 @@ module.exports = function(type, id, onEdgeCreate, onEdgeDelete, onNavigate) {
     }
 
     var edges = [],
-	description = " ",
-	name = "Name";
+	description = json0.create(" "),
+	name = json0.create("Name");
 
     var node = {
 	/*
@@ -111,23 +133,52 @@ module.exports = function(type, id, onEdgeCreate, onEdgeDelete, onNavigate) {
 	    }
 	},
 	
-	name: function(n) {
-	    if (n) {
-		n = cleanse(n);
-		name = n;
-		
-		return node;
-	    }
-
+	name: function() {
 	    return name;
 	},
-	description: function(c) {
-	    if (c === undefined) {
-		return description;
-	    } else {
-		description = c;
-		return this;
-	    }
+
+	setName: function(newName) {
+	    node.modifyName(
+		node.modifyNameOperations(0, newName, name)
+	    );
+	},
+
+	modifyNameOperations: function(offset, insertedText, deletedText) {
+	    return modifyOperations(offset, cleanse(insertedText), deletedText);
+	},
+
+	modifyName: function(operations) {
+	    name = json0.apply(
+		name,
+		[{
+		    p: [],
+		    t: 'text0',
+		    o: operations
+		}]
+	    );
+	},
+	
+	description: function() {
+	    return description;
+	},
+
+	setDescription: function(newDescription) {
+	    node.modifyDescription(
+		node.modifyDescriptionOperations(0, newDescription, description)
+	    );
+	},
+
+	modifyDescriptionOperations: modifyOperations,
+
+	modifyDescription: function(operations) {
+	    description = json0.apply(
+		description,
+		[{
+		    p: [],
+		    t: 'text0',
+		    o: operations
+		}]
+	    );
 	},
 	
 	countDescendents: function() {

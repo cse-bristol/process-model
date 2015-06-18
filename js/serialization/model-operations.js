@@ -142,7 +142,16 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	if (path.length === 0) {
 	    throw new Error("Adding and removing nodes should be handled before we get here.");
 	} else if (path.length === 1) {
-	    updateProperty(node, path[0], op);
+	    if (path[0] === "name") {
+		node.modifyName(op.o);
+		
+	    } else if (path[0] === "description") {
+		node.modifyDescription(op.o);
+		
+	    } else {
+		updateProperty(node, path[0], op);
+	    }
+
 	} else if (path[0] === "edges") {
 	    updateEdges(nodeCollection, node, path.slice(1), op);
 	    
@@ -243,14 +252,47 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	}
     };
 
+    var hookName = function(node) {
+	var wrapped = node.modifyName,
+	    id = node.id;
+
+	node.modifyName = function(operations) {
+	    wrapped.apply(node, arguments);
+
+	    submitOp({
+		p: ["nodes", id, "name"],
+		t: "text0",
+		o: [operations]
+	    });
+	};
+    };
+
+    var hookDescription = function(node) {
+	var wrapped = node.modifyDescription,
+	    id = node.id;
+
+	node.modifyDescription = function(operations) {
+	    wrapped.apply(node, arguments);
+
+	    submitOp({
+		p: ["nodes". id, "description"],
+		t: "text0",
+		o: operations
+	    });
+	};
+    };
+
     var hookNode = function(node) {
 	/*
 	 I've chosen not to hook up the chooseType function in here. This means that a node changes identity when it changes type, which is probably ok since it has no interesting properties on it.
 	 */   
-	["name", "localEvidence", "description", "dependence", "settled", "support"]
+	["localEvidence", "dependence", "settled", "support"]
 	    .forEach(function(p) {
 		hook(node, ["nodes", node.id], p);
 	    });
+
+	hookName(node);
+	hookDescription(node);
     };
 
     var hookEdge = function(edge) {

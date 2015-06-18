@@ -2,45 +2,26 @@
 
 /*global module, require, setTimeout*/
 
-var _ = require("lodash"),
+var d3 = require("d3"),
     textControlsFactory = require("zenpen-toolbar"),
-    cssPrefix = require("./css-browser-prefixes.js");
+    cssPrefix = require("../css-browser-prefixes.js"),
+    simplifiedHTML = require("./dom-to-simplified-html.js")(),
+    diffOperations = require("./diff-operations.js"),
+
+    enterKey = 13;
 
 /*
  Floating edit elements for one node.
 
  The contents, position and size will be altered to fit the node currently being edited. 
  */
-module.exports = function(body, getNodeCollection, viewport, update) {
-    var state = null,
-	zoom = viewport.zoom,
+module.exports = function(body, getNodeCollection, viewport, transitions, update) {
+    var zoom = viewport.zoom,
+	nodeId = null,
 	width = width,
 	height = height,
 	x,
 	y,
-
-	saveData = _.debounce(
-	    function(currentState, currentName, currentDescription) {
-		// if (currentState.id) {
-		//     var node = getNodeCollection().get(
-		// 	currentState.id
-		//     );
-
-		//     if (node) {
-		// 	if (currentName !== currentState.name) {
-		// 	    currentState.name = currentName;
-		// 	    node.name(currentName);
-		// 	}
-
-		// 	if (currentDescription !== currentState.description) {
-		// 	    currentState.description = currentDescription;
-		// 	    node.description(currentDescription);
-		// 	}
-		//     }
-		// }
-	    },
-	    500
-	),
 
 	maybeFocus = function() {
 	    if (document.activeElement === name.node() ||
@@ -54,7 +35,6 @@ module.exports = function(body, getNodeCollection, viewport, update) {
 	},
 
 	disableEditor = function() {
-	    // ToDo sort out saving state	    
 	    viewport.uncentreNode();
 	    update();
 	},
@@ -65,15 +45,33 @@ module.exports = function(body, getNodeCollection, viewport, update) {
 	name = editor.append("div")
 	    .classed("edit-name", true)
 	    .attr("contenteditable", true)
-	    .on("input", saveData),
+	    .on("keypress", function() {
+		if (d3.event.which === enterKey) {
+		    /*
+		     Prevent newlines.
+		     The user can still paste newlines, but these will get removed on save.
+		     */
+		    d3.event.stopPropagation();
+		    d3.event.preventDefault();
+		}
+	    })
+	    .on("input", function() {
+		var node = getNodeCollection().get(nodeId);
 
-	description = editor.append("div")
-	    .classed("edit-description", true)
-	    .attr("contenteditable", true)    
-	    .on("input", saveData),
+		node.modifyName(
+		    diffOperations(
+			node.name(),
+			name.text()
+		    )
+		);
+	    }),
 
 	textControls = textControlsFactory(body),
-
+	
+	description = editor.append("div")
+	    .classed("edit-description", true)
+	    .attr("contenteditable", true),
+    
 	positionEditor = function(translate, scale) {
 	    /*
 	     Our editor gets the wrong position equal to half its size multiplied by (scale - 1).
@@ -81,7 +79,7 @@ module.exports = function(body, getNodeCollection, viewport, update) {
 	     Adding half its size in the first translate doesn't appear to correct this.
 
 	     I believe the problem may be due to the origin of transformation being in a slightly different place for svg and css transforms, but was not able to resolve it nicely.
-	    */
+	     */
 	    var enlargement = scale - 1,
 		hackedSize = [
 		    translate[0] + (enlargement * width / 2),
@@ -102,13 +100,28 @@ module.exports = function(body, getNodeCollection, viewport, update) {
 	    );
 	};
 
-    textControls(description);
+    textControls(
+	description,
+	function() {
+	    var node = getNodeCollection().get(nodeId);
+	    node.modifyDescription(
+		diffOperations(
+		    node.description(),
+		    simplifiedHTML(description.node())
+		)
+	    );
+	}
+    );
+    
     viewport.zoom.onZoom(positionEditor);
 
     return {
 	update: function(svgNodes) {
-	    var id = viewport.getCentredNodeId(),
-		node = getNodeCollection().get(id);
+	    var changedNode = nodeId === viewport.getCentredNodeId();
+	    
+	    nodeId = viewport.getCentredNodeId();
+
+	    var node = getNodeCollection().get(nodeId);
 
 	    if (!node) {
 		editor.style("visibility", "hidden");
@@ -117,13 +130,13 @@ module.exports = function(body, getNodeCollection, viewport, update) {
 	    }
 	    
 	    var	svgNode = svgNodes.filter(function(d, i) {
-		    return d.id === id;
-		});
+		return d.id === nodeId;
+	    });
 
 	    if (svgNode.size() !== 1) {
 		/*
-		We didn't get asked to redraw the important node.
-		*/
+		 We didn't get asked to redraw the important node.
+		 */
 		return;
 	    }
 
@@ -132,22 +145,28 @@ module.exports = function(body, getNodeCollection, viewport, update) {
 	    width = nodeViewModel.innerWidth,
 	    height = nodeViewModel.innerHeight;
 	    x = nodeViewModel.margin.horizontal + nodeViewModel.x;
-	    y = nodeViewModel.margin.vertical + nodeViewModel.y;
+	    y = nodeViewModel.margin.top + nodeViewModel.y;
 
 	    positionEditor(zoom.translate(), zoom.scale());
 
 	    editor
-		.style("visibility", "visible")
+		.style("visibility", "visible");
+
+	    transitions.maybeTransition(editor)
 		.style("width", width + "px")
 		.style("height", height + "px");
 
-	    // ToDo this will cause annoying cursor behaviour and probably oscillating text when we have 2 users editing a node at once.
-	    name.text(
-		nodeViewModel.name
-	    );
-	    description.text(
-		nodeViewModel.description
-	    );
+	    if (name.text() !== nodeViewModel.name) {
+		name.text(
+		    nodeViewModel.name
+		);
+	    }
+
+	    if (description.html() !== nodeViewModel.description) {
+		description.html(
+		    nodeViewModel.description
+		);
+	    }
 
 	    maybeFocus();
 	    textControls.update();

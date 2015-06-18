@@ -67,7 +67,7 @@ module.exports = function(text) {
 		desc = n.getElementsByTagName("desc"),
 		name = n.getAttribute("name").replace(/\//g, "|");
 
-	    node.name(name);
+	    node.setName(name);
 	    
 	    if (dependence.length > 0 && !node.isLeaf() && node.dependence) {
 		node.dependence(loadDependence(dependence[0]), true);
@@ -107,7 +107,7 @@ module.exports = function(text) {
 	    /*
 	     Mash optional properties into a big text blob.
 	     */
-	    node.description(
+	    node.setDescription(
 		webify(
 		    // add the contents of the <desc> node
 		    desc.length > 0 ? Array.prototype.map.call(
