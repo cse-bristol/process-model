@@ -68,8 +68,8 @@ module.exports = function(getNodeCollection, transitions, viewport, update) {
 
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
-		var horizontal = i * buttonSize,
-		    vertical = d.viewModel.size[1] - buttonSize;
+		var horizontal = d.viewModel.size[0] - ((i + 1) * buttonSize) - d.viewModel.margin.horizontal,
+		    vertical = d.viewModel.size[1] - buttonSize - 5;
 		
 		return "translate(" + horizontal + "," + vertical + ")";
 	    });

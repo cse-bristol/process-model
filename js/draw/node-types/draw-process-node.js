@@ -5,21 +5,24 @@
 var d3 = require("d3"),
 
     helpers = require("../../helpers.js"),
-    onScroll = helpers.onScroll, 
-    
+    onScroll = helpers.onScroll,
+
+    // This constant should probably be moved somewhere else.
+    magicLeftOffset = 10,
     computedClass = "computed";
 
-module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) {
+module.exports = function(drawJunctions, redrawNode, getNodeCollection, transitions, update) {
     
     var modifyIndex,
 	dragEvidence = d3.behavior.drag()
 	    .on("dragstart", function(d, i) {
 		d3.event.sourceEvent.stopPropagation();
+		transitions.disable();
 	    })
 	    .on("drag", function(d, i) {
 		var evidence = d.node.evidence.slice(0),
-		    scale = d.node.innerWidth,
-		    newWidth = d3.event.x;
+		    scale = d.node.innerWidth - magicLeftOffset,
+		    newWidth = d3.event.x - magicLeftOffset;
 
 		if (modifyIndex === undefined || modifyIndex === null) {
 		    switch (d.type) {
@@ -35,9 +38,9 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 			 Choose which bit of evidence to modify based on where the cursor was when we started the drag action.
 			 */
 			if (d3.event.x > this.x.baseVal.value + (this.width.baseVal.value / 2)) {
-			    modifyIndex = 1;
-			} else {
 			    modifyIndex = 0;
+			} else {
+			    modifyIndex = 1;
 			}
 			
 			break;
@@ -46,7 +49,7 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 		    }
 		}
 
-		evidence[modifyIndex] = newWidth / scale;
+		evidence[modifyIndex] = 1 - (newWidth / scale);
 
 		var node = getNodeCollection().get(d.node.id);
 
@@ -58,42 +61,39 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 	    })
 	    .on("dragend", function(d, i) {
 		modifyIndex = undefined;
+		transitions.enable();
 		update();
 	    });
 
     return function(nodes, newNodes, margins, newMargins) {
-	var drawIntervalParts = function(g) {
+	var drawIntervalParts = function(g, newG) {
 	    g
-		.attr("transform", function(d, i) {
-		    return "rotate(180," +  (d.size[0] / 2) + ", 0)translate(0," + (-d.margin.vertical) + ")";
-		})
 		.classed(computedClass, function(d, i) {
 		    return d.hasChildProcesses;
 		});
-
 
 	    /* Given an SVG group which has a node as its datum, and a function which returns its interval probabilities, fill it with some interval parts. */
 	    var parts = g.selectAll("rect")
     		    .data(
 			function(viewNode, i) {
 			    var p = viewNode.evidence,
-				lower = Math.min(p[0], p[1]),
-				upper = Math.max(p[0], p[1]),
+				Sn = Math.min(p[0], p[1]),
+				Sp = Math.max(p[0], p[1]),
+
+				// Swap these over so that green is on the left.
+				green = 1 - Sp,
+				red = 1 - Sn,
+
 				conflict = p[0] > p[1],
-				gap = upper - lower;
+				gap = Sp - Sn;
 
 
 			    var intervalData = [
-				{node: viewNode, type: "failure", width: lower, x: 0},
-				{node: viewNode, type: "conflict", width: conflict ? gap : 0, x: lower},
-				{node: viewNode, type: "uncertainty", width: conflict ? 0 : gap, x: lower},
-				{node: viewNode, type: "success", width: 1 - upper, x: upper}
+				{node: viewNode, type: "failure", width: Sn, x: green + gap},
+				{node: viewNode, type: "conflict", width: conflict ? gap : 0, x: green},
+				{node: viewNode, type: "uncertainty", width: conflict ? 0 : gap, x: green},
+				{node: viewNode, type: "success", width: green, x: 0}
 			    ];
-
-			    intervalData.forEach(function(d) {
-				d.nodeInnerWidth = viewNode.innerWidth;
-				d.nodeSidePadding = viewNode.sidePadding;
-			    });
 
 			    return intervalData;
 			},
@@ -108,6 +108,7 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 	    	.attr("class", function(d, i) {
 		    return d.type;
 		})
+		.attr("height", "15px")	    
 		.call(onScroll, function(d, i, change) {
 		    var evidence = d.node.evidence;
 		    
@@ -133,22 +134,19 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, update) 
 		    update();
 		});	    
 
-	    parts
+	    transitions.maybeTransition(parts)
 		.attr("x", function(d, i) {
-		    return (d.node.size[0] * d.x) + "px";
-		})
-		.attr("height", function(d, i) {
-		    return d.node.margin.vertical + "px";
+		    return d.node.margin.horizontal + magicLeftOffset + ((d.node.innerWidth - magicLeftOffset) * d.x) + "px";
 		})
 		.attr("width", function(d, i) {
-		    return (d.node.size[0] * d.width) + "px";
+		    return (d.node.innerWidth - magicLeftOffset) * d.width + "px";
 		});
 	};
 
-	newMargins.append("g")
+	var newG = newMargins.append("g")
 	    .classed("interval", "true");
 
-	drawIntervalParts(margins.select("g.interval"));
+	drawIntervalParts(margins.select("g.interval"), newG);
 
 	drawJunctions.dependencyArc(nodes, newNodes);
     };

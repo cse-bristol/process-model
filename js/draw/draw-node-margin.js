@@ -6,19 +6,23 @@ var d3 = require("d3"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
 
+    svgTextWrapping = require("./svg-text-wrapping.js"),
+
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
     textXOffset = constants.textXOffset,
     textYOffset = constants.textYOffset;
 
-
-module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
+module.exports = function(getNodeCollection, getLayoutState, viewport, transitions, update) {
     var onBottomMarginDraw = callbacks(),
 
-	marginVisibility = function(selection) {
-	    selection.style("visibility", function(d, i) {
-		return d.margin.vertical ? "visible" : "hidden";
-	    });
+	centreNode = function(d, i) {
+	    if (!d3.event.defaultPrevented) {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+		
+		viewport.centreNode(d.id);
+	    }
 	},
 
 	drawType = function(margins, newMargins) {
@@ -29,16 +33,48 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
 		.classed("no-select", true)
 		.text(function(d, i){
 		    return d.type[0].toUpperCase();
+		})
+		.attr("x", textXOffset)
+		.attr("y", textYOffset);
+	},
+
+	drawNodeName = function(topMargins, newTopMargins) {
+	    newTopMargins.append("g")
+		.classed("name", true)
+		.on("click", centreNode)
+		.append("text");
+
+	    var names = topMargins.select("g.name")
+		    .style("visibility", function(d, i) {
+			/*
+			 If the node is centred, we'll provide a text box for the user to edit it instead of display SVG text.
+			 */
+			return d.centred ? "hidden" : "visible";
+		    });
+
+	    transitions.maybeTransition(names)
+	    	.attr("transform", function(d, i) {
+		    return "translate(" + d.margin.horizontal + "," + d.margin.top + ")";
 		});
 
-	    margins.select("g.node-type")
-		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size[0] - 12) + "," + 12 + ")";
-		});
+	    names
+		.select("text")
+		.call(
+		    svgTextWrapping,
+		    function(d, i) {
+			return d.name;
+		    },
+		    function(d) {
+			return d.innerWidth;
+		    },
+		    function(d) {
+			return d.innerHeight;
+		    }
+		);
 	},
 
 	drawButton = function(buttonText, onClick, cssClass, position) {
-	    var translate = "translate(" + (position * buttonSize) + ",0)";
+	    position += 1;
 	    
 	    return function(margins, newMargins) {
 		var newButtons = newMargins.append("g")
@@ -48,7 +84,6 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
 		 Prevent highlighting the text inside this button.
 		 */
 			.classed("no-select", true)
-			.attr("transform", translate)
 			.on("mousedown", function(d, i) {
 			    /*
 			     The click from this button won't become part of a drag event.
@@ -70,10 +105,13 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
 
 		var buttons = margins.select("g." + cssClass);
 
-		buttons.select("rect")
-		    .attr("height", function(d, i) {
-			return d.margin.vertical;
+		transitions.maybeTransition(buttons)
+		    .attr("transform", function(d, i) {
+			return "translate(" + (d.size[0] - (position * buttonSize) - d.margin.horizontal)  + "," + d.margin.top  + ")";
 		    });
+
+		buttons.select("rect")
+		    .attr("height", buttonSize);
 
 		return buttons;
 	    };
@@ -95,59 +133,68 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, update) {
 	    },
 	    "focus-subtree-tool",
 	    1
-	),
-
-	drawExpand = drawButton(
-	    "+",
-	    function(d, i) {
-		getLayoutState().setCollapsed(d.id, false);
-	    },
-	    "expand-button",
-	    2
-	),
-
-	drawContract = drawButton(
-	    String.fromCharCode("8259"),
-	    function(d, i) {
-		getLayoutState().setCollapsed(d.id, true);		
-	    },
-	    "contract-button",
-	    2
-	),
-
-	drawExpandContract = function(margins, newMargins) {
-	    drawExpand(margins, newMargins)
-		.style("visibility", function(d, i) {
-		    return d.collapsed ? null : "hidden";
-		});
-
-	    drawContract(margins, newMargins)
-		.style("visibility", function(d, i) {
-		    return d.canCollapse ? null : "hidden";
-		});
-	};
+	);
 
     return function(nodes, newNodes) {
 	var newTopMargins = newNodes.append("g")
 		.classed("node-top-margin", true);
 
-	var topMargins = nodes.select("g.node-top-margin")
-		.call(marginVisibility);
+	var topMargins = nodes.select("g.node-top-margin");
 
+	drawNodeName(topMargins, newTopMargins);
 
 	drawDelete(topMargins, newTopMargins);
 	drawFocus(topMargins, newTopMargins);
-	drawExpandContract(topMargins, newTopMargins);
-	drawType(topMargins, newTopMargins);
 	
 	var newBottomMargins = newNodes.append("g")
 		.classed("node-bottom-margin", true);
 
-	var bottomMargins = nodes.select("g.node-bottom-margin")
-	    	.call(marginVisibility)
-	    	.attr("transform", function(d, i) {
-		    return "translate(0," + (d.size[1] - d.margin.vertical)  + ")";
+	var bottomMargins = nodes.select("g.node-bottom-margin");
+
+	var maybeScaleBottomMargins = transitions.maybeTransition(bottomMargins);
+
+	if (maybeScaleBottomMargins.attrTween) {
+	    /*
+	     This custom tween overrides the normal animation for the scale part of this transform.
+
+	     It proceeds smoothly between scale 0.2 and scale 1, but below scale 0.2 it will snap straight to scale 0.
+
+	     This is to avoid a problem in Chrome where SVG text does not scale correctly for very small scale values.
+	     */
+	    maybeScaleBottomMargins
+		.attrTween("transform", function(d, i, a) {
+		    var parts = a ? a.split("scale(1,") : null,
+			translatePart = parts ? parts[0] : null,
+			scaleNumber = parts ? parseFloat(parts[1]) : null,
+			
+			interpolateTranslate = d3.interpolate(
+			    translatePart,
+			    "translate(0," + (d.size[1] - d.margin.bottom)  + ")"
+			),
+			interpolateScale = d3.interpolate(
+			    scaleNumber,
+			    d.margin.bottom ? 1 : 0
+			);
+
+		    return function(a, b) {
+			var scale = interpolateScale(a, b);
+
+			if (scale < 0.001) {
+			    scale = 0;
+			}
+
+			return interpolateTranslate(a, b) + "scale(1," + scale + ")";
+		    };
 		});
+	    
+	} else {
+	    maybeScaleBottomMargins.attr("transform", function(d, i) {
+		return "translate(0," + (d.size[1] - d.margin.bottom) + ")"
+		    + "scale(1," + (d.margin.bottom ? 1 : 0) + ")";
+	    });
+	}
+	
+	drawType(bottomMargins, newBottomMargins);
 
 	return {
 	    topMargins: topMargins,

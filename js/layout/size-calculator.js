@@ -7,30 +7,32 @@ var d3 = require("d3"),
     defaultNodeWidth = 100,
     defaultNodeHeight = 100,
     horizontalMargin = 5,
-    verticalMargin = 15;
+    bottomMargin = 20,
+    topMargin = 5;
     
 
 /*
  Returns a d3 dictionary of size by node id.
  */
-module.exports = function(enabledIds, verticalMargins, centredNodeId, manualSizes) {
+module.exports = function(enabledIds, bottomMargins, centredNodeId, manualSizes) {
     var result = d3.map(),
 	
 	defaultSize = [
 	    defaultNodeWidth,
-	    defaultNodeHeight - (verticalMargins ? 0 : (2 * verticalMargin))
+	    defaultNodeHeight
 	],
 	
 	defaultMargins = {
 	    horizontal: horizontalMargin,
-	    vertical: verticalMargins ? verticalMargin : 0
+	    top: topMargin,
+	    bottom: bottomMargins ? bottomMargin : 0
 	},
 
 	lookup = function(id) {
 	    if (id === centredNodeId) {
 		return [
-		    window.innerWidth / 6,
-		    window.innerHeight / 6
+		    window.innerWidth / 4,
+		    window.innerHeight / 4
 		];
 	    } else if (manualSizes.has(id)) {
 		return manualSizes.get(id);

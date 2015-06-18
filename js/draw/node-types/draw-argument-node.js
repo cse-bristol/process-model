@@ -4,9 +4,10 @@
 
 var textToggleFactory = require("./text-toggle.js");
 
-module.exports = function(getNodeCollection, update) {
+module.exports = function(getNodeCollection, transitions, update) {
     var textToggle = textToggleFactory(
 	getNodeCollection,
+	transitions,
 	update,
 	"issue-settled-display", 
 	function text(d) {

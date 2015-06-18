@@ -44,7 +44,7 @@ module.exports = {
 		n.size = newSize;
 		
 		n.innerWidth = n.size[0] - (2 * margin.horizontal);
-		n.innerHeight = n.size[1] - (2 * margin.vertical);
+		n.innerHeight = n.size[1] - margin.top - margin.bottom;
 
 		n.centre = [
 		    n.size[0] * 0.5,

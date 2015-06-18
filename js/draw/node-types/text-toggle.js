@@ -10,13 +10,14 @@ var d3 = require("d3"),
 /*
  Draws some read-only text. Clicking on it will toggle it between states and colours.
  */
-module.exports = function(getNodeCollection, update, clazz, text, colouring, toggle) {
+module.exports = function(getNodeCollection, transitions, update, clazz, text, colouring, toggle) {
     return function(margins, newMargins) {
 	newMargins.append("g")
 	    .classed(clazz, true)
 	    .classed("toggleable-text", true)
 	    .classed("no-select", true)
 	    .append("text")
+	    .attr("y", textYOffset)
 	    .on("mousedown", function(d, i) {
 		/*
 		 The click from this button won't become part of a drag event.
@@ -33,13 +34,14 @@ module.exports = function(getNodeCollection, update, clazz, text, colouring, tog
 		
 		update();
 	    });
-	
-	margins.select("g." + clazz)
-	    .select("text")
+
+	transitions.maybeTransition(
+	    margins.select("g." + clazz)
+		.select("text")
+	)
 	    .attr("x", function(d, i) {
 		return d.centre[0];
 	    })
-	    .attr("y", textYOffset)
 	    .attr("width", function(d, i) {
 		return d.innerWidth;
 	    })

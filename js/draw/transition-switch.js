@@ -6,14 +6,14 @@
  Allows us to temporarily switch off transitions. This is useful, for example, when a user is dragging nodes around.
  */
 module.exports = function(){
-    var enabled = true;
+    var disabled = 0;
 
     var module = {
 	maybeTransition: function(selection) {
-	    if (enabled) {
-		return selection.transition();		
-	    } else {
+	    if (disabled) {
 		return selection;
+	    } else {
+		return selection.transition();		
 	    };
 	},
 	fadeOut: function(selection) {
@@ -25,13 +25,17 @@ module.exports = function(){
 		.style("opacity", 0.0001)
 		.remove();
 	},
-	enabled: function(val) {
-	    if (val === undefined) {
-		return enabled;
-	    } else {
-		enabled = val;
-		return module;
+	disable: function() {
+	    disabled++;
+
+	},
+	enable: function() {
+	    if (disabled > 0) {
+		disabled--;
 	    }
+	},
+	enabled: function() {
+	    return !disabled;
 	}
     };
     return module;

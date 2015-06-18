@@ -17,10 +17,10 @@ module.exports = function(container, redrawNode, transitions, viewport, getNodeC
 
 	types = d3.map({
 	    undecided: undecided(getNodeCollection, transitions, viewport, update),
-	    process: process(drawJunctions, redrawNode, getNodeCollection, update),
-	    issue: issue(drawJunctions, getNodeCollection, update),
+	    process: process(drawJunctions, redrawNode, getNodeCollection, transitions, update),
+	    issue: issue(drawJunctions, getNodeCollection, transitions, update),
 	    option: option(drawJunctions),
-	    argument: argument(getNodeCollection, update)
+	    argument: argument(getNodeCollection, transitions, update)
 	}),
 
 	filterByType = function(selection, type) {

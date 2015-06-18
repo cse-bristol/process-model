@@ -159,7 +159,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 			    d3.select(this),
 			    function(g) {
 				d3.event.sourceEvent.stopPropagation();
-				transitions.enabled(false);
+				transitions.disable();
 			    }
 			);
 		    })
@@ -188,7 +188,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		    })
 		    .on("dragend", function(d) {
 			update();			
-			transitions.enabled(true);
+			transitions.enable();
 		    });
 
 	    newNodes.call(dragNode);
@@ -214,7 +214,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 	    })
 	    .on("dragstart", function(d){
 		d3.event.sourceEvent.stopPropagation();
-		transitions.enabled(false);
+		transitions.disable();
 	    })
 	    .on("drag", function(d){
 		var x = d3.event.x,
@@ -232,8 +232,8 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		redrawEdgesToNode(d.edgeEnd, d.edgeJunction, d.id);
 	    })
 	    .on("dragend", function(d) {
+		transitions.enable();
 		update();		
-		transitions.enabled(true);
 	    }),
 
 	drawResizeHandle = function(nodes, newNodes) {
@@ -255,48 +255,16 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		});
 	},
 
-	drawNodeName = function(nodes, newNodes) {
-	    newNodes.append("g")
-		.classed("name", true)
-		.on("click", centreNode)
-		.append("text");
-
-	    var names = nodes.select("g.name")
-		.style("visibility", function(d, i) {
-		    /*
-		     If the node is centred, we'll provide a text box for the user to edit it instead of display SVG text.
-		     */
-		    return d.centred ? "hidden" : "visible";
-		});
-
-	    transitions.maybeTransition(names)
-	    	.attr("transform", function(d, i) {
-		    return "translate(" + d.margin.horizontal + "," + d.margin.vertical + ")";
-		});
-
-	    names
-		.select("text")
-		.call(
-		    svgTextWrapping,
-		    function(d, i) {
-			return d.name;
-		    },
-		    function(d) {
-			return d.innerWidth;
-		    },
-		    function(d) {
-			return d.innerHeight;
-		    }
-		);
-	};
-
-    var closeEnough = function(bbox, x, y) {
-	return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
-	    (bbox.y >= y || (bbox.y + bbox.height) <= y);
-    },
-
+	closeEnough = function(bbox, x, y) {
+	    return (bbox.x >= x || (bbox.x + bbox.width) <= x) &&
+		(bbox.y >= y || (bbox.y + bbox.height) <= y);
+	},
+	
 	centreNode = function(d, i) {
 	    if (!d3.event.defaultPrevented) {
+		d3.event.preventDefault();
+		d3.event.stopPropagation();
+		
 		viewport.centreNode(d.id);
 	    }
 	},
@@ -323,8 +291,6 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		.attr("height", function(d, i) {
 		    return d.size[1] + "px";
 		});
-
-	    drawNodeName(nodes, newNodes);
 
 	    transitions.maybeTransition(nodes)
 		.attr("transform", function(d, i){
