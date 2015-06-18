@@ -237,17 +237,21 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 	    }),
 
 	drawResizeHandle = function(nodes, newNodes) {
-	    newNodes.append("g")
+	    newNodes.append("path")
 		.classed("resize-handle", true)
-		.call(dragResize)
-		.append("text")
-		.text("⇘")
-		.classed("no-select", true);
+		.call(dragResize);
 
 	    transitions.maybeTransition(
-		nodes.select("g.resize-handle"))
-		.attr("transform", function(d, i) {
-		    return "translate(" + (d.size[0] - 8) + "," + (d.size[1] - 0.5) + ")";
+		nodes.select("path.resize-handle"))
+		.attr("d", function(d, i) {
+		    return [
+			// Top-right
+			"M", d.size[0], 0,
+			// Bottom-right
+			"L", d.size[0], d.size[1],
+			// Bottom-left
+			"L", 0, d.size[1]
+		    ].join(" ");
 		});
 	},
 
