@@ -19,14 +19,24 @@ module.exports = function() {
 	previousMode = null,
 
 	changeMode = function(newMode) {
-	    previousMode = mode;
-	    mode = newMode;
+	    if (mode !== newMode) {
+		if (mode !== centred) {
+		    // We never want to revert to centred.
+		    previousMode = mode;
+		}
+		
+		mode = newMode;
+	    }
 	},
 
 	revertMode = function() {
 	    if (previousMode) {
 		var swap = previousMode;
-		previousMode = mode;
+
+		if (mode !== centred) {
+		    // We never want to revert to centred.		    
+		    previousMode = mode;
+		}
 		mode = swap;
 
 	    } else {
