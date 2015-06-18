@@ -76,32 +76,7 @@ module.exports = function(text) {
 	    if (localEvidence.length > 0 && node.localEvidence) {
 		var evidence = loadEvidence(localEvidence[0]);
 		
-		if (node.isLeaf()) {
-		    node.localEvidence(evidence);
-		} else {
-		    /*
-		     We've got some evidence on a non-leaf node, which is not allowed.
-		     We'll make an extra leaf node to hold that evidence.
-		     */
-		    
-		    var evidenceNode = nodeCollection.getOrCreateNode("process");
-		    evidenceNode.name(node.name() + "/evidence");
-		    evidenceNode.localEvidence(evidence);
-		    
-		    var localEvidenceEdge = node.edgeTo(evidenceNode);
-		    
-		    if (localEvidenceWeight > 0 && propagatedEvidenceWeight > 0) {
-			var localWeight = num(localEvidenceWeight), 
-			    propWeight = num(propagatedEvidenceWeight), 
-			    weightRatio = localWeight === 0 ? 0 :
-				propWeight === 0 ? 1 : 
-				localWeight / (localWeight + propWeight);
-
-			/* There's no clear definition of what 'weight' means in this case. */
-			localEvidenceEdge.necessity(weightRatio);
-			localEvidenceEdge.sufficiency(weightRatio);
-		    }
-		}
+		node.localEvidence(evidence);
 	    }
 
 	    /*
