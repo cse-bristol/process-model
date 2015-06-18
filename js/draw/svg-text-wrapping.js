@@ -18,16 +18,15 @@ var clamp = function(num) {
 
 // TODO double line separator
 module.exports = function(textElement, getText, getWidth, getHeight) {
-    var w = getWidth(textElement.datum()),
-	h = getHeight(textElement.datum()),
-	
-	charsPerSpan = clamp(charsPerW * w),
-	maxLines = clamp(linesPerH * h);
-
     var tspans = textElement.selectAll("tspan")
 	    .data(
 		function(d, i) {
-		    var text = getText(d, i),
+		    var w = getWidth(d),
+			h = getHeight(d),
+			charsPerSpan = clamp(charsPerW * w),
+			maxLines = clamp(linesPerH * h),
+		    
+			text = getText(d, i),
 			lines = text.split(lineBreak),
 			spans = [],
 			overflow = false;
@@ -84,16 +83,12 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
 		    }
 
 		    return spans;
-		},
-		function(span) {
-		    return span;
 		});
 
     tspans.exit().remove();
 
     tspans.enter()
-	.append("tspan")
-	.attr("width", w);
+	.append("tspan");
 
     tspans
     	.attr("x", function(d, i) {
