@@ -20,29 +20,29 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	zooming = false;
 
     zoom.on("zoom.setManualPosition", function() {
-	if (zoom.changed()) {
-	    if (viewportChanging) {
-		viewportChanging = false;
-		
-	    } else {
-		var thenUpdate = !state.hasManualPosition();
-		
-		state.setManualPosition(
-		    zoom.scale(),
-		    zoom.translate()
-		);
+	if (zoom.changed() && !viewportChanging) {
+	    var thenUpdate = !state.hasManualPosition();
 
-		if (thenUpdate) {
-		    zooming = true;
-		    try {
-			update();
-		    } finally {
-			zooming = false;
-		    }
+	    state.setManualPosition(
+		zoom.scale(),
+		zoom.translate()
+	    );
+
+	    if (thenUpdate) {
+		zooming = true;
+		try {
+		    update();
+		} finally {
+		    zooming = false;
 		}
 	    }
 	}
-    });
+    })
+	.on("zoomend.setManualPosition", function() {
+	    if (zoom.changed() && viewportChanging) {
+		viewportChanging = false;
+	    }
+	});
 
     queryString.param(
 	queryParam,
@@ -59,7 +59,7 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 		// We're in the middle of a manual zoom, so we shouldn't try to focus on anything.
 		return;
 	    }
-	    
+
 	    viewportChanging = true;
 	    
 	    if (state.isCentredOnNode()) {
