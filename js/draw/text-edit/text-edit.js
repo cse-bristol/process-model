@@ -42,6 +42,19 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 	editor = body.append("div")
 	    .classed("text-editor", true),
 
+	saveName = function() {
+	    var node = getNodeCollection().get(nodeId);
+
+	    if (node) {
+		node.modifyName(
+		    diffOperations(
+			node.name(),
+			name.text()
+		    )
+		);
+	    }
+	},
+
 	name = editor.append("div")
 	    .classed("edit-name", true)
 	    .attr("contenteditable", true)
@@ -55,16 +68,11 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 		    d3.event.preventDefault();
 		}
 	    })
-	    .on("input", function() {
-		var node = getNodeCollection().get(nodeId);
-
-		node.modifyName(
-		    diffOperations(
-			node.name(),
-			name.text()
-		    )
-		);
-	    }),
+    // "input" is the correct event here - others included for Internet Explorer compatibility.
+	    .on("keyup", saveName)
+    	    .on("paste", saveName)
+	    .on("blur", saveName)
+	    .on("input", saveName),
 
 	textControls = textControlsFactory(body),
 	
