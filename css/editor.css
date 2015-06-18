@@ -8,22 +8,24 @@
 
 .text-editor div {
     overflow: hidden;
-    margin: 0;
+    margin-bottom:0;
+    margin-left:0;
+    margin-right:0;
     padding: 0;
+    border-bottom: thin dotted black;    
 }
 
 .edit-name {
     margin-top: 1px;    
-    height: 50%;
+    height: 1em;
     -moz-user-modify: read-write-plaintext-only;
     -webkit-user-modify: read-write-plaintext-only;
     -ms-user-modify: read-write-plaintext-only;
     user-modify: read-write-plaintext-only;
-    border-bottom: thin solid black;
 }
 
 .edit-description {
-    height: 50%;
+    height: calc(95% - 1em);
     margin-top: 0;
     font-size: small;
 }
