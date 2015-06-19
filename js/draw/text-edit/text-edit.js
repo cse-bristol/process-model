@@ -18,10 +18,6 @@ var d3 = require("d3"),
 module.exports = function(body, getNodeCollection, viewport, transitions, update) {
     var zoom = viewport.zoom,
 	nodeId = null,
-	width = width,
-	height = height,
-	x,
-	y,
 
 	maybeFocus = function() {
 	    if (document.activeElement === name.node() ||
@@ -39,7 +35,10 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 	    update();
 	},
 
-	editor = body.append("div")
+	editorContainer = body.append("div")
+	    .classed("text-editor-container", true),
+
+	editor = editorContainer.append("div")
 	    .classed("text-editor", true),
 
 	saveName = function() {
@@ -80,32 +79,24 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 	    .classed("edit-description", true)
 	    .attr("contenteditable", true),
     
-	positionEditor = function(translate, scale) {
-	    /*
-	     Our editor gets the wrong position equal to half its size multiplied by (scale - 1).
-
-	     Adding half its size in the first translate doesn't appear to correct this.
-
-	     I believe the problem may be due to the origin of transformation being in a slightly different place for svg and css transforms, but was not able to resolve it nicely.
-	     */
-	    var enlargement = scale - 1,
-		hackedSize = [
-		    translate[0] + (enlargement * width / 2),
-		    translate[1] + (enlargement * height / 2)
-		];
-	    
+	panAndZoom = function(translate, scale) {
 	    cssPrefix(
-	    	editor,
+	    	editorContainer,
 	    	"transform",
 		// Pan
-		"translate(" + hackedSize[0] + "px," + hackedSize[1] + "px)" +
+		"translate(" + translate[0] + "px," + translate[1] + "px)" +
 		    " " +
 		    // Zoom
-	    	    "scale(" + scale + ")" +
-	    	    " " +
-		    // Offset for node position + margins
-	    	    "translate(" + x + "px," + y + "px)"
+	    	    "scale(" + scale + ")"
 	    );
+	},
+
+	sizeAndPosition = function(selection, viewModel) {
+	    selection
+	    	.style("width", viewModel.innerWidth + "px")
+		.style("height", viewModel.innerHeight + "px")
+	    	.style("left", (viewModel.margin.horizontal + viewModel.x) + "px")
+		.style("top", (viewModel.margin.top + viewModel.y) + "px");
 	};
 
     textControls(
@@ -121,17 +112,15 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 	}
     );
     
-    viewport.zoom.onZoom(positionEditor);
+    viewport.zoom.onZoom(panAndZoom);
 
     return {
-	update: function(svgNodes) {
-	    var changedNode = nodeId === viewport.getCentredNodeId();
+	update: function(svgNodes, pastNodeViewModels) {
+	    panAndZoom(zoom.translate(), zoom.scale());
 	    
 	    nodeId = viewport.getCentredNodeId();
 
-	    var node = getNodeCollection().get(nodeId);
-
-	    if (!node) {
+	    if (!getNodeCollection().has(nodeId)) {
 		editor.style("visibility", "hidden");
 		textControls.update();
 		return;
@@ -148,31 +137,36 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 		return;
 	    }
 
-	    var nodeViewModel = svgNode.datum();
-
-	    width = nodeViewModel.innerWidth,
-	    height = nodeViewModel.innerHeight;
-	    x = nodeViewModel.margin.horizontal + nodeViewModel.x;
-	    y = nodeViewModel.margin.top + nodeViewModel.y;
-
-	    positionEditor(zoom.translate(), zoom.scale());
-
 	    editor
 		.style("visibility", "visible");
 
-	    transitions.maybeTransition(editor)
-		.style("width", width + "px")
-		.style("height", height + "px");
+	    if (pastNodeViewModels) {
+		pastNodeViewModels = pastNodeViewModels.filter(function(vm) {
+		    return vm.id === nodeId;
+		});
 
-	    if (name.text() !== nodeViewModel.name) {
+		if (pastNodeViewModels.length === 1) {
+		    sizeAndPosition(editor, pastNodeViewModels[0]);
+		}
+	    }
+
+	    var viewModel = svgNode.datum();
+
+	    sizeAndPosition(
+		transitions.maybeTransition(editor),
+		viewModel
+	    );
+
+
+	    if (name.text() !== viewModel.name) {
 		name.text(
-		    nodeViewModel.name
+		    viewModel.name
 		);
 	    }
 
-	    if (description.html() !== nodeViewModel.description) {
+	    if (description.html() !== viewModel.description) {
 		description.html(
-		    nodeViewModel.description
+		    viewModel.description
 		);
 	    }
 

@@ -31,6 +31,10 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 
 	g = svg.append("g"),
 	defs = g.append("defs"),
+	/*
+	 Store the last set of view models we looked at. We need to know this so that we can work out what position the text editor transitioned from.
+	 */
+	pastNodeViewModels,
 
 	drawNodeSubComponents = function(nodes, newNodes) {
 	    var margins = drawNodeMargin(nodes, newNodes);
@@ -71,19 +75,21 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 	textEdit = textEditFactory(body, getNodeCollection, viewport, transitions, update);
 
     viewport.zoom.on("zoomend.updateTextOverlay", function() {
-	textEdit.update(selectNodes());
+	textEdit.update(selectNodes(), pastNodeViewModels);
     });
 
     return {
 	update: function(viewModels) {
 	    var nodes = drawNodes.draw(viewModels.nodes);
-	    textEdit.update(nodes.nodes);
+	    textEdit.update(nodes.nodes, pastNodeViewModels);
 	    
 	    drawNodeSubComponents(nodes.nodes, nodes.newNodes);
 
 	    drawEdges.draw(viewModels.edges);
 	    
 	    viewport.update();
+
+	    pastNodeViewModels = viewModels.nodes;
 	},
 
 	viewport: viewport
