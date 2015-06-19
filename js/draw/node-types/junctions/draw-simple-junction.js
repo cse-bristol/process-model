@@ -41,7 +41,8 @@ module.exports = function(container, junctionRadius, getNodeCollection, getLayou
 	    })
 	    .on("drag", function(d) {
 		var target = findDragTarget(),
-		    tempEdge = container.select("#" + tempEdgeId);
+		    tempEdge = container.select("#" + tempEdgeId),
+		    shouldConnect = target && target.datum().id !== d.id;
 
 		/*
 		 Draw a dotted line to indicate where we're dragging to.
@@ -49,7 +50,7 @@ module.exports = function(container, junctionRadius, getNodeCollection, getLayou
 		tempEdge.attr("d", d3.svg.line().interpolate("basis")(
 		    edgePath(
 			d.edgeJunction,
-			target ? target.datum().edgeEnd : [d3.event.x, d3.event.y],
+			shouldConnect ? target.datum().edgeEnd : [d3.event.x, d3.event.y],
 			getLayoutState().getOrientationCoords()
 		    )));
 		
