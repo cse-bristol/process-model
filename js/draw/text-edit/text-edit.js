@@ -120,7 +120,7 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 	    
 	    nodeId = viewport.getCentredNodeId();
 
-	    if (!getNodeCollection().has(nodeId)) {
+	    if (!getNodeCollection() || !getNodeCollection().has(nodeId)) {
 		editor.style("visibility", "hidden");
 		textControls.update();
 		return;
