@@ -212,7 +212,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		    y: d.size[1]
 		};
 	    })
-	    .on("dragstart", function(d){
+	    .on("dragstart", function(d) {
 		d3.event.sourceEvent.stopPropagation();
 		transitions.disable();
 	    })
@@ -243,6 +243,9 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 
 	    transitions.maybeTransition(
 		nodes.select("path.resize-handle"))
+		.style("visibility", function(d, i) {
+		    return d.centred ? "hidden" : "visible";
+		})
 		.attr("d", function(d, i) {
 		    return [
 			// Top-right
