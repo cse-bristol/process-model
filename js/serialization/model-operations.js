@@ -144,9 +144,11 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	} else if (path.length === 1) {
 	    if (path[0] === "name") {
 		node.modifyName(op.o);
+		update();
 		
 	    } else if (path[0] === "description") {
 		node.modifyDescription(op.o);
+		update();
 		
 	    } else {
 		updateProperty(node, path[0], op);
@@ -257,13 +259,15 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    id = node.id;
 
 	node.modifyName = function(operations) {
-	    wrapped.apply(node, arguments);
+	    if (operations.length > 0) { 
+		wrapped.apply(node, arguments);
 
-	    submitOp({
-		p: ["nodes", id, "name"],
-		t: "text0",
-		o: [operations]
-	    });
+		submitOp({
+		    p: ["nodes", id, "name"],
+		    t: "text0",
+		    o: operations
+		});
+	    }
 	};
     };
 
@@ -272,13 +276,15 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    id = node.id;
 
 	node.modifyDescription = function(operations) {
-	    wrapped.apply(node, arguments);
+	    if (operations.length > 0) {
+		wrapped.apply(node, arguments);
 
-	    submitOp({
-		p: ["nodes". id, "description"],
-		t: "text0",
-		o: operations
-	    });
+		submitOp({
+		    p: ["nodes", id, "description"],
+		    t: "text0",
+		    o: operations
+		});
+	    }
 	};
     };
 
@@ -415,6 +421,7 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
     return {
 	writeBufferedOperations: function() {
 	    writeOp(bufferedOperations);
+	    bufferedOperations = [];
 	}
     };
 };

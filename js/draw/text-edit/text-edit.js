@@ -2,7 +2,8 @@
 
 /*global module, require, setTimeout*/
 
-var d3 = require("d3"),
+var _ = require("lodash"),
+    d3 = require("d3"),
     textControlsFactory = require("zenpen-toolbar"),
     cssPrefix = require("../css-browser-prefixes.js"),
     simplifiedHTML = require("./dom-to-simplified-html.js")(),
@@ -15,9 +16,10 @@ var d3 = require("d3"),
 
  The contents, position and size will be altered to fit the node currently being edited. 
  */
-module.exports = function(body, getNodeCollection, viewport, transitions, update) {
+module.exports = function(body, getNodeCollection, viewport, transitions, writeBufferedOperations, update) {
     var zoom = viewport.zoom,
 	nodeId = null,
+	delayedWriteBufferedOperations = _.debounce(writeBufferedOperations, 300),
 
 	maybeFocus = function() {
 	    if (document.activeElement === name.node() ||
@@ -51,6 +53,7 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 			name.text()
 		    )
 		);
+		delayedWriteBufferedOperations();
 	    }
 	},
 
@@ -103,12 +106,16 @@ module.exports = function(body, getNodeCollection, viewport, transitions, update
 	description,
 	function() {
 	    var node = getNodeCollection().get(nodeId);
-	    node.modifyDescription(
-		diffOperations(
-		    node.description(),
-		    simplifiedHTML(description.node())
-		)
-	    );
+
+	    if (node) {
+		node.modifyDescription(
+		    diffOperations(
+			node.description(),
+			simplifiedHTML(description.node())
+		    )
+		);
+		delayedWriteBufferedOperations();
+	    }
 	}
     );
     

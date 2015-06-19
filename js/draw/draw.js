@@ -17,8 +17,7 @@ var d3 = require("d3"),
     
     empty = d3.select();
 
-
-module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, update) {
+module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, writeBufferedOperations, update) {
     var background = svg.append("rect")
 	    .attr("width", "100%")
 	    .attr("height", "100%")
@@ -72,7 +71,7 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 
 	drawNodeMargin = drawMarginsFactory(getNodeCollection, getLayoutState, viewport, transitions, update),
 	emphasis = emphasisFactory(defs),
-	textEdit = textEditFactory(body, getNodeCollection, viewport, transitions, update);
+	textEdit = textEditFactory(body, getNodeCollection, viewport, transitions, writeBufferedOperations, update);
 
     viewport.zoom.on("zoomend.updateTextOverlay", function() {
 	textEdit.update(selectNodes(), pastNodeViewModels);

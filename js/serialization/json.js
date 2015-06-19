@@ -141,7 +141,7 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
     }
 
     if (serialized.description) {
-	deserialized.setDescription(0, serialized.description);
+	deserialized.setDescription(serialized.description);
     }
     
     if (deserialized.settled) {
