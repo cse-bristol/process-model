@@ -10,7 +10,6 @@ var jsonSerialization = require("./json.js"),
 
 module.exports = function(body, model) {
     fileDrop(
-	body,
 	{
 	    json: function(fileName, content) {
 		model.set(
@@ -25,7 +24,7 @@ module.exports = function(body, model) {
 		);
 	    }
 	}
-    );
+    ).drop(body);
 
     var exportButton;
 

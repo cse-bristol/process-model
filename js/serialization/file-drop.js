@@ -38,21 +38,15 @@ module.exports = function(handlers) {
 
 		files.forEach(function(file){
 		    var reader = new FileReader(),
-			len = handlers.length,
+			ext = file.name.split('.').pop(),
+			handler = handlers[ext],
 			success = false;
 
 		    reader.onload = function() {
-			var ext = file.name.split('.').pop();
-			var matching = handlers.filter(function(h) {
-			    return h.extensions.indexOf(ext) >= 0;
-			});
-
-			if (matching.length === 0) {
+			if (!handler) {
 			    throw new Error("No handlers for file " + file.name);
-			} else if (matching.length > 1) {
-			    throw new Error("Too many handlers for file " + file.name);
 			} else {
-			    matching[0](file.name, reader.result);			    
+			    handler(file.name, reader.result);
 			}
 		    };
 
