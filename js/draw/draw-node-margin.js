@@ -11,7 +11,12 @@ var d3 = require("d3"),
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
     textXOffset = constants.textXOffset,
-    textYOffset = constants.textYOffset;
+    textYOffset = constants.textYOffset,
+
+    /*
+     The value of SVG text scale at which Chrome stops having bugs.
+     */
+    epsilon = 0.001;
 
 module.exports = function(getNodeCollection, getLayoutState, viewport, transitions, update) {
     var onBottomMarginDraw = callbacks(),
@@ -176,22 +181,41 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, transitio
 			    d.margin.bottom ? 1 : 0
 			);
 
-		    return function(a, b) {
-			var scale = interpolateScale(a, b);
+		    return function(t) {
+			var scale = interpolateScale(t);
 
 			if (scale < 0.001) {
 			    scale = 0;
 			}
 
-			return interpolateTranslate(a, b) + "scale(1," + scale + ")";
+			return interpolateTranslate(t) + "scale(1," + scale + ")";
+		    };
+		})
+		.attrTween("visibility", function(d, i, startVal) {
+		    var endVal = d.margin.bottom ? "visible" : "hidden";
+		    
+		    return function(t) {
+			if (t < epsilon) {
+			    return startVal;
+			} else if (1 - t < epsilon) {
+			    return endVal;
+			} else if (startVal === "visible" || endVal === "visible") {
+			    return "visible";
+			} else {
+			    return "hidden";
+			}
 		    };
 		});
 	    
 	} else {
-	    maybeScaleBottomMargins.attr("transform", function(d, i) {
-		return "translate(0," + (d.size[1] - d.margin.bottom) + ")"
-		    + "scale(1," + (d.margin.bottom ? 1 : 0) + ")";
-	    });
+	    maybeScaleBottomMargins
+		.attr("transform", function(d, i) {
+		    return "translate(0," + (d.size[1] - d.margin.bottom) + ")"
+			+ "scale(1," + (d.margin.bottom ? 1 : 0) + ")";
+		})
+		.attr("visibility", function(d, i) {
+		    return d.margin.bottom ? "visible" : "hidden";
+		});
 	}
 	
 	drawType(bottomMargins, newBottomMargins);
