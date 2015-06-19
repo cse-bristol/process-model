@@ -64,7 +64,7 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 	    transitions, drawEdges.drawEdges, redrawNode, selectNodes,
 	    update
 	),
-	types = drawNodeTypesFactory(svg, redrawNode, transitions, viewport, getNodeCollection, getLayoutState, update),
+	types = drawNodeTypesFactory(g, redrawNode, transitions, viewport, getNodeCollection, getLayoutState, update),
 
 	drawNodeMargin = drawMarginsFactory(getNodeCollection, getLayoutState, viewport, transitions, update),
 	emphasis = emphasisFactory(defs),
