@@ -1,0 +1,23 @@
+.node-top-margin .margin-button {
+    visibility: hidden;
+}
+
+.process-node:hover .node-top-margin .margin-button {
+    visibility: visible;
+}
+
+.delete-button:hover rect {
+    fill: red;
+}
+
+.expand-button:hover rect {
+    fill: deepskyblue;
+}
+
+.contract-button:hover rect {
+    fill: deepskyblue;
+}
+
+.focus-subtree-tool:hover rect {
+    fill: limegreen;
+}

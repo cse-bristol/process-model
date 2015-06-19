@@ -1,0 +1,12 @@
+.margin-button {
+    cursor: pointer;
+    font-family: monospace;    
+}
+
+.margin-button rect {
+    fill: white;
+}
+
+.margin-button:hover text {
+    fill: maroon;
+}

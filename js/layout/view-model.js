@@ -2,13 +2,11 @@
 
 /*global module, require*/
 
-var nodeSidePadding = 10;
-
 /*
  Simple bags of properties representing the display properties of our model.
  */
 module.exports = {
-    edge: function(edge, path, collapsed) {
+    edge: function(edge, path, collapsed, detailMode) {
 	var e =  {
 	    viewId: Math.random(),
 	    parentId: edge.parent().id,
@@ -17,7 +15,7 @@ module.exports = {
 	    canModify: !collapsed
 	};
 	
-	if (!collapsed && edge.necessity) {
+	if (!collapsed && detailMode && edge.necessity) {
 	    e.necessity = edge.necessity();
 	    e.sufficiency = edge.sufficiency();
 	}
@@ -25,30 +23,47 @@ module.exports = {
 	return e;
     },
 
-    node: function(node, size, x, y, collapsed, orientationCoords) {
+    node: function(node, size, margin, position, collapsed, orientationCoords, detail, centred, effects) {
 	var n = {
 	    viewId: Math.random(),
 	    id: node.id,
 	    type: node.type,
 	    collapsed: collapsed,
+	    canCollapse: !collapsed && node.edges().length > 0,
 	    name: node.name(),
 	    description: node.description(),
 	    isLeaf: node.isLeaf(),
-	    x: x,
-	    y: y,
+	    x: position[0],
+	    y: position[1],
+	    effects: effects,
+	    margin: margin,
+	    centred: centred,
+	    detail: detail,
+	    
 	    resize: function(newSize) {
 		n.size = newSize;
 		
-		n.innerWidth = n.size[0] - (2 * nodeSidePadding);
+		n.innerWidth = n.size[0] - (2 * margin.horizontal);
+		n.innerHeight = n.size[1] - margin.top - margin.bottom;
 
-		var fromCentre = [
-		    orientationCoords[0] / 2,
-		    orientationCoords[1] / 2
+		n.centre = [
+		    n.size[0] * 0.5,
+		    n.size[1] * 0.5
 		];
 
+		var offsetDirection = [
+		    orientationCoords[0] / 2,
+		    orientationCoords[1] / 2
+		],
+
+		    offsetVector = [
+			offsetDirection[0] * n.size[0],
+			offsetDirection[1] * n.size[1]
+		    ];
+
 		n.junctionOffset = [
-		    n.size[0] * (fromCentre[0] + 0.5),
-		    n.size[1] * (fromCentre[1] + 0.5)
+		    n.centre[0] + offsetVector[0],
+		    n.centre[1] + offsetVector[1]
 		];
 
 		n.edgeJunction = [
@@ -57,16 +72,15 @@ module.exports = {
 		];
 
 		n.edgeOffset = [
-		    n.size[0] * (0.5 - fromCentre[0]),
-		    n.size[1] * (0.5 - fromCentre[1])
+		    n.centre[0] - offsetVector[0],
+		    n.centre[1] - offsetVector[1]
 		];
 
 		n.edgeEnd = [
 		    n.x + n.edgeOffset[0],
 		    n.y + n.edgeOffset[1]
 		];
-	    },
-	    sidePadding: nodeSidePadding
+	    }
 	};
 
 	/*
