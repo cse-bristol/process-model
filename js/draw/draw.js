@@ -24,7 +24,7 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 	    .attr("fill", "white")
 	    .on("click", function() {
 		if (!d3.event.defaultPrevented) {
-		    viewport.uncentreNode();
+		    viewport.clearCentreAndFocus();
 		}
 	    }),
 

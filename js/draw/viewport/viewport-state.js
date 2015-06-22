@@ -72,8 +72,8 @@ module.exports = function() {
 	    centredNodeId = id;
 	},
 
-	uncentreNode: function() {
-	    if (mode === centred) {
+	clearCentreAndFocus: function() {
+	    if (mode === centred || mode === subtree) {
 		revertMode();
 	    }
 	},

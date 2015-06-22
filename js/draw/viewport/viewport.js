@@ -96,8 +96,8 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	    update();
 	},
 
-	uncentreNode: function() {
-	    state.uncentreNode();
+	clearCentreAndFocus: function() {
+	    state.clearCentreAndFocus();
 	    update();
 	},
 
@@ -110,7 +110,11 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	},
 
 	focusSubTree: function(nodeId) {
-	    state.focusSubTree(nodeId);
+	    if (state.hasSubTreeFocus() && state.getSubTreeFocus() === nodeId) {
+		state.clearCentreAndFocus();
+	    } else {
+		state.focusSubTree(nodeId);
+	    }
 	    update();
 	},
 

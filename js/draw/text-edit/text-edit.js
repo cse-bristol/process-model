@@ -32,11 +32,6 @@ module.exports = function(body, getNodeCollection, viewport, transitions, writeB
 	       }
 	},
 
-	disableEditor = function() {
-	    viewport.uncentreNode();
-	    update();
-	},
-
 	editorContainer = body.append("div")
 	    .classed("text-editor-container", true),
 
