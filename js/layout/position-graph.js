@@ -52,9 +52,9 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
 		    }
 		);
 
-		node.edges().forEach(function(e){
+		node.edges().forEach(function(e) {
 		    if (isVisible(e.node().id)) {
-			if (layoutState.getPosition(e.node().id)) {
+			if (layoutState.getPosition(e.node().id) || nodePositions.has(e.node().id)) {
 			    manualEdges.push(e);
 			    
 			} else {
