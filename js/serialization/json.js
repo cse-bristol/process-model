@@ -158,7 +158,6 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
 
 var deserializeLayoutAndData = function(o, nodeCollection, layout) {
     if (o.layout) {
-
 	if (o.layout.collapsed) {
 	    Object.keys(o.layout.collapsed).forEach(function(id) {
 		if (o.layout.collapsed[id]) {
@@ -186,9 +185,10 @@ var deserializeLayoutAndData = function(o, nodeCollection, layout) {
 	}
     }
 
-    /*
-     Create nodes with just the type and id first.
-     */
+    if (!o.nodes) {
+	throw new Error("Cannot find any node data in this document.");
+    }
+
     Object.keys(o.nodes).forEach(function(id) {
 	var serialized = o.nodes[id],
 	    node = nodeCollection.getOrCreateNode(serialized.type, id);
