@@ -11,17 +11,17 @@ module.exports = function(onNodeCreate, onNodeDelete, onEdgeCreate, onEdgeDelete
     var parents = d3.map(),
 	withoutParents = d3.set();
 
-    onNodeCreate.add(function(node) {
+    onNodeCreate(function(node) {
 	parents.set(node.id, d3.set());
 	withoutParents.add(node.id);
     });
 
-    onNodeDelete.add(function(id) {
+    onNodeDelete(function(id) {
 	parents.remove(id);
 	withoutParents.remove(id);
     });
 
-    onEdgeCreate.add(function(e) {
+    onEdgeCreate(function(e) {
 	if (!parents.has(e.node().id)) {
 	    parents.set(e.node().id, d3.set());
 	}
@@ -32,7 +32,7 @@ module.exports = function(onNodeCreate, onNodeDelete, onEdgeCreate, onEdgeDelete
 	withoutParents.remove(e.node().id);
     });
 
-    onEdgeDelete.add(function(e) {
+    onEdgeDelete(function(e) {
 	if (parents.has(e.node().id)) {
 	    parents.get(e.node().id)
 		.remove(e.parent().id);

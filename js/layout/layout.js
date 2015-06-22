@@ -4,7 +4,6 @@
 
 var _ = require("lodash"),
     d3 = require("d3"),
-    getVisibleIds = require("./visible-ids.js"),
     sizeCalculator = require("./size-calculator.js"),
     positionGraph = require("./position-graph.js"),
     viewModel = require("./view-model.js"),
@@ -15,7 +14,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 	var nodesCollection = getNodesCollection(),
 	    layoutState = getLayoutState(),
 
-	    visibleIds = getVisibleIds(nodesCollection, layoutState.isCollapsed),
+	    visibleIds = nodesCollection.depthLookup.getVisibleIds(layoutState.depth()),
 
 	    sizes = sizeCalculator(
 		visibleIds,
@@ -56,7 +55,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 		    size.size,
 		    size.margins,
 		    positions.nodes.get(id),
-		    layoutState.isCollapsed(id),
+		    nodesCollection.depthLookup.isBorderNode(layoutState.depth(), id),
 		    orientationCoords,
 		    margins.enabled(),
 		    viewport.getCentredNodeId() === id,
@@ -78,7 +77,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 			    layoutState.getOrientationCoords(),
 			    e.points
 			),
-			layoutState.isCollapsed(e.fromId),
+			nodesCollection.depthLookup.isBorderNode(layoutState.depth(), e.fromId),
 			margins.enabled()
 		    );
 		});

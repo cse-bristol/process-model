@@ -8,7 +8,8 @@ var _ = require("lodash"),
     callbacks = helpers.callbackHandler,
     guid = helpers.guid,
     makeNode = require("./abstract-node.js"),
-    parentLookupFactory = require("./parent-lookup.js");
+    parentLookupFactory = require("./parent-lookup.js"),
+    depthLookupFactory = require("./depth-lookup.js");
 
 /*
  A graph of process nodes. Nodes in the graph are not required to be connected.
@@ -23,7 +24,14 @@ module.exports = function() {
 	onEdgeDelete = callbacks(),
 	onNavigate = callbacks(),
 
-	parentLookup = parentLookupFactory(onNodeCreate, onNodeDelete, onEdgeCreate, onEdgeDelete);
+	ids = function() {
+	    return d3.set(
+		nodesById.keys()
+	    );
+	},
+
+	parentLookup = parentLookupFactory(onNodeCreate.add, onNodeDelete.add, onEdgeCreate.add, onEdgeDelete.add),
+	depthLookup = depthLookupFactory(ids, parentLookup.parentsForNode, onNodeCreate.add, onNodeDelete.add, onEdgeCreate.add, onEdgeDelete.add);
 	
     var edgesToNode = function(nodeId) {
 	return parentLookup.parentsForNode(nodeId).map(function(parentId) {
@@ -34,7 +42,7 @@ module.exports = function() {
 
     var getOrCreateNode = function(type, id) {
 	var node;
-	
+
 	if (id) {
 	    if (nodesById.has(id)) {
 		node = nodesById.get(id);
@@ -51,18 +59,16 @@ module.exports = function() {
 	} else {
 	    node = makeNode(type, guid(), onEdgeCreate, onEdgeDelete, onNavigate);
 	}
-	onNodeCreate(node);
+
 	nodesById.set(node.id, node);
+	onNodeCreate(node);	
 	
 	return node;
     };
 
     var m = {
 	all: _.bind(nodesById.values, nodesById),
-	ids: function() {
-	    return d3.set(
-		nodesById.keys());
-	},
+	ids: ids,
 	has: _.bind(nodesById.has, nodesById),
 	get: _.bind(nodesById.get, nodesById),
 
@@ -77,6 +83,8 @@ module.exports = function() {
 	nodesWithoutParents: function() {
 	    return parentLookup.nodesWithoutParents();
 	},
+
+	depthLookup: depthLookup,
 	
 	getOrCreateNode: getOrCreateNode,
 

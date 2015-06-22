@@ -40,7 +40,7 @@ module.exports = function(enabledIds, bottomMargins, centredNodeId, manualSizes)
 		return defaultSize;
 	    }
 	};
-	    
+
     enabledIds.forEach(function(id) {
 	result.set(
 	    id,
@@ -50,6 +50,6 @@ module.exports = function(enabledIds, bottomMargins, centredNodeId, manualSizes)
 	    }
 	);
     });
-    
+
     return result;    
 };

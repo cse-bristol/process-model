@@ -16,16 +16,6 @@ var serializeD3Map = function(d3Map) {
     return result;
 };
 
-var serializeD3Set = function(d3Set) {
-    var result = {};
-
-    d3Set.values().forEach(function(key) {
-	result[key] = true;
-    });
-    
-    return result;
-};
-
 var serializeEdge = function(edge) {
     var e = {
     };
@@ -92,7 +82,7 @@ var serializeNodes = function(nodes) {
 
 var serializeLayout = function(layout) {
     return {
-	collapsed: serializeD3Set(layout.collapsed()),
+	depth: layout.depth(),
 	positions: serializeD3Map(layout.position()),
 	sizes: serializeD3Map(layout.size()),
 	orientation: layout.getOrientation()
@@ -158,14 +148,8 @@ var deserializeNodeDetails = function(serialized, deserialized, nodeCollection) 
 
 var deserializeLayoutAndData = function(o, nodeCollection, layout) {
     if (o.layout) {
-	if (o.layout.collapsed) {
-	    Object.keys(o.layout.collapsed).forEach(function(id) {
-		if (o.layout.collapsed[id]) {
-		    layout.setCollapsed(id, true);
-		} else {
-		    layout.setCollapsed(id, false);
-		}
-	    });
+	if (o.layout.depth) {
+	    layout.setDepth(o.layout.depth);
 	}
 
 	if (o.layout.positions) {

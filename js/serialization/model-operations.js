@@ -51,16 +51,12 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    
 	} else {
 	    switch(path[0]) {
-	    case "collapsed":
+	    case "depth":
 		if (op.od !== undefined) {
-		    /*
-		     We only ever store 'true' for collapsed nodes, so if we deleted a value, that node must be expanded.
-		    */
-		    layout.setCollapsed(path[1], false);
+		    layout.setDepth(null);
 		}
 		if (op.oi !== undefined) {
-		    layout.setCollapsed(path[1], op.oi);
-
+		    layout.setDepth(op.oi);
 		}
 		break;
 	    case "sizes":
@@ -348,19 +344,19 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    }
 	});
 
-	layout.onSetCollapsed(function(id, collapsed) {
+	layout.onSetDepth(function(depth) {
 	    /*
 	     We don't care about order, but we do care about uniqueness.
 	     JSON has no concept of a set, but a map of id -> true will do what we need.
 	     */
-	    if (collapsed) {
+	    if (depth) {
 		submitOp({
-		    p: ["layout", "collapsed", id],
-		    oi: true
+		    p: ["layout", "depth"],
+		    oi: depth
 		});
 	    } else {
 		submitOp({
-		    p: ["layout", "collapsed", id],
+		    p: ["layout", "depth"],
 		    od: true
 		});
 	    }

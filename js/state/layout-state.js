@@ -21,14 +21,21 @@ var d3 = require("d3"),
  Has a 1-to-1 relationship with a node-collection.
  */
 module.exports = function(nodes) {
-    var collapsedNodes = d3.set(),
+    /*
+     Null depth means all nodes are visible. A number indicates that we will cut off some of the nodes which are too deep into the graph.
+
+     Depth is measures as shortest path to the node from a node with no ancestors.
+
+     A node with no ancestors is itself considered to have a depth of 1.
+    */
+    var depth = null,
 	manualPositions = d3.map(),
 	manualSizes = d3.map(),
 	orientation = directions[0],
-	
+
+	onSetDepth = callbacks(),
 	onSetSize = callbacks(),
 	onSetPosition = callbacks(),
-	onSetCollapsed = callbacks(),
 	onSetOrientation = callbacks();
 
     nodes.onNodeChooseType(function(old, replacement) {
@@ -37,10 +44,6 @@ module.exports = function(nodes) {
 	 
 	 This code ensures that any layout applied to the old node is transferred.
 	 */
-	if (collapsedNodes.has(old.id)) {
-	    m.setCollapsed(replacement.id, true);
-	}
-
 	if (manualPositions.has(old.id)) {
 	    m.setPosition(replacement.id, m.getPosition(old.id));
 	}
@@ -51,7 +54,6 @@ module.exports = function(nodes) {
     });
 
     nodes.onNodeDelete(function(id) {
-	m.setCollapsed(id, false);
 	m.setPosition(id, null);
 	m.setSize(id, null);
     });
@@ -73,22 +75,16 @@ module.exports = function(nodes) {
 	    return manualPositions;
 	},
 	
-	setCollapsed: function(id, collapsed) {
-	    if (collapsed) {
-		collapsedNodes.add(id);
-	    } else {
-		collapsedNodes.remove(id);
-	    }
+	setDepth: function(d) {
+	    depth = d;
+	    onSetDepth(d);
+	},
 
-	    onSetCollapsed(id, collapsed);
+	depth: function() {
+	    return depth;
 	},
-	isCollapsed: function(id) {
-	    return collapsedNodes.has(id);
-	},
-	onSetCollapsed: onSetCollapsed.add,
-	collapsed: function() {
-	    return collapsedNodes;
-	},
+
+	onSetDepth: onSetDepth.add,
 	
 	setSize: function(id, size) {
 	    if (size) {
@@ -139,11 +135,22 @@ module.exports = function(nodes) {
 	 Take all the data from the passed in layout and add it to this layout.
 	 */
 	merge: function(layout) {
+	    if (depth) {
+		/*
+		 The merged depth will be the deeper of the layouts.
+		*/
+		var otherDepth = layout.depth();
+		if (otherDepth === null) {
+		    module.setDepth(null);
+		} else {
+		    if (otherDepth > depth) {
+			module.setDepth(otherDepth);
+		    }
+		}
+	    }
+	    
 	    layout.position().forEach(function(id, position) {
 		module.position(id, position);
-	    });
-	    layout.collapsed().forEach(function(id) {
-		module.collapsed(id);
 	    });
 	    layout.size().forEach(function(id, position) {
 		module.size(id, position);
