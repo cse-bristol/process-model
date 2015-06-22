@@ -71,7 +71,13 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 	transitions.maybeTransition(
 	    junctionMasks.select(".hidden-mask"))
 	    .attr("r", function(d, i) {
-		return (d.type === "process" && d.detail) ? 7 : 5;
+		if (d.collapsed) {
+		    return 0;
+		} else if (d.type === "process" && d.detail) {
+		    return 7;
+		} else {
+		    return 5;
+		}
 	    })	
 	    .attr("cx", function(d, i) {
 		return d.edgeJunction[0];
