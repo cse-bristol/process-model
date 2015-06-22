@@ -13,28 +13,46 @@ var d3 = require("d3");
  This gives the appearance of progressively unfolding the graph, until everything is expanded. At that point, the next call will collapse it back down again.
  */
 module.exports = function(makeButton, getNodeCollection, getLayoutState, update) {
-    return makeButton(
-	"Collapse",
-	function() {
-	    var layout = getLayoutState(),
-		maxDepth = getNodeCollection().depthLookup.getMaxDepth();
+    var action = function() {
+	var layout = getLayoutState(),
+	    maxDepth = getNodeCollection().depthLookup.getMaxDepth();
 
-	    if (maxDepth === 1) {
-		layout.setDepth(null);
-		
-	    } else if (layout.depth() === null) {
-		layout.setDepth(1);
-		
-	    } else {
-		var newDepth = (layout.depth() + 1) % maxDepth;
+	if (maxDepth === 1) {
+	    layout.setDepth(null);
+	    
+	} else if (layout.depth() === null) {
+	    layout.setDepth(1);
+	    
+	} else {
+	    var newDepth = (layout.depth() + 1) % maxDepth;
 
-		layout.setDepth(
-		    newDepth || null
-		);
-	    }
-	    update();
-	},
-	{
+	    layout.setDepth(
+		newDepth || null
+	    );
 	}
-    );
+	update();
+    };
+    
+    return [
+	makeButton(
+	    "Collapse",
+	    action,
+	    {
+		extraDisplayCondition: function() {
+		    var layout = getLayoutState();
+		    return !layout || layout.depth() === null && getNodeCollection().depthLookup.getMaxDepth() > 1;
+		}
+	    }
+	),
+	makeButton(
+	    "Expand",
+	    action,
+	    {
+		extraDisplayCondition: function() {
+		    var layout = getLayoutState();
+		    return layout && layout.depth() !== null;
+		}
+	    }
+	)
+    ];
 };
