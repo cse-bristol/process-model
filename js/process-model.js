@@ -22,6 +22,8 @@ var updating = false,
 		fileMenu.menu().updateButtons();
 	    }
 
+	    depthSlider.update();
+
 	    draw.update(
 		layout()
 	    );
@@ -68,7 +70,7 @@ var d3 = require("d3"),
     
     layoutButton = require("./layout/reset-layout-button.js")(fileMenu.spec.button, model.getLayout, update),
     rotateButton = require("./layout/rotate-button.js")(fileMenu.spec.button, model.getLayout, update),
-    expandButtons = require("./mass-expand-button.js")(fileMenu.spec.button, model.getNodes, model.getLayout, update);
+    depthSlider = require("./depth-slider.js")(fileMenu.spec.button, model.getNodes, model.getLayout, update);    
 
 fileMenu.buildMenu(
     toolbar,
@@ -77,9 +79,8 @@ fileMenu.buildMenu(
 	serialization.exportButton(fileMenu).spec,
 	layoutButton,
 	rotateButton,
+	depthSlider.button
     ].concat(
-	expandButtons
-    ).concat(
 	margins.makeButtons(fileMenu.spec.toggle)
     ).concat(
 	draw.viewport.makeFitButton(fileMenu.spec.toggle)

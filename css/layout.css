@@ -32,3 +32,8 @@ body {
 	display: none;
     }
 }
+
+.depth-slider {
+    width: 100%;
+    pointer-events: auto;
+}
