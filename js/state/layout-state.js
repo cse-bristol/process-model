@@ -123,6 +123,9 @@ module.exports = function(nodes) {
 	getOrientation: function() {
 	    return orientation;
 	},
+
+	possibleOrientations: directions,
+	
 	/*
 	 Unit vector in the direction specified.
 	 */

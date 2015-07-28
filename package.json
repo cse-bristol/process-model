@@ -23,6 +23,6 @@
 	"ot-json0": "1.0.1",
 	"diff": "1.4.0",
 	"zenpen-toolbar": "git://github.com/GlennS/zenpen",
-	"multiuser-file-menu": "git://github.com/cse-bristol/multiuser-file-menu.git"
+	"multiuser-file-menu": "git://github.com/cse-bristol/multiuser-file-menu.git#design"
     }
 }

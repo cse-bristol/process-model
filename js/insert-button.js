@@ -5,6 +5,7 @@
 module.exports = function(loadModel, merge, update, makeButton) {
     return makeButton(
 	"Insert",
+	null,
 	function(name) {
 	    loadModel(
 		name,

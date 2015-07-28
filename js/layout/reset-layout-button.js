@@ -7,10 +7,11 @@
 
  When clicked on, it will clear all manual layout (sizing, positions and collapsed/uncollapsed status).
  */
-module.exports = function(makeButton, getLayout, refresh) {
-    return makeButton(
-	"Layout",
-	function(name) {
+module.exports = function(toolbar, getLayout, refresh) {
+    toolbar.append("div")
+	.attr("id", "tidy-button")
+	.text("Tidy")
+	.on("click", function() {
 	    var layout = getLayout();
 	    
 	    layout.position().forEach(function(id, position) {
@@ -21,13 +22,8 @@ module.exports = function(makeButton, getLayout, refresh) {
 		layout.setSize(id, null);
 	    });
 	    
-	    layout.collapsed().forEach(function(id) {
-		layout.setCollapsed(id, false);
-	    });
+	    layout.setDepth(null);
 
 	    refresh();
-	},
-	{
-	}
-    );
+	});
 };

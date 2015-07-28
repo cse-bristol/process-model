@@ -13,27 +13,56 @@ body {
     width: 100%;
 }
 
-#toolbar {
+#menu-bar {
     position: absolute;
     top: 1em;
     left: 1em;
 }
 
-#help {
-    text-decoration: none;
-    font-size: xx-large;
-    position: fixed;
-    right: 0.3em;
-    top: 0.2em;
+#toolbar {
+    position: absolute;
+    top: 1em;
+    right: 1em;
+
+    /* Cross-browser disable text selection. */
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;    
 }
 
-@media print {
-    #help {
-	display: none;
-    }
+#toolbar div {
+    display: block;
+    border: 1px solid black;
+    padding: 0.5em;
+    margin: 0.5em;
+    cursor: pointer;
+    text-align: center;
+}
+
+#toolbar div.enabled {
+    background-color: black;
+    color: white;
+}
+
+#rotate-button.TB {
+    transform: rotate(90deg);
+}
+
+#rotate-button.RL {
+    transform: rotate(180deg);
+}
+
+#rotate-button.BT {
+    transform: rotate(270deg);
 }
 
 .depth-slider {
-    width: 100%;
-    pointer-events: auto;
+    display: none;
+}
+
+.depth-slider.enabled {
+    display: block;
 }

@@ -18,6 +18,7 @@ module.exports = function(getTitle, onTitleChange, serialize, getModel, makeButt
     return {
 	spec: makeButton(
 	    "Export",
+	    null,
 	    // We use the default functionality of a link to save a data URL for download.	    
 	    noop,
 	    {

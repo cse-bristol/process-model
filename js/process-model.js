@@ -22,11 +22,14 @@ var updating = false,
 		fileMenu.menu().updateButtons();
 	    }
 
-	    depthSlider.update();
-
 	    draw.update(
 		layout()
 	    );
+
+	    fitButton.update();
+	    rotateButton.update();
+	    depthSlider.update();
+	    
 	} finally {
 	    updating = false;
 	}
@@ -38,6 +41,7 @@ var d3 = require("d3"),
 
     toolbar = body.append("div")
 	.attr("id", "toolbar"),
+    
     svg = d3.select("svg#model"),
 
     helpers = require("./helpers.js"),
@@ -53,38 +57,35 @@ var d3 = require("d3"),
 	serialization.jsonDeserialize,
 	model.get,
 	model.set,
-	model.freshModel
+	model.freshModel,
+	null,
+	"http://tools.smartsteep.eu/wiki/User_Manual#Process_modelling_tool"
     ),    
     
     modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
 
-    margins = require("./margins.js")(update),
     draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, modelOperations.writeBufferedOperations, update),    
-    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins),
 
     insertButton = require("./insert-button.js")(
 	fileMenu.store.loadSnapshot,
 	model.merge,
 	update,
 	fileMenu.spec.button),
-    
-    layoutButton = require("./layout/reset-layout-button.js")(fileMenu.spec.button, model.getLayout, update),
-    rotateButton = require("./layout/rotate-button.js")(fileMenu.spec.button, model.getLayout, update),
-    depthSlider = require("./depth-slider.js")(fileMenu.spec.button, model.getNodes, model.getLayout, update);    
+
+    fitButton = draw.viewport.makeFitButton(toolbar),
+    rotateButton = require("./layout/rotate-button.js")(toolbar, model.getLayout, update),
+    margins = require("./margins.js")(update, toolbar),    
+    depthSlider = require("./depth-slider.js")(toolbar, model.getNodes, model.getLayout, update),
+    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins);
+
+require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
 
 fileMenu.buildMenu(
-    toolbar,
+    body,
     [
 	insertButton,
 	serialization.exportButton(fileMenu).spec,
-	layoutButton,
-	rotateButton,
-	depthSlider.button
-    ].concat(
-	margins.makeButtons(fileMenu.spec.toggle)
-    ).concat(
-	draw.viewport.makeFitButton(fileMenu.spec.toggle)
-    )
+    ]
 );
 
 model.onSet(function() {

@@ -2,32 +2,27 @@
 
 /*global module, require*/
 
-module.exports = function(update) {
+var d3 = require("d3");
+
+module.exports = function(update, toolbar) {
     // Default to showing details if we are standalone, and not if we are in an iframe.
     var enabled = window === window.parent;
 
+    toolbar.append("div")
+	.attr("id", "margins-toggle")
+	.text("Margins")
+	.classed("enabled", enabled)
+	.on("click", function(d, i) {
+	    enabled = !enabled;
+	    d3.select(this)
+		.classed("enabled", enabled);
+	    
+	    update();
+	});
+    
     return {
 	enabled: function() {
 	    return enabled;
-	},
-	
-	makeButtons: function(makeToggle) {
-	    return makeToggle(
-		"Detail",
-		function() {
-		    return enabled;
-		},
-		function() {
-		    enabled = true;
-		    update();
-		},
-		{},
-		function() {
-		    enabled = false;
-		    update();
-		},
-		{}
-	    );
 	}
     };
 };

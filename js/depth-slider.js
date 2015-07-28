@@ -14,56 +14,75 @@ var d3 = require("d3"),
 
  This gives the appearance of progressively unfolding the graph, until everything is expanded. At that point, the next call will collapse it back down again.
  */
-module.exports = function(makeButton, getNodeCollection, getLayoutState, update) {
-    var input = null;
+module.exports = function(toolbar, getNodeCollection, getLayoutState, update) {
+    var button = toolbar.append("div")
+	    .attr("id", "levels-button")
+	    .text("Levels")
+	    .on("click", function() {
+		var layout = getLayoutState(),
+		    currentDepth = layout.depth();
 
-    return {
-	button: makeButton(
-	    "Levels",
-	    noop,
-	    {
-		confirm: false,
-		hooks: function(button) {
-		    button.style("pointer-events", "none");
-
-		    input = button.append("input")
-			.classed("depth-slider", true)
-		    	.attr("type", "range")
-		    	.attr("min", 1)
-		    	.on("input", function(d, i) {
-			    var layout = getLayoutState(),
-				nodeCollection = getNodeCollection();
-			    
-			    if (!layout || !nodeCollection) {
-				return;
-			    }
-			    
-			    var depthLookup = nodeCollection.depthLookup,
-				controlDepth = input.node().value;
-
-			    if (controlDepth >= depthLookup.getMaxDepth()) {
-				controlDepth = null;
-			    }
-			    
-			    if (controlDepth === layout.depth()) {
-				return;
-			    } else {
-				layout.setDepth(controlDepth);
-				update();
-			    }
-			});
+		if (currentDepth === null) {
+		    layout.setDepth(slider.node().value);
+		    
+		} else {
+		    layout.setDepth(null);
 		}
-	    }
-	),
-	update: function() {
-	    var max = getNodeCollection().depthLookup.getMaxDepth();
 
-	    input.attr("max", max);
+		update();
+	    }),
+
+	slider = toolbar.append("input")
+	    .attr("type", "range")
+    	    .classed("depth-slider", true)
+	    .attr("min", 1)
+	    .on("input", function() {
+		var layout = getLayoutState(),
+		    nodeCollection = getNodeCollection();
+		
+		if (!layout || !nodeCollection) {
+		    return;
+		}
+		
+		var depthLookup = nodeCollection.depthLookup,
+		    controlDepth = Math.min(
+			slider.node().value,
+			depthLookup.getMaxDepth()
+		    );
+
+		if (controlDepth === layout.depth()) {
+		    return;
+		} else {
+		    layout.setDepth(controlDepth);
+		    update();
+		}
+	    }),
+
+	redraw = function() {
+	    var nodes = getNodeCollection(),
+		layout = getLayoutState();
+
+	    if (!nodes || !layout) {
+		return;
+	    }
+	    
+	    var max = nodes.depthLookup.getMaxDepth(),
+		enabled = layout.depth() !== null;
+
+	    slider.attr("max", max);
 	    
 	    /*
 	     We represent completed expanded in the layout state as null, but represent it to the user as the maximum value.
 	     */
-	    input.node().value = getLayoutState().depth() || max;
-	}
+	    slider.node().value = layout.depth() || max;
+
+	    button.classed("enabled", enabled);
+	    slider.classed("enabled", enabled);
+	};
+
+    redraw();
+
+    return {
+	update: redraw
     };
 };
