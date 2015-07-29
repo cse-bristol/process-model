@@ -15,6 +15,7 @@
 	"browserify": "5.9.1",
 	"catw": "1.0.1"
     },
+    
     "dependencies": {
 	"d3": "3.5.3",
 	"lodash": "3.9.3",
