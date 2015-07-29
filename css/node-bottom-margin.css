@@ -18,19 +18,19 @@ g.interval.computed {
     cursor: auto;
 }
 
-rect.success {
+.interval rect.success {
     fill: green;
 }
 
-rect.uncertainty {
+.interval rect.uncertainty {
     fill: white;
 }
 
-rect.failure {
+.interval rect.failure {
     fill: red;
 }
 
-rect.conflict {
+.interval rect.conflict {
     fill: #27408B;
 }
 
