@@ -8,7 +8,9 @@ var d3 = require("d3"),
     helpers = require("../../helpers.js"),
     callbacks = helpers.callbackHandler,
 
-    epsilon = Math.pow(2, -20);
+    epsilon = Math.pow(2, -20),
+
+    zoomScale = 1.5;
 
 /*
  Wraps a d3 zoom behaviour with some custom additions.
@@ -44,17 +46,22 @@ module.exports = function(modelSVG, modelG) {
     };
 
     zoom.scaleTranslate = function(scale, translate) {
-	zoom
-	    .scale(scale)
-	    .translate(translate)
-	    .event(modelG.transition());
+	if (scale) {
+	    zoom.scale(scale);
+	}
+
+	if (translate) {
+	    zoom.translate(translate);
+	}
+
+	zoom.event(modelG.transition());
     };
 
     zoom.in = function() {
-	zoom.scaleTranslate(zoom.scale() * 1.1);
+	zoom.scaleTranslate(zoom.scale() * zoomScale);
     };
     zoom.out = function() {
-	zoom.scaleTranslate(zoom.scale() / 1.1);
+	zoom.scaleTranslate(zoom.scale() / zoomScale);
     };
 
     zoom.onZoom = onZoom.add;

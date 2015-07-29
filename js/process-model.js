@@ -72,6 +72,7 @@ var d3 = require("d3"),
 	update,
 	fileMenu.spec.button),
 
+    zoomButtons = draw.viewport.makeZoomButtons(toolbar),
     fitButton = draw.viewport.makeFitButton(toolbar),
     rotateButton = require("./layout/rotate-button.js")(toolbar, model.getLayout, update),
     margins = require("./margins.js")(update, toolbar),    

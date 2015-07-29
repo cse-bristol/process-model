@@ -7,6 +7,7 @@ var d3 = require("d3"),
     stateFactory = require("./viewport-state.js"),
     zoomFactory = require("./zoom.js"),    
     zoomToFitFactory = require("./zoom-to-fit-nodes.js"),
+    zoomButtonFactory = require("./zoom-buttons.js"),
     fitButtonFactory = require("./fit-button.js"),
 
     queryParam = "focus";
@@ -118,9 +119,17 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	    update();
 	},
 
-	makeFitButton: function(makeToggle) {
+	makeZoomButtons: function(toolbar) {
+	    return zoomButtonFactory(
+		toolbar,
+		zoom,
+		update
+	    );
+	},
+
+	makeFitButton: function(toolbar) {
 	    return fitButtonFactory(
-		makeToggle,
+		toolbar,
 		state.hasWholeModelView,
 		function() {
 		    state.setWholeModelView();
