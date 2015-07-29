@@ -33,6 +33,13 @@ body {
     -ms-user-select: none;    
 }
 
+@media print {
+    #toolbar {
+    	display: none;
+    }
+}
+
+
 #toolbar div {
     display: block;
     border: 1px solid black;
