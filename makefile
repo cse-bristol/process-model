@@ -6,7 +6,7 @@ js: npm bin; browserify -d js/process-model.js -o bin/main.js;
 bin: ; mkdir -p bin;
 npm: ; npm install;
 
-css: bin libcss; libcss/* cat css/* > bin/style.css;
+css: bin libcss; cat libcss/* css/* > bin/style.css;
 libcss: ; ./library-css.sh;
 
 tests: ; echo "no tests";
