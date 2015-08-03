@@ -78,18 +78,24 @@ var d3 = require("d3"),
     rotateButton = require("./layout/rotate-button.js")(toolbar, model.getLayout, update),
     margins = require("./margins.js")(update, toolbar),    
     depthSlider = require("./depth-slider.js")(toolbar, model.getNodes, model.getLayout, update),
-    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins);
+    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins),
+    fileMenuContents = fileMenu.buildMenu(
+	body
+    ),
+    standardButtons = fileMenuContents.standardButtons;
 
 require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
 
-fileMenu.buildMenu(
-    body
-).setButtons(
-    [
-	insertButton,
-	serialization.exportButton(fileMenu).spec,
-    ]
+standardButtons.insertBefore(
+    insertButton,
+    standardButtons.deleteButton
 );
+standardButtons.insertBefore(
+    serialization.exportButton(fileMenu).spec,
+    standardButtons.deleteButton
+);
+
+fileMenuContents.setButtons(standardButtons.ordered);
 
 model.onSet(function() {
     draw.viewport.onSetModel();
