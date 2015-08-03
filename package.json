@@ -19,7 +19,7 @@
     "dependencies": {
 	"d3": "3.5.3",
 	"lodash": "3.9.3",
-	"dagre": "0.4.6",
+	"dagre": "0.7.4",
 	"xmldom": "0.1.16",
 	"url-regex": "2.1.2",
 	"ot-json0": "1.0.1",

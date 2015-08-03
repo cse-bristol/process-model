@@ -19,13 +19,22 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
      This function does not return anything: it accumulates its results into the nodePositions dictionary and edgeResults list.
      */
     var autoLayout = function(startNodes, calcOffset, nodePositions, edgeResults) {
-	var graph = new dagre.Digraph(),
+	var graph = new dagre.graphlib.Graph(),
 	    toRead = startNodes,
 	    visited = d3.set(),
 
 	    edgeStack = [],
 	    
 	    manualEdges = [];
+
+	/*
+	 Sets up the graph label as an empty object.
+	 */
+	graph.setGraph({
+	    nodesep: 10,
+	    ranksep: 40,
+	    rankdir: layoutState.getOrientation()
+	});
 
 	/*
 	 Traverses the process-model from the given start nodes, excluding and stopping at any manually positioned nodes.
@@ -43,7 +52,7 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
 		
 		var size = sizes.get(id).size;
 
-		graph.addNode(
+		graph.setNode(
 		    id,
 		    {
 			label: id,
@@ -73,44 +82,51 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
 	while(edgeStack.length) {
 	    var e = edgeStack.pop();
 
-	    graph.addEdge(
-		null,
+	    graph.setEdge(
 		e.parent().id,
-		e.node().id
+		e.node().id,
+		{
+		    label: ""
+		}
 	    );	
 	}
 
-	var layout = dagre.layout()
-		.nodeSep(10)
-		.rankSep(40)
-		.rankDir(layoutState.getOrientation())
-		.run(graph),
-
-	    offset = calcOffset(layout);
+	dagre.layout(graph);
+	
+	var offset = calcOffset(graph);
 
 	/*
 	 Turn each node into a view model and add it to the nodeViewModels dictionary.
 	 */
-	layout.eachNode(function(id, val) {
+	graph.nodes().forEach(function(nodeId) {
+	    var node = graph.node(nodeId);
+
 	    nodePositions.set(
-		id,
+		nodeId,
 		[
-		    val.x + offset[0] - (val.width / 2),
-		    val.y + offset[1] - (val.height / 2)
+		    node.x + offset[0] - (node.width / 2),
+		    node.y + offset[1] - (node.height / 2)
 		]
 	    );
 	});
 
-	layout.eachEdge(function(e, fromId, toId, val) {
+	graph.edges().forEach(function(edge) {
+	    var outEdge = graph.edge(edge);
+
 	    edgeResults.push({
-		edge: nodesCollection.get(fromId)
+		edge: nodesCollection.get(edge.v)
 		    .edgeTo(
-			nodesCollection.get(toId)
+			nodesCollection.get(edge.w)
 		    ),
-		fromId: fromId,
-		toId: toId,		
+		fromId: edge.v,
+		toId: edge.w,
+
+		labelPos: [
+		    outEdge.x,
+		    outEdge.y
+		],
 		
-		points: val.points.map(function(p) {
+		points: outEdge.points.map(function(p) {
 		    return [
 			p.x + offset[0],
 			p.y + offset[1]
@@ -158,9 +174,9 @@ module.exports = function(isVisible, sizes, nodesCollection, layoutState) {
     }).forEach(function(r) {
 	autoLayout(
 	    [r],
-	    function(layout) {
+	    function(graph) {
 		var desired = layoutState.getPosition(r.id),
-		    n = layout.node(r.id);
+		    n = graph.node(r.id);
 
 		return [
 		    (n.width / 2) + desired[0] - n.x,
