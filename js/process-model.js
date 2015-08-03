@@ -53,6 +53,7 @@ var d3 = require("d3"),
     
     fileMenu = require("multiuser-file-menu")(
 	"process-models",
+	"process-model",
 	serialization.jsonSerialize,
 	serialization.jsonDeserialize,
 	model.get,
@@ -82,7 +83,8 @@ var d3 = require("d3"),
 require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
 
 fileMenu.buildMenu(
-    body,
+    body
+).setButtons(
     [
 	insertButton,
 	serialization.exportButton(fileMenu).spec,

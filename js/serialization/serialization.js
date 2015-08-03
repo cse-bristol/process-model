@@ -35,8 +35,8 @@ module.exports = function(body, model) {
 	exportButton: function(fileMenu) {
 	    if (fileMenu && !exportButton) {
 		exportButton = exportButtonFactory(
-		    fileMenu.standard.getTitle,
-		    fileMenu.standard.onTitleChange,
+		    fileMenu.store.getTitle,
+		    fileMenu.store.onNavigate,
 		    jsonSerialization.serialize,
 		    model.get,
 		    fileMenu.spec.button
