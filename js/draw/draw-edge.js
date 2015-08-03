@@ -86,12 +86,6 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 	    edges.select("path.edge-path"))
 	    .attr("d", function(d, i) {
 		return d3.svg.line().interpolate("basis")(d.path, i);
-	    })
-	    .attr("stroke-width", function(d, i){
-		return d.necessity === undefined ? 1 : d.necessity + d.sufficiency;
-	    })
-	    .attr("stroke", function(d, i){
-		return d.necessity === undefined ? "black" : pathColourScale(d.sufficiency - d.necessity);
 	    });
     };
 
@@ -136,7 +130,7 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 
 	transitions.maybeTransition(labels)
 	    .attr("transform", function(d, i) {
-		return "translate(" + d.path[1][0] + "," + d.path[1][1] + ")";
+		return "translate(" + d.labelPosition[0] + "," + d.labelPosition[1] + ")";
 	    });
 
 	drawNecessitySufficiency(labels);

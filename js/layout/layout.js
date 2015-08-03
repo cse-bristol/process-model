@@ -65,10 +65,16 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 	});
 
 	var edgeViewModels = positions.edges
-		.map(function(e) {
+		.map(function(e, i) {
 		    var fromViewModel = nodeViewModels.get(e.fromId),
-			toViewModel = nodeViewModels.get(e.toId);
-		    
+			toViewModel = nodeViewModels.get(e.toId),
+
+			targetHasOnlyOneParent = nodesCollection.edgesToNode(
+			    nodesCollection.get(
+				e.toId
+			    )
+			).length === 1;
+
 		    return viewModel.edge(
 			e.edge,
 			edgePath(
@@ -78,7 +84,8 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 			    e.points
 			),
 			nodesCollection.depthLookup.isBorderNode(layoutState.depth(), e.fromId),
-			margins.enabled()
+			margins.enabled(),
+			targetHasOnlyOneParent
 		    );
 		});
 	

@@ -2,19 +2,37 @@
 
 /*global module, require*/
 
+var nearEndOfPath = function(path) {
+    var len = path.length;
+
+    if (len === 1) {
+	return path[0];
+    } else {
+	return path[len - 2];
+    }
+};
+
 /*
  Simple bags of properties representing the display properties of our model.
  */
 module.exports = {
-    edge: function(edge, path, collapsed, detailMode) {
+    edge: function(edge, path, collapsed, detailMode, onlyParent) {
 	var e =  {
 	    viewId: Math.random(),
 	    parentId: edge.parent().id,
 	    childId: edge.node().id,
-	    path: path,
-	    canModify: !collapsed
+	    canModify: !collapsed,
+	    setEdgePath: function(newPath) {
+		e.path = newPath;
+
+		e.labelPosition = onlyParent ?
+		    newPath[newPath.length - 1] :
+		    nearEndOfPath(newPath);
+	    }
 	};
-	
+
+	e.setEdgePath(path);
+
 	if (!collapsed && detailMode && edge.necessity) {
 	    e.necessity = edge.necessity();
 	    e.sufficiency = edge.sufficiency();

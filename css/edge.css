@@ -19,6 +19,8 @@
 
 .edge-path {
     stroke-linecap: round;
+    stroke-width: 1;
+    stroke: grey;
 }
 
 g.weight-half {

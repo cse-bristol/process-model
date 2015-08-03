@@ -102,11 +102,13 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		    var element = d3.select("#edge-" + e.parent().id + "-to-" + e.node().id),
 			d = element.datum();
 
-		    d.path = edgePath(
-			edgesOutCoords,
-			/* Find the existing edge and use the last coordinate of its path as the start point. */			    
-			d.path.pop(),
-			direction
+		    d.setEdgePath(
+			edgePath(
+			    edgesOutCoords,
+			    /* Find the existing edge and use the last coordinate of its path as the start point. */			    
+			    d.path.pop(),
+			    direction
+			)
 		    );
 
 		    edgesSelection[0].push(element.node());
@@ -117,11 +119,13 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 			var element = d3.select("#edge-" + e.parent().id + "-to-" + e.node().id),
 			    d = element.datum();
 
-			d.path = edgePath(
-			    /* Find the existing edge and use the first coordinate of its path as the start point. */
-			    d.path[0],
-			    edgesInCoords,
-			    direction
+			d.setEdgePath(
+			    edgePath(
+				/* Find the existing edge and use the first coordinate of its path as the start point. */
+				d.path[0],
+				edgesInCoords,
+				direction
+			    )
 			);
 
 			edgesSelection[0].push(element.node());
