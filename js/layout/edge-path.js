@@ -40,6 +40,14 @@ module.exports = function(start, end, direction, controlPoints) {
     path.push(start);
 
     if (controlPoints) {
+	/*
+	 We replace the start and end points dagre generated so that we can guarantee that edges touch the nodes in the desired places.
+
+	 This may give slightly odd results in some cases (e.g. an edge may overlap a node), but usually works well.
+	 */
+	controlPoints.shift();
+	controlPoints.pop();
+	
 	path = path.concat(controlPoints);
 	
     } else {
@@ -60,7 +68,22 @@ module.exports = function(start, end, direction, controlPoints) {
 	    deltaDotDirection = [
 		delta[0] * direction[0],
 		delta[1] * direction[1]
-	    ];
+	    ],
+
+	    overshoot = [
+		overshootScale * delta[0],
+		overshootScale * delta[1]
+	    ],
+
+	    /*
+	     Orthogonal to the direction of layout, we don't want our control point to reach the end of the edge.
+
+	     This gives a smoother feel.
+	     */
+	    undershoot = [
+		overshoot[0] / 3,
+		overshoot[1] / 3
+	    ];  
 
 	if (deltaDotDirection[0] + deltaDotDirection[1] > 0) {
 	    /*
@@ -71,28 +94,21 @@ module.exports = function(start, end, direction, controlPoints) {
 	     This control point will be pushed out orthogonal to the direction of layout to give us a nice curve.
 	     */
 
-	    mix(mid, end, absDirection);
+	    mix(
+		plus(start, undershoot),
+		mid,
+		[
+		    1 - absDirection[0],
+		    1 - absDirection[1]
+		]
+	    );
 	    
 	} else {
 	    /*
 	     Add extra control points to give us an S-shape where we overshoot the ends of the edge slightly. This helps us to avoid drawing a line through the node in many cases.
 	     */
-	    var overshoot = [
-		overshootScale * delta[0],
-		overshootScale * delta[1]
-	    ],
 
-		/*
-		 Orthogonal to the direction of layout, we don't want our control point to reach the end of the edge.
-
-		 This gives a smoother feel.
-		*/
-		undershoot = [
-		    overshoot[0] / 3,
-		    overshoot[1] / 3
-		],
-		
-		overshootStart = minus(start, overshoot),
+	    var overshootStart = minus(start, overshoot),
 		overshootEnd = plus(end, overshoot);
 
 	    mix(overshootStart, plus(start, undershoot), absDirection);
