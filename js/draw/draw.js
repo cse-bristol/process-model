@@ -13,18 +13,18 @@ var d3 = require("d3"),
 
     textEditFactory = require("./text-edit/text-edit.js"),
     
-    viewportFactory = require("./viewport/viewport.js"),
+    viewpointFactory = require("./viewpoint/viewpoint.js"),
     
     empty = d3.select();
 
-module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, writeBufferedOperations, update) {
+module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, getSavedViewpoint, writeBufferedOperations, update) {
     var background = svg.append("rect")
 	    .attr("width", "100%")
 	    .attr("height", "100%")
 	    .attr("fill", "white")
 	    .on("click", function() {
 		if (!d3.event.defaultPrevented) {
-		    viewport.clearCentreAndFocus();
+		    viewpoint.clearCentreAndFocus();
 		}
 	    }),
 
@@ -55,7 +55,7 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 	    drawNodeSubComponents(toRedraw, empty);
 	},
 
-	viewport = viewportFactory(svg, g, queryString, getNodeCollection, update, transitions, selectNodes),
+	viewpoint = viewpointFactory(svg, g, queryString, getNodeCollection, getSavedViewpoint, update, transitions, selectNodes),
 
 	transitions = transitionsFactory(),
 
@@ -63,17 +63,17 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 
 	drawNodes = drawNodesFactory(
 	    g, defs,
-	    getNodeCollection, getLayoutState, viewport,
+	    getNodeCollection, getLayoutState, viewpoint,
 	    transitions, drawEdges.drawEdges, redrawNode, selectNodes,
 	    update
 	),
-	types = drawNodeTypesFactory(g, redrawNode, transitions, viewport, getNodeCollection, getLayoutState, update),
+	types = drawNodeTypesFactory(g, redrawNode, transitions, viewpoint, getNodeCollection, getLayoutState, update),
 
-	drawNodeMargin = drawMarginsFactory(getNodeCollection, getLayoutState, viewport, transitions, update),
+	drawNodeMargin = drawMarginsFactory(getNodeCollection, getLayoutState, viewpoint, transitions, update),
 	emphasis = emphasisFactory(defs),
-	textEdit = textEditFactory(body, getNodeCollection, viewport, transitions, writeBufferedOperations, update);
+	textEdit = textEditFactory(body, getNodeCollection, viewpoint, transitions, writeBufferedOperations, update);
 
-    viewport.zoom.on("zoomend.updateTextOverlay", function() {
+    viewpoint.zoom.on("zoomend.updateTextOverlay", function() {
 	textEdit.update(selectNodes(), pastNodeViewModels);
     });
 
@@ -86,11 +86,11 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 
 	    drawEdges.draw(viewModels.edges);
 	    
-	    viewport.update();
+	    viewpoint.update();
 
 	    pastNodeViewModels = viewModels.nodes;
 	},
 
-	viewport: viewport
+	viewpoint: viewpoint
     };
 };

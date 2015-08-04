@@ -3,25 +3,36 @@
 /*global module, require*/
 
 var d3 = require("d3"),
+    helpers = require("../../helpers.js"),
+    callbacks = helpers.callbackHandler,    
 
-    stateFactory = require("./viewport-state.js"),
     zoomFactory = require("./zoom.js"),    
     zoomToFitFactory = require("./zoom-to-fit-nodes.js"),
     zoomButtonFactory = require("./zoom-buttons.js"),
     fitButtonFactory = require("./fit-button.js"),
+    saveViewpointButtonFactory = require("./save-viewpoint-button.js"),
+    loadViewpointButtonFactory = require("./load-viewpoint-button.js"),
+
+    viewpointHistoryFactory = require("./viewpoint-history.js"),
 
     queryParam = "focus";
 
-module.exports = function(svg, g, queryString, getNodeCollection, update, transitions, getSVGNodes) {
-    var state = stateFactory(),
+module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpoint, update, transitions, getSVGNodes) {
+    /*
+     Viewpoint maintains its only copy of the viewport state, detached from the model itself.
+     */
+    var state = viewpointHistoryFactory(),
 	zoom = zoomFactory(svg, g),
 	zoomToFit = zoomToFitFactory(svg, zoom, getSVGNodes),
 	
-	viewportChanging = false,
-	zooming = false;
+	viewpointChanging = false,
+	zooming = false,
+
+	loadViewpointButton,
+	onViewpointSaved = callbacks();
 
     zoom.on("zoom.setManualPosition", function() {
-	if (zoom.changed() && !viewportChanging) {
+	if (zoom.changed() && !viewpointChanging) {
 	    var thenUpdate = !state.hasManualPosition();
 
 	    state.setManualPosition(
@@ -40,19 +51,10 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	}
     })
 	.on("zoomend.setManualPosition", function() {
-	    if (zoom.changed() && viewportChanging) {
-		viewportChanging = false;
+	    if (zoom.changed() && viewpointChanging) {
+		viewpointChanging = false;
 	    }
 	});
-
-    queryString.param(
-	queryParam,
-	// The read function is omitted here, because we're going to set up our focus during 'onSetModel' instead.
-	null,
-	function() {
-	    return state.hasSubTreeFocus() ? state.getSubTreeFocus() : null;
-	}
-    );
 
     return {
 	update: function() {
@@ -61,7 +63,7 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 		return;
 	    }
 
-	    viewportChanging = true;
+	    viewpointChanging = true;
 	    
 	    if (state.isCentredOnNode()) {
 		zoomToFit(
@@ -89,6 +91,10 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 		    getNodeCollection()
 			.ids()
 		);
+	    }
+
+	    if (loadViewpointButton) {
+		loadViewpointButton.update();
 	    }
 	},
 
@@ -130,7 +136,9 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	makeFitButton: function(toolbar) {
 	    return fitButtonFactory(
 		toolbar,
-		state.hasWholeModelView,
+		function() {
+		    return state.hasWholeModelView();
+		},
 		function() {
 		    state.setWholeModelView();
 		    update();
@@ -141,6 +149,29 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 		}
 	    );
 	},
+
+	makeSetViewpointButton: function(makeButton, setSavedViewpoint) {
+	    return saveViewpointButtonFactory(
+		makeButton,
+		function() {
+		    return state.getCurrentState();
+		},
+		setSavedViewpoint,
+		onViewpointSaved
+	    );
+	},
+
+	makeLoadViewpointButton: function(toolbar) {
+	    loadViewpointButton =  loadViewpointButtonFactory(
+		toolbar,
+		getSavedViewpoint,
+		state.pushSavedState,
+		onViewpointSaved.add,
+		update
+	    );
+	},
+
+	onViewpointSaved: onViewpointSaved.add,
 
 	getEmphasis: function() {
 	    if (state.isCentredOnNode()) {
@@ -162,10 +193,14 @@ module.exports = function(svg, g, queryString, getNodeCollection, update, transi
 	onSetModel: function() {
 	    var focusNodeId = queryString.readParameter(queryParam);
 
-	    state.setWholeModelView();
-	    
 	    if (focusNodeId && getNodeCollection().has(focusNodeId)) {
 		state.focusSubTree(focusNodeId);
+	    } else {
+		state.reset();
+		
+		state.pushSavedState(
+		    getSavedViewpoint()
+		);
 	    }
 	},
 

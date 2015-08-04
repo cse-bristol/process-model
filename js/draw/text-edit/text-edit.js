@@ -16,8 +16,8 @@ var _ = require("lodash"),
 
  The contents, position and size will be altered to fit the node currently being edited. 
  */
-module.exports = function(body, getNodeCollection, viewport, transitions, writeBufferedOperations, update) {
-    var zoom = viewport.zoom,
+module.exports = function(body, getNodeCollection, viewpoint, transitions, writeBufferedOperations, update) {
+    var zoom = viewpoint.zoom,
 	nodeId = null,
 	delayedWriteBufferedOperations = _.debounce(writeBufferedOperations, 300),
 
@@ -114,13 +114,13 @@ module.exports = function(body, getNodeCollection, viewport, transitions, writeB
 	}
     );
     
-    viewport.zoom.onZoom(panAndZoom);
+    viewpoint.zoom.onZoom(panAndZoom);
 
     return {
 	update: function(svgNodes, pastNodeViewModels) {
 	    panAndZoom(zoom.translate(), zoom.scale());
 	    
-	    nodeId = viewport.getCentredNodeId();
+	    nodeId = viewpoint.getCentredNodeId();
 
 	    if (!getNodeCollection() || !getNodeCollection().has(nodeId)) {
 		editor.style("visibility", "hidden");

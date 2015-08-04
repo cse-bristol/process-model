@@ -29,7 +29,7 @@ var updating = false,
 	    fitButton.update();
 	    rotateButton.update();
 	    depthSlider.update();
-	    
+
 	} finally {
 	    updating = false;
 	}
@@ -65,7 +65,7 @@ var d3 = require("d3"),
     
     modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
 
-    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, modelOperations.writeBufferedOperations, update),    
+    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, modelOperations.writeBufferedOperations, update),    
 
     insertButton = require("./insert-button.js")(
 	fileMenu.store.loadSnapshot,
@@ -73,18 +73,26 @@ var d3 = require("d3"),
 	update,
 	fileMenu.spec.button),
 
-    zoomButtons = draw.viewport.makeZoomButtons(toolbar),
-    fitButton = draw.viewport.makeFitButton(toolbar),
+    zoomButtons = draw.viewpoint.makeZoomButtons(toolbar),
+    fitButton = draw.viewpoint.makeFitButton(toolbar),
     rotateButton = require("./layout/rotate-button.js")(toolbar, model.getLayout, update),
     margins = require("./margins.js")(update, toolbar),    
     depthSlider = require("./depth-slider.js")(toolbar, model.getNodes, model.getLayout, update),
-    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewport, margins),
+    layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewpoint, margins),
     fileMenuContents = fileMenu.buildMenu(
 	body
     ),
     standardButtons = fileMenuContents.standardButtons;
 
 require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
+draw.viewpoint.makeLoadViewpointButton(toolbar);
+
+standardButtons.insertBefore(
+    draw.viewpoint.makeSetViewpointButton(
+	fileMenu.spec.button, model.setSavedViewpoint
+    ),
+    standardButtons.historyButton
+);
 
 standardButtons.insertBefore(
     insertButton,
@@ -98,7 +106,7 @@ standardButtons.insertBefore(
 fileMenuContents.setButtons(standardButtons.ordered);
 
 model.onSet(function() {
-    draw.viewport.onSetModel();
+    draw.viewpoint.onSetModel();
     update();
 });
 

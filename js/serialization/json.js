@@ -4,7 +4,9 @@
 
 var d3 = require("d3"),
     nodeCollectionFactory = require("../state/graph/node-collection.js"),
-    layoutFactory = require("../state/layout-state.js");
+    layoutFactory = require("../state/layout-state.js"),
+
+    viewpointStateFactory = require("../state/viewpoint-state.js");
 
 var serializeD3Map = function(d3Map) {
     var result = {};
@@ -196,7 +198,8 @@ module.exports = {
     serialize: function(model) {
 	return {
 	    layout: serializeLayout(model.layout),
-	    nodes: serializeNodes(model.nodes.all())
+	    nodes: serializeNodes(model.nodes.all()),
+	    savedViewpoint: (model.savedViewpoint && model.savedViewpoint.serialize()) || null
 	};
     },
 
@@ -207,7 +210,8 @@ module.exports = {
 
 	return {
 	    nodes: nodeCollection,
-	    layout: layout
+	    layout: layout,
+	    savedViewpoint: viewpointStateFactory.deserialize(json.savedViewpoint)
 	};
     },
 

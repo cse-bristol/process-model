@@ -9,7 +9,7 @@ var d3 = require("d3"),
     textXOffset = constants.textXOffset,
     textYOffset = constants.textYOffset;    
 
-module.exports = function(getNodeCollection, transitions, viewport, update) {
+module.exports = function(getNodeCollection, transitions, viewpoint, update) {
     return function(nodes, newNodes, margins, newMargins) {
 	var typeOptions = nodes
 		.selectAll("g.node-choice")
@@ -48,8 +48,8 @@ module.exports = function(getNodeCollection, transitions, viewport, update) {
 			    d.option
 			);
 
-		    if (viewport.getCentredNodeId() === d.viewModel.id) {
-			viewport.centreNode(replacementNode.id);
+		    if (viewpoint.getCentredNodeId() === d.viewModel.id) {
+			viewpoint.centreNode(replacementNode.id);
 		    }
 
 		    update();

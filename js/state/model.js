@@ -14,13 +14,15 @@ module.exports = function() {
     var onSet = callbacks(),
 	nodes,
 	layout,
+	savedViewpoint,
 	freshModel = function() {
 	    var nodes = nodeCollectionFactory();
 	    nodes.getOrCreateNode("process");
 	    
 	    return {
 		nodes: nodes,
-		layout: layoutStateFactory(nodes)
+		layout: layoutStateFactory(nodes),
+		viewpoint: null
 	    };
 	};
     
@@ -28,7 +30,8 @@ module.exports = function() {
 	get: function() {
 	    return {
 		nodes: nodes,
-		layout: layout
+		layout: layout,
+		savedViewpoint: savedViewpoint
 	    };
 	},
 
@@ -40,15 +43,25 @@ module.exports = function() {
 	    return layout;
 	},
 
+	getSavedViewpoint: function() {
+	    return (savedViewpoint && savedViewpoint.copy()) || null;
+	},
+
+	setSavedViewpoint: function(viewpointState) {
+	    savedViewpoint = (viewpointState && viewpointState.copy()) || null;
+	},
+
 	set: function(model) {
 	    nodes = model.nodes;
 	    layout = model.layout;
+	    savedViewpoint = model.savedViewpoint;
 	    onSet();
 	},
 
 	setFromNodes: function(nodesCollection) {
 	    nodes = nodesCollection;
 	    layout = layoutStateFactory(nodes);
+	    savedViewpoint = null;
 	    onSet();
 	},
 

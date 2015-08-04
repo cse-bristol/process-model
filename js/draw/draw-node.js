@@ -14,7 +14,7 @@ var d3 = require("d3"),
 /*
  Draws parts which are common to all types of node.
  */
-module.exports = function(container, defs, getNodeCollection, getLayout, viewport, transitions, drawEdges, redrawNode, selectNodes, update) {
+module.exports = function(container, defs, getNodeCollection, getLayout, viewpoint, transitions, drawEdges, redrawNode, selectNodes, update) {
     /*
      Used to tidy up the beginnings of edges.
      */
@@ -278,7 +278,7 @@ module.exports = function(container, defs, getNodeCollection, getLayout, viewpor
 		d3.event.preventDefault();
 		d3.event.stopPropagation();
 		
-		viewport.centreNode(d.id);
+		viewpoint.centreNode(d.id);
 	    }
 	},
 

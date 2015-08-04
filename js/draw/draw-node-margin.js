@@ -6,7 +6,7 @@ var d3 = require("d3"),
     helpers = require("../helpers.js"),
     callbacks = helpers.callbackHandler,
 
-    svgTextWrapping = require("./svg-text-wrapping.js"),
+    svgTextWrapping = require("./svg-text-wrapping"),
 
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
@@ -18,7 +18,7 @@ var d3 = require("d3"),
      */
     epsilon = 0.001;
 
-module.exports = function(getNodeCollection, getLayoutState, viewport, transitions, update) {
+module.exports = function(getNodeCollection, getLayoutState, viewpoint, transitions, update) {
     var onBottomMarginDraw = callbacks(),
 
 	centreNode = function(d, i) {
@@ -26,7 +26,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, transitio
 		d3.event.preventDefault();
 		d3.event.stopPropagation();
 		
-		viewport.centreNode(d.id);
+		viewpoint.centreNode(d.id);
 	    }
 	},
 
@@ -134,7 +134,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewport, transitio
 	drawFocus = drawButton(
 	    "F",
 	    function(d, i) {
-		viewport.focusSubTree(d.id);
+		viewpoint.focusSubTree(d.id);
 	    },
 	    "focus-subtree-tool",
 	    1

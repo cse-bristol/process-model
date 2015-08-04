@@ -73,3 +73,38 @@ body {
 .depth-slider.enabled {
     display: block;
 }
+
+#toolbar #load-viewpoint-button {
+    display: none;
+}
+
+#toolbar #load-viewpoint-button.enabled {
+    display: block;
+}
+
+#toolbar #viewpoint-saved-indicator-wrapper {
+    position: relative;
+    left: -10em;
+    width: 0;
+    top: -2.2em;
+    height: 0;
+    border: none;
+    padding:0;
+    margin:0;
+}
+
+#toolbar #viewpoint-saved-indicator-wrapper div {
+    background-color: slategray;
+    position: absolute;
+    width: 7em;
+    opacity: 0;
+    transition: opacity 3s;
+}
+
+#toolbar #viewpoint-saved-indicator-wrapper div.enabled {
+    background-color: slategray;
+    position: absolute;
+    width: 7em;
+    opacity: 1;
+    transition: none;
+}

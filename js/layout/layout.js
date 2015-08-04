@@ -9,7 +9,7 @@ var _ = require("lodash"),
     viewModel = require("./view-model.js"),
     edgePath = require("./edge-path.js");
 
-module.exports = function(getNodesCollection, getLayoutState, viewport, margins) {
+module.exports = function(getNodesCollection, getLayoutState, viewpoint, margins) {
     return function() {
 	var nodesCollection = getNodesCollection(),
 	    layoutState = getLayoutState(),
@@ -19,7 +19,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 	    sizes = sizeCalculator(
 		visibleIds,
 		margins.enabled(),
-		viewport.getCentredNodeId(),
+		viewpoint.getCentredNodeId(),
 		layoutState.size()
 	    ),
 
@@ -34,7 +34,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 
 	    nodeViewModels = d3.map(),
 
-	    emphasis = viewport.getEmphasis();
+	    emphasis = viewpoint.getEmphasis();
 
 	positions.nodes.forEach(function(id, position) {
 	    var size = sizes.get(id),
@@ -58,7 +58,7 @@ module.exports = function(getNodesCollection, getLayoutState, viewport, margins)
 		    nodesCollection.depthLookup.isBorderNode(layoutState.depth(), id),
 		    orientationCoords,
 		    margins.enabled(),
-		    viewport.getCentredNodeId() === id,
+		    viewpoint.getCentredNodeId() === id,
 		    effects
 		)
 	    );
