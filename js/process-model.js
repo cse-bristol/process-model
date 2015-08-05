@@ -63,9 +63,9 @@ var d3 = require("d3"),
 	"http://tools.smartsteep.eu/wiki/User_Manual#Process_modelling_tool"
     ),    
     
-    modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.set, model.onSet, update),
+    modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, model.set, model.onSet, update),
 
-    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, modelOperations.writeBufferedOperations, update),    
+    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, modelOperations.writeBufferedOperations, update),    
 
     insertButton = require("./insert-button.js")(
 	fileMenu.store.loadSnapshot,
@@ -84,9 +84,6 @@ var d3 = require("d3"),
     ),
     standardButtons = fileMenuContents.standardButtons;
 
-require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
-draw.viewpoint.makeLoadViewpointButton(toolbar);
-
 standardButtons.insertBefore(
     draw.viewpoint.makeSetViewpointButton(
 	fileMenu.spec.button, model.setSavedViewpoint
@@ -104,6 +101,9 @@ standardButtons.insertBefore(
 );
 
 fileMenuContents.setButtons(standardButtons.ordered);
+
+require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
+draw.viewpoint.makeLoadViewpointButton(toolbar);
 
 model.onSet(function() {
     draw.viewpoint.onSetModel();

@@ -12,6 +12,7 @@ var nodeCollectionFactory = require("./graph/node-collection.js"),
  */
 module.exports = function() {
     var onSet = callbacks(),
+	onViewpointSaved = callbacks(),
 	nodes,
 	layout,
 	savedViewpoint,
@@ -49,7 +50,10 @@ module.exports = function() {
 
 	setSavedViewpoint: function(viewpointState) {
 	    savedViewpoint = (viewpointState && viewpointState.copy()) || null;
+	    onViewpointSaved(savedViewpoint);
 	},
+
+	onViewpointSaved: onViewpointSaved.add,
 
 	set: function(model) {
 	    nodes = model.nodes;

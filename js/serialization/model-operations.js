@@ -9,6 +9,9 @@ var _ = require("lodash"),
     serialize = jsonData.serialize,
     serializeNode = jsonData.serializeNode,
     serializeEdge = jsonData.serializeEdge,
+
+    viewpointStateFactory = require("../state/viewpoint-state.js"),
+    
     /*
      Chosen by experimentation to be quite fast, but not so fast that scrolling the scroll wheel or clicking and dragging will trigger multiple events.
      */
@@ -19,7 +22,7 @@ var _ = require("lodash"),
 
  Watched the context and alters the node graph and layout based on the operations it sees.
  */
-module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel, onModelChanged, update) {
+module.exports = function(writeOp, onOp, getNodeCollection, getLayout, getSavedViewpoint, setSavedViewpoint, onViewpointSaved, setModel, onModelChanged, update) {
     var listening = true,
 	bufferedOperations = [],
 	submitOp = function(op) {
@@ -176,7 +179,18 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    }
 	    updateNode(nodeCollection, nodeCollection.get(path[0]), path.slice(1), op);
 	}
-    };
+    },
+
+	updateViewpoint = function(op) {
+	    if (op.oi) {
+		setSavedViewpoint(
+		    viewpointStateFactory.deserialize(op.oi)
+		);
+		
+	    } else if (op.od) {
+		setSavedViewpoint(null);
+	    }
+	};
     
     onOp(function(op) {
 	listening = false;
@@ -195,13 +209,15 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 		}
 		
 	    } else {
-		
 		switch(op.p[0]) {
 		case "nodes":
 		    updateNodes(getNodeCollection(), op.p.slice(1), op);
 		    break;
 		case "layout":
 		    updateLayout(getLayout(), op.p.slice(1), op);
+		    break;
+		case "savedViewpoint":
+		    updateViewpoint(op);
 		    break;
 		default:
 		    // We don't know how to handle this event.
@@ -369,6 +385,26 @@ module.exports = function(writeOp, onOp, getNodeCollection, getLayout, setModel,
 	    });
 	});
     };
+
+    onViewpointSaved(function(newViewpoint) {
+	var op = {
+	    p: ["savedViewpoint"]
+	};
+	
+	if (newViewpoint) {
+	    op.oi = newViewpoint.serialize();
+	} else {
+	    op.od = true;
+	}
+
+	submitOp(op);
+
+	/*
+	 We flush the buffer here, because saving the viewpoint doesn't trigger an update/redraw.
+	 */
+	writeOp(bufferedOperations);
+	bufferedOperations = [];
+    });
 
     onModelChanged(function() {
 	var coll = getNodeCollection(),

@@ -17,7 +17,7 @@ var d3 = require("d3"),
 
     queryParam = "focus";
 
-module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpoint, update, transitions, getSVGNodes) {
+module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpoint, setSavedViewpoint, onViewpointSaved, update, transitions, getSVGNodes) {
     /*
      Viewpoint maintains its only copy of the viewport state, detached from the model itself.
      */
@@ -28,8 +28,7 @@ module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpo
 	viewpointChanging = false,
 	zooming = false,
 
-	loadViewpointButton,
-	onViewpointSaved = callbacks();
+	loadViewpointButton;
 
     zoom.on("zoom.setManualPosition", function() {
 	if (zoom.changed() && !viewpointChanging) {
@@ -156,8 +155,7 @@ module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpo
 		function() {
 		    return state.getCurrentState();
 		},
-		setSavedViewpoint,
-		onViewpointSaved
+		setSavedViewpoint
 	    );
 	},
 
@@ -166,12 +164,10 @@ module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpo
 		toolbar,
 		getSavedViewpoint,
 		state.pushSavedState,
-		onViewpointSaved.add,
+		onViewpointSaved,
 		update
 	    );
 	},
-
-	onViewpointSaved: onViewpointSaved.add,
 
 	getEmphasis: function() {
 	    if (state.isCentredOnNode()) {

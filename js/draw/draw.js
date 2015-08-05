@@ -17,7 +17,7 @@ var d3 = require("d3"),
     
     empty = d3.select();
 
-module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, getSavedViewpoint, writeBufferedOperations, update) {
+module.exports = function(body, svg, queryString, getNodeCollection, getLayoutState, getSavedViewpoint, setSavedViewpoint, onViewpointSaved, writeBufferedOperations, update) {
     var background = svg.append("rect")
 	    .attr("width", "100%")
 	    .attr("height", "100%")
@@ -55,7 +55,7 @@ module.exports = function(body, svg, queryString, getNodeCollection, getLayoutSt
 	    drawNodeSubComponents(toRedraw, empty);
 	},
 
-	viewpoint = viewpointFactory(svg, g, queryString, getNodeCollection, getSavedViewpoint, update, transitions, selectNodes),
+	viewpoint = viewpointFactory(svg, g, queryString, getNodeCollection, getSavedViewpoint, setSavedViewpoint, onViewpointSaved, update, transitions, selectNodes),
 
 	transitions = transitionsFactory(),
 

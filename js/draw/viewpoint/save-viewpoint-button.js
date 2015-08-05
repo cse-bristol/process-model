@@ -2,7 +2,7 @@
 
 /*global module, require*/
 
-module.exports = function(makeButton, getViewpointState, setSavedViewpoint, onViewpointSaved) {
+module.exports = function(makeButton, getViewpointState, setSavedViewpoint) {
     return makeButton(
 	"Set Viewpoint",
 	null,
@@ -10,7 +10,6 @@ module.exports = function(makeButton, getViewpointState, setSavedViewpoint, onVi
 	    setSavedViewpoint(
 		getViewpointState()
 	    );
-	    onViewpointSaved();
 	},
 	{
 	    onlineOffline: {
