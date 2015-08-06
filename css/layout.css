@@ -102,9 +102,6 @@ body {
 }
 
 #toolbar #viewpoint-saved-indicator-wrapper div.enabled {
-    background-color: slategray;
-    position: absolute;
-    width: 7em;
     opacity: 1;
     transition: none;
 }
