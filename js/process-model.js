@@ -16,10 +16,10 @@ var updating = false,
 	    }
 
 	    modelOperations.writeBufferedOperations();
-	    fileMenu.queryString.toURL();
+	    fileMenuModule.queryString.toURL();
 	    serialization.exportButton().update();
-	    if (fileMenu.menu()) {
-		fileMenu.menu().updateButtons();
+	    if (fileMenu.contents) {
+		fileMenu.contents.updateButtons();
 	    }
 
 	    draw.update(
@@ -51,7 +51,7 @@ var d3 = require("d3"),
 
     serialization = require("./serialization/serialization.js")(body, model),
     
-    fileMenu = require("multiuser-file-menu")(
+    fileMenuModule = require("multiuser-file-menu")(
 	"process-models",
 	"process-model",
 	serialization.jsonSerialize,
@@ -63,15 +63,15 @@ var d3 = require("d3"),
 	"http://tools.smartsteep.eu/wiki/User_Manual#Process_modelling_tool"
     ),    
     
-    modelOperations = require("./serialization/model-operations.js")(fileMenu.store.writeOp, fileMenu.store.onOp, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, model.set, model.onSet, update),
+    modelOperations = require("./serialization/model-operations.js")(fileMenuModule.store.writeOp, fileMenuModule.store.onOp, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, model.set, model.onSet, update),
 
-    draw = require("./draw/draw.js")(body, svg, fileMenu.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, modelOperations.writeBufferedOperations, update),    
+    draw = require("./draw/draw.js")(body, svg, fileMenuModule.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, modelOperations.writeBufferedOperations, update),    
 
     insertButton = require("./insert-button.js")(
-	fileMenu.store.loadSnapshot,
+	fileMenuModule.store.loadSnapshot,
 	model.merge,
 	update,
-	fileMenu.spec.button),
+	fileMenuModule.spec.button),
 
     zoomButtons = draw.viewpoint.makeZoomButtons(toolbar),
     fitButton = draw.viewpoint.makeFitButton(toolbar),
@@ -79,14 +79,14 @@ var d3 = require("d3"),
     margins = require("./margins.js")(update, toolbar),    
     depthSlider = require("./depth-slider.js")(toolbar, model.getNodes, model.getLayout, update),
     layout = require("./layout/layout.js")(model.getNodes, model.getLayout, draw.viewpoint, margins),
-    fileMenuContents = fileMenu.buildMenu(
+    fileMenu = fileMenuModule.buildMenu(
 	body
     ),
-    standardButtons = fileMenuContents.standardButtons;
+    standardButtons = fileMenu.standardButtons;
 
 standardButtons.insertBefore(
     draw.viewpoint.makeSetViewpointButton(
-	fileMenu.spec.button, model.setSavedViewpoint
+	fileMenuModule.spec.button, model.setSavedViewpoint
     ),
     standardButtons.historyButton
 );
@@ -96,11 +96,11 @@ standardButtons.insertBefore(
     standardButtons.deleteButton
 );
 standardButtons.insertBefore(
-    serialization.exportButton(fileMenu).spec,
+    serialization.exportButton(fileMenuModule).spec,
     standardButtons.deleteButton
 );
 
-fileMenuContents.setButtons(standardButtons.ordered);
+fileMenu.setButtons(standardButtons.ordered);
 
 require("./layout/reset-layout-button.js")(toolbar, model.getLayout, update);
 draw.viewpoint.makeLoadViewpointButton(toolbar);
@@ -110,4 +110,4 @@ model.onSet(function() {
     update();
 });
 
-fileMenu.queryString.fromURL();
+fileMenuModule.queryString.fromURL();
