@@ -19,8 +19,7 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
     var lineHeight = parseInt(
 	document.defaultView.getComputedStyle(textElement.node()).fontSize
     ),
-	linesPerH = 1 / lineHeight,
-	heightOffset = 1 * lineHeight;
+	linesPerH = 1 / lineHeight;
     
     var tspans = textElement.selectAll("tspan")
 	    .data(
@@ -99,7 +98,7 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
 	    return 0;
 	})
 	.attr("y", function(d, i) {
-	    return 15 + (i * heightOffset);
+	    return (1 + i) * lineHeight;
 	})
 	.text(function(d, i) {
 	    return d;
