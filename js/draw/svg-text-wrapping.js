@@ -14,19 +14,59 @@ var clamp = function(num) {
     );
 };
 
-// TODO double line separator
+/*
+ Takes a d3 selection of SVG text elements, along with functions to get the text, and desired width and height.
+
+ All the text elements in the selection must have the same font and font-sizes.
+
+ Double line-breaks will be ignored.
+ */
 module.exports = function(textElement, getText, getWidth, getHeight) {
     var lineHeight = parseInt(
 	document.defaultView.getComputedStyle(textElement.node()).fontSize
     ),
-	linesPerH = 1 / lineHeight;
+	linesPerH = 1 / lineHeight,
+	charW = {},
+
+	measureEl = textElement.append("tspan")
+	    .attr("id", "measure-word-length")
+	    .datum({ fake: true }),
+
+	measure = function(word) {
+	    if (!word) {
+		return 0;
+	    } else if (!charW[word]) {
+		measureEl.text(word);
+		var len = measureEl.node().getComputedTextLength();
+		charW[word] = len;
+
+		console.log(word, len);
+		return len;
+	    } else {
+		console.log("found", word, charW[word]);
+		return charW[word];
+	    }
+	},
+
+	truncate = function(word, w) {
+	    var len = word.length;
+	    
+	    while (measure(word) > w) {
+		word = word.substring(0, len - 1);
+		len -= 1;
+	    }
+	    return word.substring(0, len - 2) + "..";
+	};
     
     var tspans = textElement.selectAll("tspan")
+	    .filter(function(d, i) {
+		return !d.fake;
+	    })
 	    .data(
 		function(d, i) {
 		    var w = getWidth(d),
 			h = getHeight(d),
-			charsPerSpan = clamp(charsPerW * w),
+			// charsPerSpan = clamp(charsPerW * w),
 			maxLines = clamp(linesPerH * h),
 		    
 			text = getText(d, i),
@@ -46,21 +86,21 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
 
 			for (var i = 0, len = words.length; i < len; i++) {
 			    var word = words[i],
-				wordLength = word.length;
+				wordLength = measure(word);
 			    
-			    if (wordLength > charsPerSpan) {
+			    if (wordLength > w) {
 				// Truncate words which are too wide to fit.
-				word = word.substring(0, charsPerSpan - 2) + "..";
-				wordLength = charsPerSpan;
+				word = truncate(word, w);
+				wordLength = measure(word);
 			    }
 
 			    if (!current) {
 				current = word;
 				currentLength = wordLength;
 
-			    } else if (currentLength + wordLength < charsPerSpan) {
+			    } else if (currentLength + wordLength < w) {
 				current += " " + word;
-				currentLength += 1 + wordLength;
+				currentLength += measure(" ") + wordLength;
 				
 			    } else {
 				spans.push(current);
@@ -82,11 +122,13 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
 
 		    if (overflow) {
 			var last = spans[spans.length - 1];
-			spans[spans.length - 1] = last.substring(0, charsPerSpan - 2) + "..";
+			spans[spans.length - 1] = truncate(last, w);
 		    }
 
 		    return spans;
 		});
+
+    measureEl.remove();
 
     tspans.exit().remove();
 

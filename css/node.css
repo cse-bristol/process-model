@@ -55,3 +55,9 @@ g.node-type text {
 .handle circle:hover {
     fill: green;
 }
+
+#measure-word-length {
+    position: absolute:
+    top: -9999px;
+    visibility: hidden;
+}
