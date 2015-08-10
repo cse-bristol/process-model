@@ -4,8 +4,6 @@
 
 var _ = require("lodash"),
     charsPerW = 0.13,
-    linesPerH = 0.063,
-    heightOffset = 15,
     lineBreak = /[\r\n]+/,
     wordBreak = /[ \t]+/;
 
@@ -18,6 +16,12 @@ var clamp = function(num) {
 
 // TODO double line separator
 module.exports = function(textElement, getText, getWidth, getHeight) {
+    var lineHeight = parseInt(
+	document.defaultView.getComputedStyle(textElement.node()).fontSize
+    ),
+	linesPerH = 1 / lineHeight,
+	heightOffset = 1 * lineHeight;
+    
     var tspans = textElement.selectAll("tspan")
 	    .data(
 		function(d, i) {
