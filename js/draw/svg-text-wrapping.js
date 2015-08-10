@@ -40,10 +40,8 @@ module.exports = function(textElement, getText, getWidth, getHeight) {
 		var len = measureEl.node().getComputedTextLength();
 		charW[word] = len;
 
-		console.log(word, len);
 		return len;
 	    } else {
-		console.log("found", word, charW[word]);
 		return charW[word];
 	    }
 	},
