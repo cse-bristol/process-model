@@ -17,6 +17,20 @@ var d3 = require("d3"),
 
 module.exports = function(container, defs, getNodeCollection, transitions, update) {
     var circle,
+	disconnect = function(d) {
+	    d3.event.stopPropagation();
+	    d3.event.preventDefault();
+	    
+	    if (d.canModify) {
+		var nodes = getNodeCollection(),
+		    from = nodes.get(d.parentId),
+		    to = nodes.get(d.childId);
+		
+		from.edgeTo(to).disconnect();
+		update();
+	    }
+	},
+	
 	dragNecessitySufficiency = d3.behavior.drag()
 	    .on("dragstart", function(d, i) {
 		d3.event.sourceEvent.stopPropagation();
@@ -102,16 +116,8 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 	    .on("mousedown", function() {
 		d3.event.stopPropagation();
 	    })
-	    .on("click", function(d, i) {
-		if (d.canModify) {
-		    var nodes = getNodeCollection(),
-			from = nodes.get(d.parentId),
-			to = nodes.get(d.childId);
-		    
-		    from.edgeTo(to).disconnect();
-		    update();
-		}
-	    });
+	    .on("click", disconnect)
+	    .on("contextmenu", disconnect);
 
 	transitions.maybeTransition(
 	    edges.select("circle.edge-end"))
@@ -151,6 +157,8 @@ module.exports = function(container, defs, getNodeCollection, transitions, updat
 	    }),
 
 	drawNecessitySufficiency = function(edgeLabels) {
+	    edgeLabels.on("contextmenu", disconnect);
+	    
 	    var weightHalfs = edgeLabels.selectAll("g.weight-half")
 		    .data(
 			function(d, i) {
