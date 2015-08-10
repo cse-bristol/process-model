@@ -6,7 +6,13 @@ var d3 = require("d3"),
     onScroll = require("../helpers.js").onScroll,
     empty = d3.select(),
     circleFraction = require("./circle-fraction.js"),
+    /*
+    The *diameter* of the red/green necessity/sufficiency circle on process-node edges.
+    */
     labelSize = 10,
+    /*
+     The *radius* of the circle at the end of an edge, which is used to disconnect that edge.
+     */
     endSize = 3;
 
 module.exports = function(container, defs, getNodeCollection, transitions, update) {
