@@ -131,7 +131,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 	},
 
 	drawDelete = drawButton(
-	    "X",
+	    "P",
 	    function(d, i) {
 		getNodeCollection().deleteNode(d.id);
 	    },
@@ -140,7 +140,7 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 	),
 
 	drawFocus = drawButton(
-	    "F",
+	    "y",
 	    function(d, i) {
 		viewpoint.focusSubTree(d.id);
 	    },
