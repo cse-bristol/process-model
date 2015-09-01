@@ -4,7 +4,9 @@
 
 var d3 = require("d3"),
     helpers = require("./helpers.js"),
-    noop = helpers.noop;
+    noop = helpers.noop,
+
+    depthSlider = "depth-slider";
 
 /*
  Collapses and expands nodes en masse.
@@ -32,9 +34,17 @@ module.exports = function(toolbar, getNodeCollection, getLayoutState, update) {
 		update();
 	    }),
 
-	slider = toolbar.append("input")
+	sliderWrapper = toolbar.append("div")
+	    .classed("depth-slider-wrapper", true),
+
+	sliderLabel = sliderWrapper.append("label")
+	    .attr("for", depthSlider)
+	    .text("Levels"),
+
+	slider = sliderWrapper.append("input")
 	    .attr("type", "range")
-    	    .classed("depth-slider", true)
+	    .attr("id", depthSlider)
+    	    .classed(depthSlider, true)
 	    .attr("min", 1)
 	    .on("input", function() {
 		var layout = getLayoutState(),
@@ -77,7 +87,7 @@ module.exports = function(toolbar, getNodeCollection, getLayoutState, update) {
 	    slider.node().value = layout.depth() || max;
 
 	    button.classed("enabled", enabled);
-	    slider.classed("enabled", enabled);
+	    sliderWrapper.classed("enabled", enabled);
 	};
 
     redraw();
