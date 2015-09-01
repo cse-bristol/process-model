@@ -31,9 +31,17 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 	},
 
 	drawType = function(margins, newMargins) {
-	    newMargins
+	    var newMarginGroups = newMargins
 		.append("g")
-		.classed("node-type", true)
+		    .classed("node-type", true);
+
+	    newMarginGroups
+		.append("rect")
+		.classed("node-type-background", true)
+		.attr("width", buttonSize)
+		.attr("height", buttonSize);
+	    
+	    newMarginGroups
 		.append("text")
 		.classed("no-select", true)
 		.text(function(d, i){
