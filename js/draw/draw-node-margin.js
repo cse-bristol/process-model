@@ -12,6 +12,7 @@ var d3 = require("d3"),
     buttonSize = constants.buttonSize,
     textXOffset = constants.textXOffset,
     textYOffset = constants.textYOffset,
+    buttonCornerRadius = constants.buttonCornerRadius,
 
     /*
      The value of SVG text scale at which Chrome stops having bugs.
@@ -39,7 +40,9 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 		.append("rect")
 		.classed("node-type-background", true)
 		.attr("width", buttonSize)
-		.attr("height", buttonSize);
+		.attr("height", buttonSize)
+		.attr("rx", buttonCornerRadius)
+		.attr("ry", buttonCornerRadius);
 	    
 	    newMarginGroups
 		.append("text")

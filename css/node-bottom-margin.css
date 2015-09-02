@@ -1,21 +1,35 @@
-.node-choice-process:hover rect {
-    fill: #C0C0C0;
+.node-choice rect {
+	stroke-width: 0.5;
+	stroke: #c9c9c9;
 }
 
-.node-choice-issue:hover rect {
-    fill: #6699EE;
+.node-choice:hover rect {
+	stroke: #626366;
 }
 
-.node-choice-option:hover rect {
-    fill: #55CC55;
+.node-choice-process rect {
+	fill: white;
 }
 
-.node-choice-argument:hover rect {
-    fill: #9966EE;
+.node-choice-issue rect {
+	fill: #c7e2f3;
 }
+
+.node-choice-option rect {
+	fill: #fbf6e4;
+}
+
+.node-choice-argument rect {
+	fill: #9966EE;
+}
+
 
 g.interval.computed {
     cursor: auto;
+}
+
+.interval rect {
+	stroke: #626366;
 }
 
 .interval rect.success {
@@ -36,4 +50,9 @@ g.interval.computed {
 
 .toggleable-text {
     text-anchor: middle;
+}
+
+.node-type rect.node-type-background {
+	fill: #717375;
+	stroke-width: 0;
 }

@@ -144,6 +144,7 @@ body {
 #menu {
 	font-family: 'fira_sansbook';
 	font-size: 14px;
+	z-index: 1;
 }
 
 #menu-bar .menu-item {
@@ -206,7 +207,7 @@ body {
 
 
 #file-menu-contents {
-	width: 15em; /* check this with Glenn */
+	width: 200px; /* check this with Glenn */
 /*
 	-webkit-box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.5);
 	-moz-box-shadow:    0px 0px 10px 0px rgba(0, 0, 0, 0.5);
@@ -232,73 +233,68 @@ a#help:hover,
 	background-color: #282828;
 }
 
-
-
-
-
-
-
-
-
-/* nodes */
-
-.edge-path {
-	stroke-width: 0.5;
-	stroke: #c9c9c9;
+.sub-menu-wrapper {
+	left: 170px;
 }
 
-.process-node {
-	font-size: 10px;
+.sub-menu {
+	background-color: #282828;
+	padding: 25px 0;
+	width: 300px;
 }
 
-.process-node rect {
-	stroke-width: 0.5;
+.sub-menu .version-entry {
+	padding: 10px 25px 10px 60px;
+	position: relative;
 }
 
-.process-node rect.node-box {
-	stroke: #c9c9c9;
-	-webkit-filter: drop-shadow( 3px 3px 2px rgba(0,0,0,.7) );
-	filter: drop-shadow( 3px 3px 2px rgba(0,0,0,.7) ); /* Same syntax as box-shadow */
+.sub-menu .version-entry:hover {
+	color: #08b030;
 }
 
-.process-node g.interval rect {
-	stroke: #626366;
+.sub-menu .version-entry::before {
+	display: block;
+	content: '\2022'; /* disc bullet */
+	font-size: 80px;
+	position: absolute;
+	top: 15px;
+	left: 30px;
+	color: #999;
+	line-height: 0;
+}
+
+.sub-menu .version-entry.current-version {
+	color: #08b030;
+	border: 0;
+}
+
+.sub-menu .version-entry.current-version::before {
+	color: #08b030;
+}
+
+.sub-menu .version-entry.current-version::after {
+	display: block;
+	content: '\0030'; /* tick */
+	font-size: 12px;
+	position: absolute;
+	top: 16px;
+	left: 37px;
+	color: white;
+	line-height: 0;
+	font-family: 'steep';
+	font-style: normal;
+	font-weight: normal;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 
-.process-node rect.node-box-process {
-	fill: white;
-}
 
-.process-node rect.node-box-issue {
-	fill: #c7e2f3;
-}
 
-.process-node rect.node-box-option {
-	fill: #fbf6e4;
-}
 
-g.node-type,
-g.node-choice,
-g.issue-settled-display {
-}
 
-g.name {
-	font-family: 'fira_sanssemibold';
-}
 
-g.delete-button rect,
-g.focus-subtree-tool rect {
-	stroke-width: 0;
-}
 
-g.delete-button {
-	
-}
-
-g.focus-subtree-tool {
-	
-}
 
 
 
@@ -502,11 +498,6 @@ g.focus-subtree-tool {
 	content: '\0079';
 }
 
-.depth-slider {
-	clear: both;
-	margin-bottom: 10px;
-}
-
 #toolbar #viewpoint-saved-indicator-wrapper {
 	left: -11em;
 }
@@ -519,6 +510,27 @@ g.focus-subtree-tool {
 	-webkit-border-radius: 4px;
 	-moz-border-radius: 4px;
 	border-radius: 4px;
+}
+
+
+
+#toolbar .depth-slider-wrapper {
+	display: none;
+	width: auto;
+	clear: none;
+	text-indent: 0;
+	float: left;
+	margin-right: 10px;
+}
+
+#toolbar .depth-slider-wrapper.enabled {
+	display: block;
+}
+
+#toolbar .depth-slider-wrapper label {
+	display: block;
+	float: left;
+	margin-right: 10px;
 }
 
 

@@ -33,7 +33,7 @@ Width and height must be 0, otherwise the origin of those transforms will be in 
 
 .edit-name {
     margin-top: 1px;    
-    height: 1em;
+    height: 1.4em;
     -moz-user-modify: read-write-plaintext-only;
     -webkit-user-modify: read-write-plaintext-only;
     -ms-user-modify: read-write-plaintext-only;

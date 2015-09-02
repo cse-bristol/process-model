@@ -4,6 +4,7 @@
 
 module.exports = {
     buttonSize: 15,
-    textXOffset: 3,
-    textYOffset: 12
+    textXOffset: 5,
+    textYOffset: 11,
+	buttonCornerRadius: 2
 };
