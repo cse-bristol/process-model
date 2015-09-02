@@ -9,6 +9,7 @@
  */
 module.exports = function(toolbar, getLayout, refresh) {
     toolbar.append("div")
+    	.classed("toolbar-button", true)
 	.attr("id", "tidy-button")
 	.text("Tidy")
 	.on("click", function() {

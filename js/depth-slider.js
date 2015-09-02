@@ -19,6 +19,7 @@ var d3 = require("d3"),
 module.exports = function(toolbar, getNodeCollection, getLayoutState, update) {
     var button = toolbar.append("div")
 	    .attr("id", "levels-button")
+	    .classed("toolbar-button", true)    
 	    .text("Levels")
 	    .on("click", function() {
 		var layout = getLayoutState(),

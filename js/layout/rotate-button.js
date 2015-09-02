@@ -4,14 +4,15 @@
 
 module.exports = function(toolbar, getLayoutState, update) {
     var button = toolbar.append("div")
-	.attr("id", "rotate-button")
-	.text("Rotate")
-	.on("click", function() {
-	    getLayoutState()
-		.toggleOrientation();
+	    .attr("id", "rotate-button")
+    	    .classed("toolbar-button", true)
+	    .text("Rotate")
+	    .on("click", function() {
+		getLayoutState()
+		    .toggleOrientation();
 
-	    update();
-	});
+		update();
+	    });
 
     var redraw = function() {
 	var layout = getLayoutState();
