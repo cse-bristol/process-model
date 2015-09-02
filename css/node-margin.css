@@ -1,10 +1,7 @@
 .margin-button {
+	font-family: 'fira_sansregular';
+	font-size: 8px;
     cursor: pointer;
-    font-family: monospace;    
-}
-
-.margin-button rect {
-    fill: white;
 }
 
 .margin-button:hover text {

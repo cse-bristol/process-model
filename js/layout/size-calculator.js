@@ -6,9 +6,9 @@ var d3 = require("d3"),
 
     defaultNodeWidth = 100,
     defaultNodeHeight = 100,
-    horizontalMargin = 5,
+    horizontalMargin = 8,
     bottomMargin = 20,
-    topMargin = 5;
+    topMargin = 8;
     
 
 /*

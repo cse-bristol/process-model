@@ -3,23 +3,31 @@ Styles about nodes.
  */
 g.process-node {
     cursor: move;
+	font-size: 10px;
 }
 
 .process-node rect {
+	stroke-width: 0.5;
     stroke: #708090;
     fill: white;
 }
 
+.process-node rect.node-box {
+	stroke: #c9c9c9;
+	-webkit-filter: drop-shadow( 0px 0px 1px  rgba(0,0,0,0.3) );
+	filter: drop-shadow( 0px 0px 1px  rgba(0,0,0,0.3) ); /* Same syntax as box-shadow */
+}
+
 .process-node rect.node-box-process {
-    fill: #C0C0C0;
+	fill: white;
 }
 
 .process-node rect.node-box-issue {
-    fill: #6699EE;
+	fill: #c7e2f3;
 }
 
 .process-node rect.node-box-option {
-    fill: #55CC55;
+	fill: #fbf6e4;
 }
 
 .process-node rect.node-box-argument {
@@ -31,8 +39,9 @@ g.toggleable-text {
 }
 
 g.node-type text {
-    font-family: monospace;
-    fill: maroon;
+	fill: white;
+	font-family: 'fira_sansregular';
+	font-size: 8px;
 }
 
 .resize-handle {

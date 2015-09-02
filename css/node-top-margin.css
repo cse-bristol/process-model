@@ -1,23 +1,30 @@
+.name {
+	font-family: 'fira_sanssemibold';
+}
+
 .node-top-margin .margin-button {
     visibility: hidden;
+}
+
+.node-top-margin .margin-button rect {
+	stroke-width: 0;
 }
 
 .process-node:hover .node-top-margin .margin-button {
     visibility: visible;
 }
 
-.delete-button:hover rect {
-    fill: red;
+
+.delete-button,
+.focus-subtree-tool {
+	font-family: 'steep';
+	font-style: normal;
+	font-weight: normal;
+	font-size: 10px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
-.expand-button:hover rect {
-    fill: deepskyblue;
-}
-
-.contract-button:hover rect {
-    fill: deepskyblue;
-}
-
-.focus-subtree-tool:hover rect {
-    fill: limegreen;
+.margin-button.focus-subtree-tool rect {
+	fill: #eee;
 }

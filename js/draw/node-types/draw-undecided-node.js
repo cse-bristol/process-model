@@ -7,7 +7,9 @@ var d3 = require("d3"),
     constants = require("../drawing-constants.js"),
     buttonSize = constants.buttonSize,
     textXOffset = constants.textXOffset,
-    textYOffset = constants.textYOffset;    
+    textYOffset = constants.textYOffset,
+    buttonCornerRadius = constants.buttonCornerRadius;
+
 
 module.exports = function(getNodeCollection, transitions, viewpoint, update) {
     return function(nodes, newNodes, margins, newMargins) {
@@ -57,7 +59,9 @@ module.exports = function(getNodeCollection, transitions, viewpoint, update) {
 
 	newOptions.append("rect")
 	    .attr("width", buttonSize)
-	    .attr("height", buttonSize);
+	    .attr("height", buttonSize)
+		.attr("rx", buttonCornerRadius)
+		.attr("ry", buttonCornerRadius);
 
 	newOptions.append("text")
 	    .attr("x", textXOffset)
