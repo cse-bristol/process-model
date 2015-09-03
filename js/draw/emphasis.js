@@ -32,13 +32,16 @@ module.exports = function(defs) {
 		.attr("stdDeviation", thickness)
 		.attr("result", "blur");
 
+	    // Using the above's boundaries, make transparent black box.
 	    filter.append("feFlood")
 		.attr("flood-color", "rgba(0,0,0," + opacity + ")");
 
+	    // Composite the transparent back box with the blur to make a lighter blur.
 	    filter.append("feComposite")
 		.attr("in2", "blur")
 		.attr("operator", "in");
 
+	    // Put the node on top of its drop-shadow.
 	    var merge = filter.append("feMerge");
 
 	    merge.append("feMergeNode");
