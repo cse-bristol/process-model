@@ -6,7 +6,6 @@ var d3 = require("d3"),
     allowedTypes = require("../../state/graph/allowed-types.js"),
     constants = require("../drawing-constants.js"),
     buttonSize = constants.buttonSize,
-    textYOffset = constants.textYOffset,
     buttonCornerRadius = constants.buttonCornerRadius;
 
 
@@ -65,7 +64,8 @@ module.exports = function(getNodeCollection, transitions, viewpoint, update) {
 	newOptions.append("text")
 	    .attr("text-anchor", "middle")
 	    .attr("x", buttonSize / 2)
-	    .attr("y", textYOffset)
+	    .attr("dominant-baseline", "central")
+	    .attr("y", buttonSize / 2)
 	    .text(function(d, i) {
 		return d.option[0].toUpperCase();
 	    });

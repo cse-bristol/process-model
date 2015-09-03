@@ -10,7 +10,6 @@ var d3 = require("d3"),
 
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
-    textYOffset = constants.textYOffset,
     buttonCornerRadius = constants.buttonCornerRadius,
 
     /*
@@ -54,7 +53,8 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 		    return d.type[0].toUpperCase();
 		})
 		.attr("x", buttonSize / 2)
-		.attr("y", textYOffset);
+		.attr("dominant-baseline", "central")
+		.attr("y", buttonSize / 2);
 	},
 
 	drawNodeName = function(topMargins, newTopMargins) {
@@ -121,7 +121,8 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 		    .text(buttonText)
 		    .attr("text-anchor", "middle")
 		    .attr("x", buttonSize / 2)
-		    .attr("y", textYOffset);
+		    .attr("dominant-baseline", "central")
+		    .attr("y", buttonSize / 2);
 
 		var buttons = margins.select("g." + cssClass);
 
