@@ -4,6 +4,7 @@
 
 module.exports = function(toolbar, getSavedViewpoint, pushViewpointState, onViewpointSaved, update) {
     var button = toolbar.append("div")
+    	    .classed("toolbar-button", true)
 	    .attr("id", "load-viewpoint-button")
 	    .text("Load Viewpoint")
 	    .on("click", function() {

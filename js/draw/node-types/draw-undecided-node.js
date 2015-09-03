@@ -6,8 +6,6 @@ var d3 = require("d3"),
     allowedTypes = require("../../state/graph/allowed-types.js"),
     constants = require("../drawing-constants.js"),
     buttonSize = constants.buttonSize,
-    textXOffset = constants.textXOffset,
-    textYOffset = constants.textYOffset,
     buttonCornerRadius = constants.buttonCornerRadius;
 
 
@@ -64,8 +62,10 @@ module.exports = function(getNodeCollection, transitions, viewpoint, update) {
 		.attr("ry", buttonCornerRadius);
 
 	newOptions.append("text")
-	    .attr("x", textXOffset)
-	    .attr("y", textYOffset)
+	    .attr("text-anchor", "middle")
+	    .attr("x", buttonSize / 2)
+	    .attr("dominant-baseline", "central")
+	    .attr("y", buttonSize / 2)
 	    .text(function(d, i) {
 		return d.option[0].toUpperCase();
 	    });

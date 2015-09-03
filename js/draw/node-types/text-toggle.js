@@ -5,7 +5,7 @@
 var d3 = require("d3"),
 
     constants = require("../drawing-constants.js"),
-    textYOffset = constants.textYOffset;
+    textYOffset = constants.buttonSize / 2;
 
 /*
  Draws some read-only text. Clicking on it will toggle it between states and colours.
@@ -17,6 +17,7 @@ module.exports = function(getNodeCollection, transitions, update, clazz, text, c
 	    .classed("toggleable-text", true)
 	    .classed("no-select", true)
 	    .append("text")
+	    .attr("dominant-baseline", "central")
 	    .attr("y", textYOffset)
 	    .on("mousedown", function(d, i) {
 		/*

@@ -10,6 +10,7 @@ module.exports = function(update, toolbar) {
 
     toolbar.append("div")
 	.attr("id", "margins-toggle")
+    	.classed("toolbar-button", true)
 	.text("Margins")
 	.classed("enabled", enabled)
 	.on("click", function(d, i) {

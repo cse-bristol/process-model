@@ -12,18 +12,54 @@ var deEmphasizeId = "desaturate-blur",
 	0, 0, 0, 1, 0
     ],
 
-    emphasizeId = "drop-shadow";
+    emphasizeId = "focus-drop-shadow",
+    emphasizeThickness = 2,
+    emphasizeOpacity = 0.5,
+    
+    normalId = "standard-drop-shadow",
+    normalThickness = 2,
+    normalOpacity = 0.3;
 
 module.exports = function(defs) {
     var asCSS = function(elementId) {
 	return "url(#" + elementId + ")";
     },
 
-	deemphasisFilter = defs.append("filter")
-	    .attr("id", deEmphasizeId),
+	makeDropShadow = function(filter, thickness, opacity) {
+	    // Make a blurred version of the node.
+	    filter.append("feGaussianBlur")
+		.attr("in", "SourceAlpha")
+		.attr("stdDeviation", thickness)
+		.attr("result", "blur");
+
+	    // Using the above's boundaries, make transparent black box.
+	    filter.append("feFlood")
+		.attr("flood-color", "rgba(0,0,0," + opacity + ")");
+
+	    // Composite the transparent back box with the blur to make a lighter blur.
+	    filter.append("feComposite")
+		.attr("in2", "blur")
+		.attr("operator", "in");
+
+	    // Put the node on top of its drop-shadow.
+	    var merge = filter.append("feMerge");
+
+	    merge.append("feMergeNode");
+
+	    merge.append("feMergeNode")
+		.attr("in", "SourceGraphic");
+	},
+
+	standardDropShadow = defs.append("filter")
+	    .attr("id", normalId)
+	    .call(makeDropShadow, normalThickness, normalOpacity),
 
 	emphasisFilter = defs.append("filter")
-	    .attr("id", emphasizeId);
+	    .attr("id", emphasizeId)
+	    .call(makeDropShadow, emphasizeThickness, emphasizeOpacity),
+
+	deemphasisFilter = defs.append("filter")
+	    .attr("id", deEmphasizeId);
 
     deemphasisFilter.append("feGaussianBlur")
 	.attr("in", "SourceGraphic")
@@ -32,23 +68,6 @@ module.exports = function(defs) {
     deemphasisFilter.append("feColourMatrix")
 	.attr("type", "matrix")
 	.attr("values", desaturatedMatrix.join(" "));
-
-    // Make a blurred version of the node.
-    emphasisFilter.append("feGaussianBlur")
-	.attr("in", "SourceAlpha")
-	.attr("stdDeviation", 3);
-
-    // Offset it slightly.
-    emphasisFilter.append("feOffset")
-	.attr("dx", 2)
-	.attr("dy", 3);
-
-    var emphasisMerge = emphasisFilter.append("feMerge");
-
-    emphasisMerge.append("feMergeNode");
-
-    emphasisMerge.append("feMergeNode")
-	.attr("in", "SourceGraphic");
     
     return function(selection, newSelection) {
 	selection.style("filter", function(d, i) {
@@ -58,7 +77,7 @@ module.exports = function(defs) {
 	    } else if (d.effects.blurOut) {
 		return asCSS(deEmphasizeId);
 	    } else {
-		return null;
+		return asCSS(normalId);
 	    }
 	});
     };

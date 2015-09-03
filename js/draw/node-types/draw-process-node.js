@@ -7,8 +7,10 @@ var d3 = require("d3"),
     helpers = require("../../helpers.js"),
     onScroll = helpers.onScroll,
 
-    // This constant should probably be moved somewhere else.
-    magicLeftOffset = 10,
+    constants = require("../drawing-constants.js"),
+    buttonSize = constants.buttonSize,    
+
+    leftPadding = 5 + buttonSize,
     computedClass = "computed";
 
 module.exports = function(drawJunctions, redrawNode, getNodeCollection, transitions, update) {
@@ -21,8 +23,8 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, transiti
 	    })
 	    .on("drag", function(d, i) {
 		var evidence = d.node.evidence.slice(0),
-		    scale = d.node.innerWidth - magicLeftOffset,
-		    newWidth = d3.event.x - magicLeftOffset;
+		    scale = d.node.innerWidth - leftPadding,
+		    newWidth = d3.event.x - leftPadding;
 
 		if (modifyIndex === undefined || modifyIndex === null) {
 		    switch (d.type) {
@@ -136,10 +138,10 @@ module.exports = function(drawJunctions, redrawNode, getNodeCollection, transiti
 
 	    transitions.maybeTransition(parts)
 		.attr("x", function(d, i) {
-		    return d.node.margin.horizontal + magicLeftOffset + ((d.node.innerWidth - magicLeftOffset) * d.x) + "px";
+		    return d.node.margin.horizontal + leftPadding + ((d.node.innerWidth - leftPadding) * d.x) + "px";
 		})
 		.attr("width", function(d, i) {
-		    return (d.node.innerWidth - magicLeftOffset) * d.width + "px";
+		    return (d.node.innerWidth - leftPadding) * d.width + "px";
 		});
 	};
 

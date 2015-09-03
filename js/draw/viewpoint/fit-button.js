@@ -9,6 +9,7 @@ var d3 = require("d3");
  */
 module.exports = function(toolbar, hasWholeModelView, setWholeModelView, clearWholeModelView) {
     var button = toolbar.append("div")
+	    .classed("toolbar-button", true)
 	    .attr("id", "fit-button")
 	    .text("Fit")
 	    .on("click", function() {

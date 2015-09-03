@@ -10,8 +10,6 @@ var d3 = require("d3"),
 
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
-    textXOffset = constants.textXOffset,
-    textYOffset = constants.textYOffset,
     buttonCornerRadius = constants.buttonCornerRadius,
 
     /*
@@ -34,7 +32,10 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 	drawType = function(margins, newMargins) {
 	    var newMarginGroups = newMargins
 		.append("g")
-		    .classed("node-type", true);
+		    .classed("node-type", true)
+		    .attr("transform", function(d, i) {
+			return "translate(" + d.margin.horizontal + ",0)";
+		    });
 
 	    newMarginGroups
 		.append("rect")
@@ -47,11 +48,13 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 	    newMarginGroups
 		.append("text")
 		.classed("no-select", true)
+		.attr("text-anchor", "middle")
 		.text(function(d, i){
 		    return d.type[0].toUpperCase();
 		})
-		.attr("x", textXOffset)
-		.attr("y", textYOffset);
+		.attr("x", buttonSize / 2)
+		.attr("dominant-baseline", "central")
+		.attr("y", buttonSize / 2);
 	},
 
 	drawNodeName = function(topMargins, newTopMargins) {
@@ -116,8 +119,10 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 
 		newButtons.append("text")
 		    .text(buttonText)
-		    .attr("x", textXOffset)
-		    .attr("y", textYOffset);
+		    .attr("text-anchor", "middle")
+		    .attr("x", buttonSize / 2)
+		    .attr("dominant-baseline", "central")
+		    .attr("y", buttonSize / 2);
 
 		var buttons = margins.select("g." + cssClass);
 
