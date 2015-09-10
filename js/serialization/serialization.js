@@ -19,7 +19,7 @@ module.exports = function(body, model) {
 		);
 	    },
 	    xml: function(fileName, content) {
-		model.fromNodes(
+		model.setFromNodes(
 		    perimetaDeserialize(content)
 		);
 	    }
