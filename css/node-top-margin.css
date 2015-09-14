@@ -14,6 +14,18 @@
     visibility: visible;
 }
 
+/*
+Chrome has some weird behaviour which means that sometimes the focus/delete buttons don't show up on mouse hover:
+ + Intermittent
+ + Could be fixed by toggling the style rules.
+ + Usually affected all nodes except for the most recently drawn.
+
+This CSS rule fixes it. I'm not entirely sure why - I just had a hunch that it would work, and it did. Magic.
+ */
+.node-top-margin:hover .margin-button {
+    visibility: visible;
+}
+
 
 .delete-button,
 .focus-subtree-tool {
