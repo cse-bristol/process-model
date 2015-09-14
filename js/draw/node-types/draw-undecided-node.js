@@ -6,6 +6,7 @@ var d3 = require("d3"),
     allowedTypes = require("../../state/graph/allowed-types.js"),
     constants = require("../drawing-constants.js"),
     buttonSize = constants.buttonSize,
+    paddingBetweenButtons = constants.paddingBetweenButtons,
     buttonCornerRadius = constants.buttonCornerRadius;
 
 
@@ -72,7 +73,7 @@ module.exports = function(getNodeCollection, transitions, viewpoint, update) {
 
 	transitions.maybeTransition(typeOptions)
 	    .attr("transform", function(d, i) {
-		var horizontal = d.viewModel.size[0] - ((i + 1) * buttonSize) - d.viewModel.margin.horizontal,
+		var horizontal = d.viewModel.size[0] - ((i + 1) * (buttonSize + paddingBetweenButtons)) - d.viewModel.margin.horizontal,
 		    vertical = d.viewModel.size[1] - buttonSize - 5;
 		
 		return "translate(" + horizontal + "," + vertical + ")";
