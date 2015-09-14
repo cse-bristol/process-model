@@ -10,6 +10,7 @@ var d3 = require("d3"),
 
     constants = require("./drawing-constants.js"),
     buttonSize = constants.buttonSize,
+    paddingBetweenButtons = constants.paddingBetweenButtons,
     buttonCornerRadius = constants.buttonCornerRadius,
 
     /*
@@ -93,8 +94,6 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 	},
 
 	drawButton = function(buttonText, onClick, cssClass, position) {
-	    position += 1;
-	    
 	    return function(margins, newMargins) {
 		var newButtons = newMargins.append("g")
 			.classed("margin-button", true)
@@ -128,7 +127,10 @@ module.exports = function(getNodeCollection, getLayoutState, viewpoint, transiti
 
 		transitions.maybeTransition(buttons)
 		    .attr("transform", function(d, i) {
-			return "translate(" + (d.size[0] - (position * buttonSize) - d.margin.horizontal)  + "," + d.margin.top  + ")";
+			var horizontal = d.size[0] - d.margin.horizontal - buttonSize,
+			    vertical = d.margin.top + (position * (buttonSize + paddingBetweenButtons));
+			
+			return "translate(" + horizontal + "," + vertical + ")";
 		    });
 
 		buttons.select("rect")
