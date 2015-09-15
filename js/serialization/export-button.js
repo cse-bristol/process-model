@@ -12,7 +12,12 @@ module.exports = function(getTitle, onTitleChange, serialize, getModel, makeButt
 	setDownloadAttr = function(button) {
 	    var title = getTitle();
 	    
-	    button.attr("download", title ? title : "untitled process-model" + ".json");	    
+	    button.attr(
+		"download",
+		title ?
+		    (title + ".json") :
+		    ("untitled process-model" + ".json")
+	    );	    
 	};
 
     return {
