@@ -27,8 +27,8 @@ This CSS rule fixes it. I'm not entirely sure why - I just had a hunch that it w
 }
 
 
-.delete-button,
-.focus-subtree-tool {
+.delete-button text,
+.focus-subtree-tool text {
 	font-family: 'steep';
 	font-style: normal;
 	font-weight: normal;
