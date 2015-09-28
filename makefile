@@ -1,4 +1,4 @@
-.PHONY: build npm js css clean tests watch;
+.PHONY: build js npm css libcss fonts tests clean watch;
 
 build: js css fonts;
 
