@@ -111,3 +111,8 @@ model.onSet(function() {
 });
 
 fileMenuModule.queryString.fromURL();
+
+/*
+ Redo pan and zoom when we resize.
+ */
+d3.select(window).on('resize', draw.viewpoint.update);
