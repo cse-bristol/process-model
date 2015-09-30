@@ -29,7 +29,7 @@ This CSS rule fixes it. I'm not entirely sure why - I just had a hunch that it w
 
 .delete-button text,
 .focus-subtree-tool text {
-	font-family: 'steep';
+	font-family: 'steep-icons';
 	font-style: normal;
 	font-weight: normal;
 	font-size: 10px;
