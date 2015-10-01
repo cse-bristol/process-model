@@ -67,12 +67,6 @@ var d3 = require("d3"),
 
     draw = require("./draw/draw.js")(body, svg, fileMenuModule.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, modelOperations.writeBufferedOperations, update),    
 
-    insertButton = require("./insert-button.js")(
-	fileMenuModule.store.loadSnapshot,
-	model.merge,
-	update,
-	fileMenuModule.spec.button),
-
     zoomButtons = draw.viewpoint.makeZoomButtons(toolbar),
     fitButton = draw.viewpoint.makeFitButton(toolbar),
     rotateButton = require("./layout/rotate-button.js")(toolbar, model.getLayout, update),
@@ -82,7 +76,14 @@ var d3 = require("d3"),
     fileMenu = fileMenuModule.buildMenu(
 	body
     ),
-    standardButtons = fileMenu.standardButtons;
+    standardButtons = fileMenu.standardButtons,
+    insertButton = require("./insert-button.js")(
+	fileMenuModule.store.loadSnapshot,
+	model.merge,
+	update,
+	fileMenuModule.spec.button,
+	standardButtons.search
+    );
 
 standardButtons.insertBefore(
     draw.viewpoint.makeSetViewpointButton(
