@@ -144,19 +144,19 @@ module.exports = function(nodes) {
 		*/
 		var otherDepth = layout.depth();
 		if (otherDepth === null) {
-		    module.setDepth(null);
+		    m.setDepth(null);
 		} else {
 		    if (otherDepth > depth) {
-			module.setDepth(otherDepth);
+			m.setDepth(otherDepth);
 		    }
 		}
 	    }
 	    
 	    layout.position().forEach(function(id, position) {
-		module.position(id, position);
+		m.position(id, position);
 	    });
 	    layout.size().forEach(function(id, position) {
-		module.size(id, position);
+		m.size(id, position);
 	    });
 	}	
     };
