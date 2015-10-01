@@ -8,5 +8,5 @@ set -e;
 # Symlink css files from library into the /libcss folder.
 
 mkdir -p libcss;
-ln -s -T ../node_modules/multiuser-file-menu/css libcss/multiuser-file-menu;
-ln -s -T ../node_modules/zenpen-toolbar/css libcss/zenpen-toolbar;
+ln -s -f -T ../node_modules/multiuser-file-menu/css libcss/multiuser-file-menu;
+ln -s -f -T ../node_modules/zenpen-toolbar/css libcss/zenpen-toolbar;
