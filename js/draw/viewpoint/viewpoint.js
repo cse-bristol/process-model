@@ -15,7 +15,7 @@ var d3 = require("d3"),
 
     viewpointHistoryFactory = require("./viewpoint-history.js"),
 
-    queryParam = "focus";
+    queryParam = "viewpoint";
 
 module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpoint, setSavedViewpoint, onViewpointSaved, update, transitions, getSVGNodes) {
     /*
@@ -191,17 +191,25 @@ module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpo
 	},
 
 	onSetModel: function() {
-	    var focusNodeId = queryString.readParameter(queryParam);
+	    var qsViewpoint = queryString.readParameter(queryParam);
 
-	    if (focusNodeId && getNodeCollection().has(focusNodeId)) {
-		state.focusSubTree(focusNodeId);
-	    } else {
-		state.reset();
-		
-		state.pushSavedState(
-		    getSavedViewpoint()
-		);
+	    if (qsViewpoint) {
+		try {
+		    state.pushSerializedState(
+			JSON.parse(qsViewpoint)
+		    );
+
+		    return;
+		} catch (e) {
+		    console.error(e);
+		}
 	    }
+
+	    state.reset();
+	    
+	    state.pushSavedState(
+		getSavedViewpoint()
+	    );
 	},
 
 	zoom: zoom

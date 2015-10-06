@@ -4,7 +4,8 @@
 
 var state = require("../../state/viewpoint-state.js"),
     modes = state.modes,
-    createState = state.create;
+    createState = state.create,
+    deserialize = state.deserialize;
 
 /*
  Wraps the viewpoint state.
@@ -66,6 +67,14 @@ module.exports = function() {
 	    if (state) {
 		states.push(state);
 	    }
+	},
+
+	pushSerializedState: function(serializedState) {
+	    states.push(
+		deserialize(
+		    serializedState
+		)
+	    );
 	},
 
 	getCurrentState: currentState,
