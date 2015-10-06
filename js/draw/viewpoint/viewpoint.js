@@ -97,6 +97,10 @@ module.exports = function(svg, g, queryString, getNodeCollection, getSavedViewpo
 	    }
 	},
 
+	getSerializedState: function() {
+	    return state.getCurrentState().serialize();
+	},
+
 	centreNode: function(nodeId) {
 	    state.centreNode(nodeId);
 	    update();

@@ -65,7 +65,11 @@ var d3 = require("d3"),
     
     modelOperations = require("./serialization/model-operations.js")(fileMenuModule.store.writeOp, fileMenuModule.store.onOp, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, model.set, model.onSet, update),
 
-    draw = require("./draw/draw.js")(body, svg, fileMenuModule.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, modelOperations.writeBufferedOperations, update),    
+    draw = require("./draw/draw.js")(body, svg, fileMenuModule.queryString, model.getNodes, model.getLayout, model.getSavedViewpoint, model.setSavedViewpoint, model.onViewpointSaved, modelOperations.writeBufferedOperations, update),
+
+    exposeViewpoint = require('./expose-viewpoint.js')(
+	draw.viewpoint
+    ),
 
     zoomButtons = draw.viewpoint.makeZoomButtons(toolbar),
     fitButton = draw.viewpoint.makeFitButton(toolbar),
