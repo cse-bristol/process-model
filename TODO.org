@@ -1,3 +1,12 @@
+* Usability
+** Keyboard Shortcuts
+We should add keyboard shortcuts to allow people to quickly edit the model.
+
+This might involve a notion of a /currently selected node/ along with jumplists.
+
+** Tooltips
+Process-models are not immediately obvious, and this program is very icon-centric. We expect that users will have had some sort of instruction, but it would still be helpful to have some tooltips.
+
 * Layout
 There may be some interest in supporting different layouts. For example, a radial layout with the root at the centre.
 
