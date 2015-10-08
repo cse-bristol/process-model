@@ -16,7 +16,7 @@ We implement a process model as a directed acyclic graph.
  + Import from PeriMeta XML files.
 
 ** Future Plans
- + The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and possibly correction.
+See [[file:TODO.org][TODO.org]].
 
 ** Source code
 [[https://github.com/cse-bristol/process-model][Get the source code]]
