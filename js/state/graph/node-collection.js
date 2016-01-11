@@ -116,7 +116,7 @@ module.exports = function() {
 	    }
 
 	    var replacement = getOrCreateNode(type);
-	    replacement.name(node.name());
+	    replacement.setName(node.name());
 
 	    onNodeChooseType(node, replacement);
 	    
