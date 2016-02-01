@@ -7,6 +7,9 @@ This might involve a notion of a /currently selected node/ along with jumplists.
 ** Tooltips
 Process-models are not immediately obvious, and this program is very icon-centric. We expect that users will have had some sort of instruction, but it would still be helpful to have some tooltips.
 
+** Right-clicks
+Mobile devices don't have right mouse buttons. Can we remove right-clicks from the program?
+
 * Layout
 There may be some interest in supporting different layouts. For example, a radial layout with the root at the centre.
 
@@ -16,6 +19,16 @@ A way to view all the nodes for an arbitrarily large graph at once. This is orth
 Hyperbolic view does not work very well with highly interconnected graphs: the edges end up criss-crossing the middle.
 
 We can approximate it by applying a hyperbolic transform to the scale and position of each node and edge. This looks ok as long as nodes and edges are small relative to the graph as a whole.
+
+* Alternative Properties
+At the moment, nodes have a name, a description, and an italian flag. 
+
+We should consider attaching other things to them in order to make them a more general online post-it tool.
+
+ + Coloured dots (indicating preference)
+ + Tables
+ + Key-value pairs
+ + Categories
 
 * Maths
 The algorithm for combining the failure/success chances (interval probabilities) from multiple pieces of evidence needs review and correction.
@@ -30,6 +43,30 @@ In general the performance is acceptable, but it is a little jerky with very lar
 * Printing
 When printing, the process-model isn't positioned as you'd expect. There are probably some special considerations when printing SVGs from the browser.
 
-* Bugs
-** Autosave
+* Synchronization
+** Bugs
 Auto mode has some bugs. In particular, text editing can lead to a continuous loop of edits bouncing back and forth between browsers.
+
+We should squash these.
+
+** Auto mode as collaboration
+It's not very helpful for just one person to have auto-mode on.
+
+It may be worth rethinking how this works before doing anything else. For example, we could inform people if someone else has turned auto on.
+
+** Prompt on Change
+In non-auto mode, it would be useful to warn when someone else has made changes to our document. This could then prompt:
+ + Ignore their changes
+ + Revert your copy to include theirs
+ + Merge theirs in
+ + Engage auto mode
+
+** Observe other users
+We'd like to be able to see when other people are editing the same document as us.
+
+It might also be helpful to see the positions of their mouse cursor and text caret.
+
+** Move OT to client side
+We could re-implement user operations as operational transforms, separating actions which you perform on the state from the state itself.
+
+This would allow us to merge in other people's changes.
