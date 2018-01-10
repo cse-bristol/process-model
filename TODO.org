@@ -14,14 +14,14 @@ Mobile devices don't have right mouse buttons. Can we remove right-clicks from t
 There may be some interest in supporting different layouts. For example, a radial layout with the root at the centre.
 
 ** Hyperbolic View
-A way to view all the nodes for an arbitrarily large graph at once. This is orthogonal to layout. 
+A way to view all the nodes for an arbitrarily large graph at once. This is orthogonal to layout.
 
 Hyperbolic view does not work very well with highly interconnected graphs: the edges end up criss-crossing the middle.
 
 We can approximate it by applying a hyperbolic transform to the scale and position of each node and edge. This looks ok as long as nodes and edges are small relative to the graph as a whole.
 
 * Alternative Properties
-At the moment, nodes have a name, a description, and an italian flag. 
+At the moment, nodes have a name, a description, and an italian flag.
 
 We should consider attaching other things to them in order to make them a more general online post-it tool.
 
@@ -40,6 +40,8 @@ In practice, we do not care that much about correctness here, since any algorith
 * Performance
 In general the performance is acceptable, but it is a little jerky with very large process-models (upwards of 100 nodes).
 
+This is mainly due to the styling effects (shadows and so on).
+
 * Printing
 When printing, the process-model isn't positioned as you'd expect. There are probably some special considerations when printing SVGs from the browser.
 
@@ -53,6 +55,8 @@ We should squash these.
 It's not very helpful for just one person to have auto-mode on.
 
 It may be worth rethinking how this works before doing anything else. For example, we could inform people if someone else has turned auto on.
+
+This was probably a bad design in general: I suspect it might be better to have separate URLs for collarboratively working on a document vs presenting a finished one.
 
 ** Prompt on Change
 In non-auto mode, it would be useful to warn when someone else has made changes to our document. This could then prompt:
